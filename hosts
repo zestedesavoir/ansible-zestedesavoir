@@ -1,0 +1,10 @@
+[production]
+zdsprod1.zestedesavoir.com
+
+[beta]
+scaleway.zestedesavoir.com
+
+
+[app:children]
+production
+beta

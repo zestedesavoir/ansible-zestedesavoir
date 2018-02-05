@@ -1,0 +1,6 @@
+---
+workdir: /opt/zds
+logdir: /var/log/zds
+appuser: zds
+env: dev
+secrets: []

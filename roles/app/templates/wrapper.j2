@@ -1,0 +1,20 @@
+#!/bin/sh
+
+BASE={{ workdir }}
+PYTHON=$BASE/virtualenv/bin/python
+APP=$BASE/app
+TARGET_USER={{ appuser }}
+
+if [ $USER != $TARGET_USER ]; then
+        sudo -u $TARGET_USER $0 $@
+        exit $?
+fi
+
+export DJANGO_SETTINGS_MODULE=zds.settings.{{ env }}
+export ZDS_CONFIG=$BASE/config.toml
+
+# OH NOES
+# See zestedesavoir/zds-site#4867
+cd $APP
+
+$PYTHON $APP/manage.py $@

@@ -1,0 +1,6 @@
+- hosts: default
+  vars:
+    appversion: v26-monty
+  roles:
+    - common
+    - app

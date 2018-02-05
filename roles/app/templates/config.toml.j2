@@ -1,0 +1,41 @@
+ensure_settings_module = 'zds.settings.{{ env }}'
+
+secret_key = "XXXXX"
+
+[social_auth]
+{% if 'facebook' in secrets %}
+facebook_key = "{{ secrets.facebook.key }}"
+facebook_secret = "{{ secrets.facebook.secret }}"
+{% endif %}
+{% if 'twitter' in secrets %}
+twitter_key = "{{ secrets.twitter.key }}"
+twitter_secret = "{{ secrets.twitter.secret }}"
+{% endif %}
+{% if 'google' in secrets %}
+google_oauth2_key = "{{ secrets.google.key }}"
+google_oauth2_secret = "{{ secrets.google.secret }}"
+{% endif %}
+
+[zds]
+google_analytics_id = "XXXXX"
+google_tag_manager_id = "XXXXX"
+
+votes_id_limit = 131319
+publications_being_written_forum_id = 23
+member_bot_username = "Clem"
+member_external_username = "Auteur externe"
+member_anonymous_username = "anonyme"
+association_fee = "25 €"
+
+[databases.default]
+name = "XXXXX"
+user = "XXXXX"
+password = "XXXXX"
+
+[raven]
+{% if sentry_dsn is defined %}
+dsn = "{{ sentry_dsn }}"
+{% endif %}
+
+[elasticsearch]
+shards = 3

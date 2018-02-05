@@ -1,0 +1,10 @@
+---
+
+- name: should have some base packages
+  become: true
+  action: >
+    apt name={{ item }} state=present update_cache=yes
+  with_items:
+    - vim
+    - git
+    - zsh
