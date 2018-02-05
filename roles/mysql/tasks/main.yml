@@ -1,0 +1,37 @@
+- name: add mariadb repository key
+  apt_key:
+    keyserver: keyserver.ubuntu.com
+    id: F1656F24C74CD1D8
+
+- name: add mariadb repository
+  apt_repository:
+    repo: "deb [arch=amd64,i386,ppc64el] http://fr.mirror.babylon.network/mariadb/repo/10.2/debian stretch main"
+    state: present
+
+- name: install mariadb-server
+  apt:
+    name: mariadb-server
+    update_cache: true
+
+- name: ensure mysqld is started
+  service:
+    name: mariadb
+    state: started
+    enabled: yes
+
+- name: install MySQLdb-python
+  apt:
+    name: python-mysqldb
+
+- name: create mysql database
+  mysql_db:
+    name: "{{ mysql.name }}"
+    state: present
+
+- name: create mysql user
+  mysql_user:
+    name: "{{ mysql.user }}"
+    password: "{{ mysql.password }}"
+    host: localhost
+    priv: "{{ mysql.name }}.*:ALL"
+    state: present

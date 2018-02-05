@@ -11,6 +11,7 @@
     - build-essential
     - libffi-dev
     - libmariadbclient-dev
+    - python3-sqlparse # FIXME: see zestedesavoir/zds-site#4868
 
 - name: should have a {{ appuser }} user
   become: true
@@ -79,3 +80,25 @@
   template:
     src: templates/config.toml.j2
     dest: "{{ workdir }}/config.toml"
+
+- name: collect static files
+  become: true
+  become_user: "{{ appuser }}"
+  environment:
+    DJANGO_SETTINGS_MODULE: "zds.settings.{{ env }}"
+    ZDS_CONFIG: "{{ workdir }}/config.toml"
+  django_manage:
+    app_path: "{{ workdir }}/app"
+    virtualenv: "{{ workdir }}/virtualenv"
+    command: collectstatic
+
+- name: migrate database
+  become: true
+  become_user: "{{ appuser }}"
+  environment:
+    DJANGO_SETTINGS_MODULE: "zds.settings.{{ env }}"
+    ZDS_CONFIG: "{{ workdir }}/config.toml"
+  django_manage:
+    app_path: "{{ workdir }}/app"
+    virtualenv: "{{ workdir }}/virtualenv"
+    command: migrate

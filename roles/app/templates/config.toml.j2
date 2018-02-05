@@ -28,9 +28,9 @@ member_anonymous_username = "anonyme"
 association_fee = "25 €"
 
 [databases.default]
-name = "XXXXX"
-user = "XXXXX"
-password = "XXXXX"
+name = "{{ mysql.name }}"
+user = "{{ mysql.user }}"
+password = "{{ mysql.password }}"
 
 [raven]
 {% if sentry_dsn is defined %}
