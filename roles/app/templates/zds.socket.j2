@@ -1,0 +1,8 @@
+[Unit]
+Description=ZdS Gunicorn socket
+
+[Socket]
+ListenStream={{ rundir }}/gunicorn.sock
+
+[Install]
+WantedBy=sockets.target

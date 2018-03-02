@@ -1,0 +1,12 @@
+[Unit]
+Description=Zeste de Savoir - Watchdog
+After=network.target
+
+[Service]
+User=zds
+Group=zds
+ExecStart={{ workdir }}/wrapper publication_watchdog
+ExecStop=/bin/kill -s TERM $MAINPID
+
+[Install]
+WantedBy=multi-user.target

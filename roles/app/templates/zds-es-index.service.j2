@@ -1,0 +1,8 @@
+[Unit]
+Description=Reindex ES Service
+
+[Service]
+Type=oneshot
+User=zds
+Group=zds
+ExecStart={{ workdir }}/wrapper es_manager index_flagged

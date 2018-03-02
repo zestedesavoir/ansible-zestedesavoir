@@ -1,0 +1,23 @@
+[Unit]
+Description=Zeste de Savoir
+Requires=zds.socket
+After=network.target
+
+[Service]
+PIDFile={{ workdir }}/run/gunicorn.pid
+User=zds
+Group=zds
+WorkingDirectory={{ appdir }}
+ExecStart={{ virtualenv }}/bin/gunicorn \
+        --pid {{ rundir }}/gunicorn.pid \
+        --bind unix:{{ rundir }}/gunicorn.sock \
+        --workers 7 \
+        -e ZDS_CONFIG={{ workdir }}/config.toml \
+        -e DJANGO_SETTINGS_MODULE=zds.settings.{{ env }} \
+        zds.wsgi
+ExecReload=/bin/kill -s HUP $MAINPID
+ExecStop=/bin/kill -s TERM $MAINPID
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

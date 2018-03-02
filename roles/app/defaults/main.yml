@@ -1,5 +1,9 @@
 ---
 workdir: /opt/zds
+rundir: "{{ workdir }}/run"
+appdir: "{{ workdir }}/app"
+datadir: "{{ workdir }}/data"
+virtualenv: "{{ workdir }}/virtualenv"
 logdir: /var/log/zds
 appuser: zds
 env: dev

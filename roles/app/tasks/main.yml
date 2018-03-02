@@ -29,28 +29,30 @@
     owner: "{{ appuser }}"
     group: "{{ appuser }}"
   with_items:
-    - "{{ logdir }}/"
-    - "{{ workdir }}/"
-    - "{{ workdir }}/data"
-    - "{{ workdir }}/data/contents-private"
-    - "{{ workdir }}/data/contents-public"
-    - "{{ workdir }}/data/media"
-    - "{{ workdir }}/data/static"
+    - "{{ logdir }}"
+    - "{{ workdir }}"
+    - "{{ appdir }}"
+    - "{{ rundir }}"
+    - "{{ datadir }}"
+    - "{{ datadir }}/contents-private"
+    - "{{ datadir }}/contents-public"
+    - "{{ datadir }}/media"
+    - "{{ datadir }}/static"
 
 - name: checkout the application
   become: true
   become_user: "{{ appuser }}"
   git:
-    repo: 'https://github.com/zestedesavoir/zds-site.git'
-    dest: "{{ workdir }}/app"
+    repo: "https://github.com/zestedesavoir/zds-site.git"
+    dest: "{{ appdir }}"
     version: "{{ appversion }}-build"
 
 - name: symlink data folders
   become: true
   become_user: "{{ appuser }}"
   file:
-    src: "{{ workdir }}/data/{{ item }}"
-    dest: "{{ workdir }}/app/{{ item }}"
+    src: "{{ datadir }}/{{ item }}"
+    dest: "{{ appdir }}/{{ item }}"
     state: link
   with_items:
     - contents-private
@@ -62,8 +64,8 @@
   become: true
   become_user: "{{ appuser }}"
   pip:
-    requirements: "{{ workdir }}/app/requirements-prod.txt"
-    virtualenv: "{{ workdir }}/virtualenv"
+    requirements: "{{ appdir }}/requirements-prod.txt"
+    virtualenv: "{{ virtualenv }}"
     virtualenv_command: /usr/bin/pyvenv
 
 - name: save wrapper script
@@ -73,6 +75,17 @@
     src: templates/wrapper.j2
     dest: "{{ workdir }}/wrapper"
     mode: '0755'
+
+- name: create unit files
+  template:
+    src: templates/{{ item }}.j2
+    dest: "/etc/systemd/system/{{ item }}"
+  with_items:
+    - zds.service
+    - zds.socket
+    - zds-es-index.service
+    - zds-es-index.timer
+    - zds-watchdog.service
 
 - name: create app config file
   become: true
@@ -88,8 +101,8 @@
     DJANGO_SETTINGS_MODULE: "zds.settings.{{ env }}"
     ZDS_CONFIG: "{{ workdir }}/config.toml"
   django_manage:
-    app_path: "{{ workdir }}/app"
-    virtualenv: "{{ workdir }}/virtualenv"
+    app_path: "{{ appdir }}"
+    virtualenv: "{{ virtualenv }}"
     command: collectstatic
 
 - name: migrate database
@@ -99,6 +112,17 @@
     DJANGO_SETTINGS_MODULE: "zds.settings.{{ env }}"
     ZDS_CONFIG: "{{ workdir }}/config.toml"
   django_manage:
-    app_path: "{{ workdir }}/app"
-    virtualenv: "{{ workdir }}/virtualenv"
+    app_path: "{{ appdir }}"
+    virtualenv: "{{ virtualenv }}"
     command: migrate
+
+- name: start services and timers
+  systemd:
+    state: started
+    name: "{{ item }}"
+    daemon_reload: yes
+  with_items:
+    - zds.service
+    - zds.socket
+    - zds-es-index.timer
+    - zds-watchdog.service
