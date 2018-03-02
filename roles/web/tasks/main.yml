@@ -12,11 +12,12 @@
   with_items:
     - "deb http://nginx.org/packages/debian/ stretch nginx"
     - "deb-src http://nginx.org/packages/debian/ stretch nginx"
+  register: repo
 
 - name: install nginx
   apt:
     name: nginx
-    update_cache: true
+    update_cache: "{{ repo.changed }}"
 
 - name: create config dirs
   file:

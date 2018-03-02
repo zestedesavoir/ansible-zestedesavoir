@@ -8,3 +8,8 @@
     - vim
     - git
     - zsh
+
+- name: set default shell to zsh for root
+  user:
+    user: root
+    shell: /usr/bin/zsh

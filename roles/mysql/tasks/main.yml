@@ -1,3 +1,5 @@
+---
+
 - name: add mariadb repository key
   apt_key:
     keyserver: keyserver.ubuntu.com
@@ -7,11 +9,12 @@
   apt_repository:
     repo: "deb [arch=amd64,i386,ppc64el] http://fr.mirror.babylon.network/mariadb/repo/10.2/debian stretch main"
     state: present
+  register: repo
 
 - name: install mariadb-server
   apt:
     name: mariadb-server
-    update_cache: true
+    update_cache: "{{ repo.changed }}"
 
 - name: ensure mysqld is started
   service:

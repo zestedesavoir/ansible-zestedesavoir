@@ -2,6 +2,7 @@
   become: true
   roles:
     - common
+    - elasticsearch
     - mysql
     - web
     - app
