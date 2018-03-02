@@ -1,0 +1,48 @@
+---
+
+- name: add nginx repository key
+  apt_key:
+    id: 573BFD6B3D8FBC641079A6ABABF5BD827BD9BF62
+    keyserver: ha.pool.sks-keyservers.net
+
+- name: add nginx repository
+  apt_repository:
+    repo: "{{ item }}"
+    state: present
+  with_items:
+    - "deb http://nginx.org/packages/debian/ stretch nginx"
+    - "deb-src http://nginx.org/packages/debian/ stretch nginx"
+
+- name: install nginx
+  apt:
+    name: nginx
+    update_cache: true
+
+- name: create config dirs
+  file:
+    path: "/etc/nginx/{{ item.path }}"
+    state: directory
+  with_filetree: nginx/
+  when: item.state == 'directory'
+
+- name: copy config files
+  copy:
+    src: "{{ item.src }}"
+    dest: "/etc/nginx/{{ item.path }}"
+  with_filetree: nginx/
+  when: item.state == 'file'
+
+- name: disable default site
+  file:
+    path: "/etc/nginx/sites-enabled/default"
+    state: absent
+
+- name: enable sites
+  file:
+    src: "/etc/nginx/sites-available/{{ item }}"
+    dest: "/etc/nginx/sites-enabled/{{ item }}"
+    state: link
+  with_items:
+    - prod-redirect
+    - zestedesavoir
+  notify: reload nginx

@@ -46,6 +46,7 @@
     repo: "https://github.com/zestedesavoir/zds-site.git"
     dest: "{{ appdir }}"
     version: "{{ appversion }}-build"
+  register: app
 
 - name: symlink data folders
   become: true
@@ -67,6 +68,7 @@
     requirements: "{{ appdir }}/requirements-prod.txt"
     virtualenv: "{{ virtualenv }}"
     virtualenv_command: /usr/bin/pyvenv
+  when: app.changed
 
 - name: save wrapper script
   become: true
@@ -104,6 +106,7 @@
     app_path: "{{ appdir }}"
     virtualenv: "{{ virtualenv }}"
     command: collectstatic
+  when: app.changed
 
 - name: migrate database
   become: true
@@ -115,6 +118,7 @@
     app_path: "{{ appdir }}"
     virtualenv: "{{ virtualenv }}"
     command: migrate
+  when: app.changed
 
 - name: start services and timers
   systemd:

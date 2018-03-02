@@ -3,4 +3,5 @@
   roles:
     - common
     - mysql
+    - web
     - app
