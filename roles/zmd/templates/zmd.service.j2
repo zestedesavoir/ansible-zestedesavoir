@@ -1,0 +1,24 @@
+# [PM2] Spawning PM2 daemon with pm2_home=/home/zds/.pm2
+[Unit]
+Description=zmd server
+Documentation=https://pm2.keymetrics.io/
+After=network.target
+
+[Service]
+Type=forking
+User=zds
+LimitNOFILE=infinity
+LimitNPROC=infinity
+LimitCORE=infinity
+Environment=PATH=/usr/bin:/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin
+Environment=PM2_HOME=/opt/zmd/.pm2
+Environment=SENTRY_DSN={{ zmarkdown_sentry_dsn }}
+Environment=ZDS_ENVIRONMENT=beta
+PIDFile=/opt/zmd/.pm2/pm2.pid
+
+ExecStart=/usr/lib/node_modules/pm2/bin/pm2 start -f /opt/zmd/node_modules/zmarkdown/server/index.js -i 3 --max-memory-restart 150M
+ExecReload=/usr/lib/node_modules/pm2/bin/pm2 reload all
+ExecStop=/usr/lib/node_modules/pm2/bin/pm2 kill
+
+[Install]
+WantedBy=multi-user.target

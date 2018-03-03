@@ -1,0 +1,5 @@
+- name: reload zmd
+  systemd:
+    name: zmd
+    state: reloaded
+    daemon_reload: true
