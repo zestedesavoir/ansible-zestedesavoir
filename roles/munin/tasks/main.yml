@@ -1,0 +1,80 @@
+---
+- name: Ensure munin-node is installed
+  apt: name=munin-node state=installed update_cache=yes
+
+- name: Ensure plugins dependencies are installed
+  action: >
+    apt name={{ item }} state=present
+  with_items:
+    - time
+    - munin-node
+    - libcgi-fast-perl
+    - libhttp-message-perl
+    - libnet-snmp-perl
+    - munin-plugins-extra
+    - libjson-perl
+    - libwww-perl
+    - libcache-cache-perl
+    - libdbd-mysql-perl
+    - netcat
+    - bc
+    - wget
+
+- name: Copy munin-node configuration.
+  template:
+    src: munin-node.conf.j2
+    dest: /etc/munin/munin-node.conf
+    owner: root
+    group: root
+    mode: 0644
+  notify: restart munin-node
+
+- name: Generate plugin configuration.
+  template:
+    src: plugin-conf.j2
+    dest: /etc/munin/plugin-conf.d/ansible.conf
+    owner: root
+    group: root
+    mode: 0644
+  notify: restart munin-node
+
+- name: Install additional plugins.
+  file:
+    src: "plugins/{{ item }}"
+    dest: "{{ munin_plugin_src_path }}{{ item }}"
+    owner: root
+    group: root
+    mode: 0755
+  with_items: "{{ munin_node_extra_plugins }}"
+  notify: restart munin-node
+
+- name: Enable additional plugins.
+  file:
+    path: "{{ munin_plugin_dest_path }}{{ item.name }}"
+    src: "{{ munin_plugin_src_path }}{{ item.plugin | default( item.name ) }}"
+    state: link
+    owner: root
+    group: root
+    mode: 0755
+  with_items: "{{ munin_node_plugins }}"
+  notify: restart munin-node
+
+- name: Create keys folder for munin user
+  file:
+    state: directory
+    path: "/var/lib/munin/.ssh"
+    owner: munin
+    group: munin
+    mode: 0755
+
+- name: Install access keys for munin masters
+  file:
+    src: "keys/authorized_keys"
+    dest: "/var/lib/munin/.ssh/authorized_keys"
+    owner: munin
+    group: munin
+    mode: 0600
+  notify: restart munin-node
+
+- name: Ensure munin-node is running.
+  service: name=munin-node state=started enabled=yes
