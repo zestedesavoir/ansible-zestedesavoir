@@ -1,0 +1,73 @@
+---
+- name: Ensure the system can use the HTTPS transport for APT
+  stat:
+    path: /usr/lib/apt/methods/https
+  register: apt_https_transport
+
+- name: Install HTTPS transport for APT
+  apt:
+    pkg: apt-transport-https
+    state: installed
+  when: not apt_https_transport.stat.exists
+
+- name: Import the NodeSource GPG key into apt
+  apt_key:
+    url: https://keyserver.ubuntu.com/pks/lookup?op=get&fingerprint=on&search=0x1655A0AB68576280
+    id: "68576280"
+    state: present
+
+- name: Add NodeSource deb repository
+  apt_repository:
+    repo: 'deb https://deb.nodesource.com/node_8.x {{ ansible_distribution_release }} main'
+    state: present
+
+- name: Add NodeSource deb-src repository
+  apt_repository:
+    repo: 'deb-src https://deb.nodesource.com/node_8.x {{ ansible_distribution_release }} main'
+    state: present
+
+- name: Add NodeSource repository preferences
+  template:
+    src: deb_nodesource_com_node.pref
+    dest: /etc/apt/preferences.d/deb_nodesource_com_node.pref
+
+- name: Install Node.js
+  apt:
+    pkg:
+      - nodejs
+    state: installed
+    update_cache: yes
+
+- name: Install pm2 globally
+  npm:
+    name: pm2
+    global: yes
+
+- name: Create zmd home directory
+  file:
+    state: directory
+    path: /opt/zmd
+    owner: zds
+    group: zds
+    mode: 0755
+
+- name: Add server package.json
+  template:
+    src: package.json.j2
+    dest: /opt/zmd/package.json
+
+- name: Install zmarkdown
+  npm:
+    name: zmarkdown
+    path: /opt/zmd
+
+- name: Add zmarkdown unit file
+  template:
+    src: zmd.service.j2
+    dest: /etc/systemd/system/zmd.service
+  notify: restart zmd
+
+- name: Ensure zmd is running.
+  service: name=zmd state=started enabled=yes
+
+- shell: wget -qO- http://localhost:27272/
