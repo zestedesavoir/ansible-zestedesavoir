@@ -8,6 +8,8 @@
     - vim
     - git
     - zsh
+    - logrotate
+    - tmux
 
 - name: set default shell to zsh for root
   user:
