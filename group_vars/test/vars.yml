@@ -1,0 +1,7 @@
+appversion: v26-monty
+env: prod
+sentry_dsn: ""
+mysql:
+  user: test
+  password: test
+  name: test
