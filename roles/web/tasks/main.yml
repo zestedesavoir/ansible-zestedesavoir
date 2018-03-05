@@ -33,10 +33,10 @@
   with_filetree: nginx/
   when: item.state == 'file'
 
-- name: disable default site
+- name: create sites-enabled
   file:
-    path: "/etc/nginx/sites-enabled/default"
-    state: absent
+    path: "/etc/nginx/sites-enabled"
+    state: directory
 
 - name: enable sites
   file:

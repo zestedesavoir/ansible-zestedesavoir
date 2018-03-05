@@ -10,7 +10,9 @@
     - python3-venv
     - build-essential
     - libffi-dev
+    - libssl-dev
     - libmariadbclient-dev
+    - libmariadbclient-dev-compat
     - python3-sqlparse # FIXME: see zestedesavoir/zds-site#4868
 
 - name: should have a {{ appuser }} user
@@ -60,6 +62,14 @@
     - contents-public
     - media
     - static
+
+- name: install wheel in virtualenv
+  become: true
+  become_user: "{{ appuser }}"
+  pip:
+    name: wheel
+    virtualenv: "{{ virtualenv }}"
+    virtualenv_command: /usr/bin/pyvenv
 
 - name: install requirements in virtualenv
   become: true
