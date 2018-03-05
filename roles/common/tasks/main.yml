@@ -1,5 +1,13 @@
 ---
 
+- name: should have UTF-8 locales enabled
+  locale_gen:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - fr_FR.UTF-8
+    - en_US.UTF-8
+
 - name: should have some base packages
   become: true
   action: >
