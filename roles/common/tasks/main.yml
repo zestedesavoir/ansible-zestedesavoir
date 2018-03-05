@@ -15,3 +15,11 @@
   user:
     user: root
     shell: /usr/bin/zsh
+
+- name: copy zsh config files
+  copy:
+    src: "{{ item.src }}"
+    dest: "/etc/zsh/{{ item.path }}"
+  with_filetree: zsh/
+  when: item.state == 'file'
+
