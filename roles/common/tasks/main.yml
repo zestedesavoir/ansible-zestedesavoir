@@ -1,5 +1,18 @@
 ---
 
+- name: should have some base packages
+  apt:
+    name: "{{ item }}"
+    state: present
+    update_cache: yes
+  with_items:
+    - locales
+    - vim
+    - git
+    - zsh
+    - logrotate
+    - tmux
+
 - name: should have UTF-8 locales enabled
   locale_gen:
     name: "{{ item }}"
@@ -7,17 +20,6 @@
   with_items:
     - fr_FR.UTF-8
     - en_US.UTF-8
-
-- name: should have some base packages
-  become: true
-  action: >
-    apt name={{ item }} state=present update_cache=yes
-  with_items:
-    - vim
-    - git
-    - zsh
-    - logrotate
-    - tmux
 
 - name: set default shell to zsh for root
   user:
