@@ -1,0 +1,4 @@
+.kitchen/
+.vagrant/
+vault-secret
+*.retry
