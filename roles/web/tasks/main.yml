@@ -19,6 +19,11 @@
     name: nginx
     update_cache: "{{ repo.changed }}"
 
+- name: check if letsencrypt certificate is present
+  stat:
+    path: /etc/letsencrypt/live/zestedesavoir.com/fullchain.pem
+  register: cert
+
 - name: create config dirs
   file:
     path: "/etc/nginx/{{ item.path }}"
@@ -32,6 +37,16 @@
     dest: "/etc/nginx/{{ item.path }}"
   with_filetree: nginx/
   when: item.state == 'file'
+  notify: reload nginx
+
+- name: generate config files
+  template:
+    src: "{{ item }}.j2"
+    dest: "/etc/{{ item }}"
+  with_items:
+    - nginx/sites-available/zestedesavoir
+    - nginx/sites-available/prod-redirect
+  notify: reload nginx
 
 - name: create sites-enabled
   file:

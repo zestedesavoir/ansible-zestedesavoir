@@ -26,8 +26,10 @@ server {
     server_tokens off;
     client_max_body_size 100M;
 
+{% if cert.stat.exists %}
     ssl_certificate /etc/letsencrypt/live/zestedesavoir.com/fullchain.pem;
     ssl_certificate_key /etc/letsencrypt/live/zestedesavoir.com/privkey.pem;
+{% endif %}
     include snippets/ssl.conf;
 
     # Logging
@@ -37,7 +39,7 @@ server {
     # Rewrite de l'ancienne page de teasing
     rewrite ^/teasing/$ / permanent;
 
-    root /opt/zds/zdsenv/webroot;
+    root {{ webroot }};
 
     location ~ /.well-known {
         allow all;
