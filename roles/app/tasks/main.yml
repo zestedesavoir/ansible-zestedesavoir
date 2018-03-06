@@ -2,8 +2,10 @@
 
 - name: install app dependencies
   become: true
-  action: >
-    apt name={{ item }} state=present update_cache=yes
+  apt:
+    name: "{{ item }}"
+    state: present
+    update_cache: yes
   with_items:
     - python3
     - python3-dev
@@ -13,7 +15,6 @@
     - libssl-dev
     - libmariadbclient-dev
     - libmariadbclient-dev-compat
-    - python3-sqlparse # FIXME: see zestedesavoir/zds-site#4868
 
 - name: should have a {{ appuser }} user
   become: true
@@ -63,13 +64,16 @@
     - media
     - static
 
-- name: install wheel in virtualenv
+- name: install wheel and sqlparse in virtualenv
   become: true
   become_user: "{{ appuser }}"
   pip:
-    name: wheel
+    name: "{{ item }}"
     virtualenv: "{{ virtualenv }}"
     virtualenv_command: /usr/bin/pyvenv
+  with_items:
+    - wheel
+    - sqlparse
 
 - name: install requirements in virtualenv
   become: true
