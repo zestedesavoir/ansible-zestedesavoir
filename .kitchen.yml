@@ -2,11 +2,15 @@
 driver:
   name: docker
   privileged: true
+  run_command: /bin/systemd
+  cap_add:
+    - SYS_ADMIN
 
 provisioner:
   name: ansible_playbook
-  hosts: app
+  hosts: test
   playbook: playbook.yml
+  ansible_inventory: kitchen-hosts
 
 platforms:
   - name: debian-9.3
