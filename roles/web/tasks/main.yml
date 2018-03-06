@@ -26,10 +26,12 @@
 
 - name: create config dirs
   file:
-    path: "/etc/nginx/{{ item.path }}"
+    path: "/etc/nginx/{{ item }}"
     state: directory
-  with_filetree: nginx/
-  when: item.state == 'directory'
+  with_items:
+    - snippets/
+    - sites-available/
+    - sites-enabled/
 
 - name: copy config files
   copy:
@@ -47,11 +49,6 @@
     - nginx/sites-available/zestedesavoir
     - nginx/sites-available/prod-redirect
   notify: reload nginx
-
-- name: create sites-enabled
-  file:
-    path: "/etc/nginx/sites-enabled"
-    state: directory
 
 - name: enable sites
   file:
