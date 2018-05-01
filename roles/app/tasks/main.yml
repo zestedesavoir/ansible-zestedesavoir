@@ -13,8 +13,7 @@
     - build-essential
     - libffi-dev
     - libssl-dev
-    - libmariadbclient-dev
-    - libmariadbclient-dev-compat
+    - libmariadb-dev
 
 - name: should have a {{ appuser }} user
   become: true

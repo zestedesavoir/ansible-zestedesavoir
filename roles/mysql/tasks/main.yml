@@ -7,7 +7,7 @@
 
 - name: add mariadb repository
   apt_repository:
-    repo: "deb [arch=amd64,i386,ppc64el] http://fr.mirror.babylon.network/mariadb/repo/10.2/debian stretch main"
+    repo: "deb [arch=amd64,i386,ppc64el] http://mariadb.mirrors.ovh.net/MariaDB/repo/10.2/debian {{ ansible_distribution_release }} main"
     state: present
   register: repo
 
