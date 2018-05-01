@@ -1,2 +1,6 @@
 appversion: v26-monty
 env: prod
+http_host: zestedesavoir.com
+certificate:
+  cert: /etc/letsencrypt/live/zestedesavoir.com/fullchain.pem
+  key: /etc/letsencrypt/live/zestedesavoir.com/privkey.pem

@@ -21,8 +21,9 @@
 
 - name: check if letsencrypt certificate is present
   stat:
-    path: /etc/letsencrypt/live/zestedesavoir.com/fullchain.pem
+    path: "{{ certificate.cert }}"
   register: cert
+  when: certificate is defined
 
 - name: create config dirs
   file:

@@ -1,3 +1,4 @@
 ---
 workdir: /opt/zds
 webroot: "{{ workdir }}/webroot"
+http_host: localhost
