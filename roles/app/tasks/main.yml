@@ -48,7 +48,7 @@
   git:
     repo: "https://github.com/zestedesavoir/zds-site.git"
     dest: "{{ appdir }}"
-    version: "{{ appversion }}-build"
+    version: "{{ appversion }}"
   register: app
 
 - name: symlink data folders
@@ -84,6 +84,14 @@
     virtualenv_command: /usr/bin/pyvenv
   when: app.changed
 
+- name: save version file
+  become: true
+  become_user: "{{ appuser }}"
+  template:
+    src: templates/_version.py.j2
+    dest: "{{ appdir }}/zds/_version.py"
+    mode: '0644'
+
 - name: save wrapper script
   become: true
   become_user: "{{ appuser }}"
@@ -109,6 +117,10 @@
   template:
     src: templates/config.toml.j2
     dest: "{{ workdir }}/config.toml"
+
+- name: build front if repo changed
+  include_tasks: frontend.yml
+  when: app.changed
 
 - name: collect static files
   become: true

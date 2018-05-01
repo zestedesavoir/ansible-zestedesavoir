@@ -1,4 +1,4 @@
-appversion: v26-monty
+appversion: dev
 env: prod
 sentry_dsn: ""
 mysql:
