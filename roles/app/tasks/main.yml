@@ -134,6 +134,26 @@
     command: collectstatic
   when: app.changed
 
+- name: create webroot
+  file:
+    path: "{{ webroot }}"
+    state: directory
+
+- name: create symlinks in webroot
+  file:
+    src: "{{ item.src }}"
+    dest: "{{ webroot }}/{{ item.dest }}"
+    state: link
+  with_items:
+    - src: "{{ appdir }}/errors"
+      dest: "errors"
+    - src: "{{ appdir }}/robots.txt"
+      dest: "robots.txt"
+    - src: "{{ datadir }}/media"
+      dest: "media"
+    - src: "{{ datadir }}/static"
+      dest: "static"
+
 - name: migrate database
   become: true
   become_user: "{{ appuser }}"
