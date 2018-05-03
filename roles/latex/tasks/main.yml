@@ -1,0 +1,46 @@
+- name: install texlive packages
+  apt:
+    name: "{{ item }}"
+  with_items:
+    - texlive
+    - texlive-luatex
+    - texlive-lang-french
+    - texlive-latex-extra
+    - texlive-fonts-extra
+    - python-pygments
+
+- name: clone the template
+  git:
+    repo: "https://github.com/zestedesavoir/latex-template/"
+    dest: /usr/local/share/texmf/latex-template
+  notify: run texhash
+
+- name: create font folders
+  file:
+    path: /usr/local/share/fonts/{{ item[0].path }}/{{ item[1].slug }}/
+    state: directory
+  with_nested:
+    - "{{ fonttypes }}"
+    - "{{ fonts }}"
+
+- name: download fonts
+  get_url:
+    url: "{{ item[0].url }}/{{ item[1].ext | upper }}/{{ item[0].name }}-{{ item[2] }}.{{ item[1].ext }}"
+    dest: /usr/local/share/fonts/{{ item[1].path }}/{{ item[0].slug }}/{{ item[0].name }}-{{ item[2] }}.{{ item[1].ext }}
+  with_nested:
+    - "{{ fonts }}"
+    - "{{ fonttypes }}"
+    -
+      - Black
+      - BlackIt
+      - Bold
+      - BoldIt
+      - ExtraLight
+      - ExtraLightIt
+      - It
+      - Light
+      - LightIt
+      - Regular
+      - Semibold
+      - SemiboldIt
+  notify: refresh font-config cache

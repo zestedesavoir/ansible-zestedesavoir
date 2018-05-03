@@ -1,0 +1,5 @@
+- name: run texhash
+  shell: texhash
+
+- name: refresh font-config cache
+  shell: fc-cache -f
