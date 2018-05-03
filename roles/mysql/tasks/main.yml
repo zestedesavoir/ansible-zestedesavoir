@@ -2,18 +2,28 @@
 
 - name: add mariadb repository key
   apt_key:
-    id: F1656F24C74CD1D8
+    id: "{{ item }}"
+    keyserver: "keyserver.ubuntu.com"
+  with_items:
+    - F1656F24C74CD1D8 # MariaDB
+    - 8507EFA5 # Percona
 
-- name: add mariadb repository
+- name: add mariadb and percona repositories
   apt_repository:
-    repo: "deb [arch=amd64,i386,ppc64el] http://mariadb.mirrors.ovh.net/MariaDB/repo/10.2/debian {{ ansible_distribution_release }} main"
+    repo: "{{ item }}"
     state: present
+  with_items:
+    - "deb http://repo.percona.com/apt {{ ansible_distribution_release }} main"
+    - "deb [arch=amd64,i386,ppc64el] http://mariadb.mirrors.ovh.net/MariaDB/repo/10.2/debian {{ ansible_distribution_release }} main"
   register: repo
 
-- name: install mariadb-server
+- name: install mariadb-server and percona-xtrabackup
   apt:
-    name: mariadb-server
+    name: "{{ item }}"
     update_cache: "{{ repo.changed }}"
+  with_items:
+    - mariadb-server
+    - percona-xtrabackup
 
 - name: copy mariadb config files
   copy: src={{ item.src }} dest={{ item.dest }}
