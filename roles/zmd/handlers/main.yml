@@ -1,5 +1,5 @@
-- name: reload zmd
+- name: restart zmd
   systemd:
     name: zmd
-    state: reloaded
+    state: restarted
     daemon_reload: true

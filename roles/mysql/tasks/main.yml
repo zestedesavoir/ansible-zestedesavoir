@@ -2,7 +2,6 @@
 
 - name: add mariadb repository key
   apt_key:
-    keyserver: keyserver.ubuntu.com
     id: F1656F24C74CD1D8
 
 - name: add mariadb repository

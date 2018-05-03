@@ -12,7 +12,6 @@
 
 - name: Import the NodeSource GPG key into apt
   apt_key:
-    keyserver: keyserver.ubuntu.com
     id: 68576280
     state: present
 

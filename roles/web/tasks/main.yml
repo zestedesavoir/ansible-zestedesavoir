@@ -3,7 +3,6 @@
 - name: add nginx repository key
   apt_key:
     id: 573BFD6B3D8FBC641079A6ABABF5BD827BD9BF62
-    keyserver: ha.pool.sks-keyservers.net
 
 - name: add nginx repository
   apt_repository:
@@ -51,12 +50,17 @@
     - nginx/sites-available/prod-redirect
   notify: reload nginx
 
-- name: enable sites
+- name: enable zds site
   file:
-    src: "/etc/nginx/sites-available/{{ item }}"
-    dest: "/etc/nginx/sites-enabled/{{ item }}"
+    src: "/etc/nginx/sites-available/zestedesavoir"
+    dest: "/etc/nginx/sites-enabled/zestedesavoir"
     state: link
-  with_items:
-    - prod-redirect
-    - zestedesavoir
   notify: reload nginx
+
+- name: enable prod redirect site
+  file:
+    src: "/etc/nginx/sites-available/prod-redirect"
+    dest: "/etc/nginx/sites-enabled/prod-redirect"
+    state: link
+  notify: reload nginx
+  when: env == "prod"

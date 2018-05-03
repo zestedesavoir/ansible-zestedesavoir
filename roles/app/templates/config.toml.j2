@@ -1,6 +1,8 @@
 ensure_settings_module = 'zds.settings.{{ env }}'
 
-secret_key = "XXXXX"
+{% if 'django' in secrets %}
+secret_key = "{{ secrets.django }}"
+{% endif %}
 
 [social_auth]
 {% if 'facebook' in secrets %}
