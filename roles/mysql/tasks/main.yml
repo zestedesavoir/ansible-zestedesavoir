@@ -15,6 +15,13 @@
     name: mariadb-server
     update_cache: "{{ repo.changed }}"
 
+- name: copy mariadb config files
+  copy: src={{ item.src }} dest={{ item.dest }}
+  with_items:
+    - { src: '99-zds.cnf', dest: '/etc/mysql/mysql.conf.d/99-zds.cnf' }
+    - { src: 'my.cnf', dest: '/etc/mysql/my.cnf' }
+  notify: restart mariadb
+
 - name: ensure mysqld is started
   service:
     name: mariadb
