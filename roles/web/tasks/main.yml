@@ -3,6 +3,7 @@
 - name: add nginx repository key
   apt_key:
     id: 573BFD6B3D8FBC641079A6ABABF5BD827BD9BF62
+    keyserver: "keyserver.ubuntu.com"
 
 - name: add nginx repository
   apt_repository:

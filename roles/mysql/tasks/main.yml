@@ -26,10 +26,7 @@
     - percona-xtrabackup
 
 - name: copy mariadb config files
-  copy: src={{ item.src }} dest={{ item.dest }}
-  with_items:
-    - { src: '99-zds.cnf', dest: '/etc/mysql/mysql.conf.d/99-zds.cnf' }
-    - { src: 'my.cnf', dest: '/etc/mysql/my.cnf' }
+  copy: src="99-zds.cnf" dest="/etc/mysql/conf.d/99-zds.cnf"
   notify: restart mariadb
 
 - name: ensure mysqld is started

@@ -16,9 +16,9 @@ server {
         error_log /var/log/zds/nginx-redirect-error.log;
 
         server_tokens off;
-{% if cert.stat.exists %}
-        ssl_certificate /etc/letsencrypt/live/zestedesavoir.com/fullchain.pem;
-        ssl_certificate_key /etc/letsencrypt/live/zestedesavoir.com/privkey.pem;
+{% if certificate is defined and cert.stat.exists %}
+        ssl_certificate {{ certificate.cert }};
+        ssl_certificate_key {{ certificate.key }};
 {% endif %}
 
 
