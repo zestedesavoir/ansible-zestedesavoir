@@ -1,5 +1,7 @@
 - name: run texhash
-  shell: texhash
+  become: true
+  become_user: zds
+  shell: texhash $HOME/texmf
 
 - name: refresh font-config cache
   shell: fc-cache -f

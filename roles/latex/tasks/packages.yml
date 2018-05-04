@@ -1,0 +1,20 @@
+- name: create tlmgr usertree
+  become: true
+  become_user: zds
+  shell: tlmgr init-usertree
+  args:
+    creates: $HOME/texmf
+
+- name: check ansible state
+  slurp: src=/opt/zds/texmf/ansible-state
+  register: installed_packages
+
+- name: install packages
+  become: true
+  become_user: zds
+  shell: >
+    tlmgr update --list &&
+    tlmgr install {{ ' '.join(latex_packages) }} &&
+    echo {{ ' '.join(latex_packages) }} > $HOME/texmf/ansible-state
+  when: installed_packages.content|b64decode|trim != latex_packages|join(" ")
+

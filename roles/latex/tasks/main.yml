@@ -8,11 +8,14 @@
     - texlive-latex-extra
     - texlive-fonts-extra
     - python-pygments
+    - xzdec
+
+- include_tasks: packages.yml
 
 - name: clone the template
   git:
     repo: "https://github.com/zestedesavoir/latex-template/"
-    dest: /usr/local/share/texmf/latex-template
+    dest: /opt/zds/texmf/tex/generic/latex-template
   notify: run texhash
 
 - name: create font folders
