@@ -8,6 +8,8 @@
     - texlive-latex-extra
     - texlive-fonts-extra
     - python-pygments
+    - librsvg2-bin
+    - imagemagick
     - xzdec
 
 - include_tasks: packages.yml

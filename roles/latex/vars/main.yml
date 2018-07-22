@@ -37,6 +37,7 @@ latex_packages:
   - fontspec
   - luacode
   - ctablestack
+  - luatex85
 
 fonttypes:
   - ext: eot
