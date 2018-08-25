@@ -9,6 +9,7 @@
     - texlive-fonts-extra
     - python-pygments
     - xzdec
+    - wget
 
 - include_tasks: packages.yml
 
@@ -28,13 +29,14 @@
 
 - name: download fonts
   get_url:
-    url: "{{ item[0].url }}/{{ item[1].ext | upper }}/{{ item[0].name }}-{{ item[2] }}.{{ item[1].ext }}"
-    dest: /usr/local/share/fonts/{{ item[1].path }}/{{ item[0].slug }}/{{ item[0].name }}-{{ item[2] }}.{{ item[1].ext }}
+    url:
+      "{{ item[0].url }}/{{ item[1].ext | upper }}/{{ item[0].name }}-{{ item[2] }}.{{ item[1].ext }}"
+    dest:
+      /usr/local/share/fonts/{{ item[1].path }}/{{ item[0].slug }}/{{ item[0].name }}-{{ item[2] }}.{{ item[1].ext }}
   with_nested:
     - "{{ fonts }}"
     - "{{ fonttypes }}"
-    -
-      - Black
+    - - Black
       - BlackIt
       - Bold
       - BoldIt
