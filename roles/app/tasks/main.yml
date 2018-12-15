@@ -45,10 +45,14 @@
   become: true
   become_user: "{{ appuser }}"
   git:
-    repo: "https://github.com/zestedesavoir/zds-site.git"
+    repo: "{{ apprepo }}"
     dest: "{{ appdir }}"
     version: "{{ appversion }}"
+    refspec: "+refs/pull/*:refs/pull/*"
   register: app
+  notify:
+    - reload zds
+    - restart watchdog
 
 - name: symlink data folders
   become: true

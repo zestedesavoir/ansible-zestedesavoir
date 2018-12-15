@@ -7,5 +7,6 @@ webroot: "{{ workdir }}/webroot"
 virtualenv: "{{ workdir }}/virtualenv"
 logdir: /var/log/zds
 appuser: zds
+apprepo: "https://github.com/zestedesavoir/zds-site.git"
 env: dev
 secrets: []
