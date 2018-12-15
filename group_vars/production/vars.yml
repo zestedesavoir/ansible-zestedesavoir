@@ -1,4 +1,4 @@
-appversion: v27.3-klaxon
+appversion: v27.4-klaxon
 env: prod
 http_host: zestedesavoir.com
 certificate:
