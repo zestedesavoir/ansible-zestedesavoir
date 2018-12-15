@@ -116,6 +116,9 @@
   template:
     src: templates/config.toml.j2
     dest: "{{ workdir }}/config.toml"
+  notify:
+    - reload zds
+    - restart watchdog
 
 - name: build front if repo changed
   include_tasks: frontend.yml
