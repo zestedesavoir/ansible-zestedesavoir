@@ -31,6 +31,8 @@ member_external_username = "Auteur externe"
 member_anonymous_username = "anonyme"
 association_fee = "25 €"
 
+visual_changes = {{ visual_changes | default([]) | to_json }}
+
 [databases.default]
 name = "{{ mysql.name }}"
 user = "{{ mysql.user }}"
