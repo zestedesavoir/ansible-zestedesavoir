@@ -1,5 +1,3 @@
----
-
 - name: add elasticsearch repository key
   apt_key:
     keyserver: pgp.mit.edu
@@ -9,16 +7,13 @@
   apt_repository:
     repo: "deb http://packages.elastic.co/elasticsearch/5.x/debian stable main"
     state: present
-  register: repo
 
-- name: install openjdk8-jre
+- name: install openjdk8-jre and elasticsearch
   apt:
-    name: openjdk-8-jre-headless
-
-- name: install elasticsearch
-  apt:
-    name: elasticsearch
-    update_cache: "{{ repo.changed }}"
+    pkg:
+      - openjdk-8-jre-headless
+      - elasticsearch
+    cache_valid_time: 3600
 
 - name: copy elasticsearch config files
   copy:

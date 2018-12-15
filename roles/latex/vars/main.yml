@@ -40,8 +40,6 @@ latex_packages:
   - luatex85
 
 fonttypes:
-  - ext: eot
-    path: eot
   - ext: otf
     path: opentype
   - ext: ttf

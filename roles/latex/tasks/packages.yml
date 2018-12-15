@@ -5,6 +5,12 @@
   args:
     creates: $HOME/texmf
 
+- name: create ansible state if non-existant
+  file:
+    path: /opt/zds/texmf/ansible-state
+    state: touch
+    mode: 0666
+
 - name: check ansible state
   slurp: src=/opt/zds/texmf/ansible-state
   register: installed_packages
@@ -17,4 +23,3 @@
     tlmgr install {{ ' '.join(latex_packages) }} &&
     echo {{ ' '.join(latex_packages) }} > $HOME/texmf/ansible-state
   when: installed_packages.content|b64decode|trim != latex_packages|join(" ")
-

@@ -1,0 +1,9 @@
+- name: reload zds
+  systemd:
+    name: zds
+    state: reloaded
+
+- name: restart watchdog
+  systemd:
+    name: zds-watchdog
+    state: restarted

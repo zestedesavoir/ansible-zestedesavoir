@@ -1,5 +1,3 @@
----
-
 - name: add nginx repository key
   apt_key:
     id: 573BFD6B3D8FBC641079A6ABABF5BD827BD9BF62
@@ -16,8 +14,8 @@
 
 - name: install nginx
   apt:
-    name: nginx
-    update_cache: "{{ repo.changed }}"
+    pkg: nginx
+    cache_valid_time: 3600
 
 - name: check if letsencrypt certificate is present
   stat:

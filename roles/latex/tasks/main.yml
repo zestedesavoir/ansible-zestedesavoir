@@ -1,16 +1,17 @@
 - name: install texlive packages
   apt:
-    name: "{{ item }}"
-  with_items:
-    - texlive
-    - texlive-luatex
-    - texlive-lang-french
-    - texlive-latex-extra
-    - texlive-fonts-extra
-    - python-pygments
-    - librsvg2-bin
-    - imagemagick
-    - xzdec
+    pkg:
+      - texlive
+      - texlive-luatex
+      - texlive-lang-french
+      - texlive-latex-extra
+      - texlive-fonts-extra
+      - python-pygments
+      - librsvg2-bin
+      - imagemagick
+      - xzdec
+      - wget
+    cache_valid_time: 3600
 
 - include_tasks: packages.yml
 
@@ -35,8 +36,7 @@
   with_nested:
     - "{{ fonts }}"
     - "{{ fonttypes }}"
-    -
-      - Black
+    - - Black
       - BlackIt
       - Bold
       - BoldIt

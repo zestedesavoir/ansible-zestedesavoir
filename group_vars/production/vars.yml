@@ -1,6 +1,6 @@
-appversion: v26-monty
+appversion: v27.3-klaxon
 env: prod
 http_host: zestedesavoir.com
 certificate:
-  cert: /etc/letsencrypt/live/zestedesavoir.com/fullchain.pem
-  key: /etc/letsencrypt/live/zestedesavoir.com/privkey.pem
+  cert: /var/lib/acme/live/zestedesavoir.com/fullchain
+  key: /var/lib/acme/live/zestedesavoir.com/privkey
