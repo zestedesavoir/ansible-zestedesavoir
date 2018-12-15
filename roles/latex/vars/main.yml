@@ -39,8 +39,6 @@ latex_packages:
   - ctablestack
 
 fonttypes:
-  - ext: eot
-    path: eot
   - ext: otf
     path: opentype
   - ext: ttf
