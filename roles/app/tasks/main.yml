@@ -1,19 +1,16 @@
----
-
 - name: install app dependencies
   become: true
   apt:
-    name: "{{ item }}"
+    pkg:
+      - python3
+      - python3-dev
+      - python3-venv
+      - build-essential
+      - libffi-dev
+      - libssl-dev
+      - libmariadb-dev
     state: present
-    update_cache: yes
-  with_items:
-    - python3
-    - python3-dev
-    - python3-venv
-    - build-essential
-    - libffi-dev
-    - libssl-dev
-    - libmariadb-dev
+    cache_valid_time: 3600
 
 - name: should have a {{ appuser }} user
   become: true
@@ -93,7 +90,7 @@
   template:
     src: templates/_version.py.j2
     dest: "{{ appdir }}/zds/_version.py"
-    mode: '0644'
+    mode: "0644"
 
 - name: save wrapper script
   become: true
@@ -101,7 +98,7 @@
   template:
     src: templates/wrapper.j2
     dest: "{{ workdir }}/wrapper"
-    mode: '0755'
+    mode: "0755"
 
 - name: create unit files
   template:

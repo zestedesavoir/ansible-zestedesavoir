@@ -1,17 +1,14 @@
----
-
 - name: should have some base packages
   apt:
-    name: "{{ item }}"
+    pkg:
+      - locales
+      - vim
+      - git
+      - zsh
+      - logrotate
+      - tmux
     state: present
-    update_cache: yes
-  with_items:
-    - locales
-    - vim
-    - git
-    - zsh
-    - logrotate
-    - tmux
+    cache_valid_time: 3600
 
 - name: should have UTF-8 locales enabled
   locale_gen:
@@ -32,4 +29,3 @@
     dest: "/etc/zsh/{{ item.path }}"
   with_filetree: zsh/
   when: item.state == 'file'
-
