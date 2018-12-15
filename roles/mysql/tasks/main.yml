@@ -18,8 +18,8 @@
 - name: install mariadb-server and percona-xtrabackup
   apt:
     pkg:
-      - mariadb-server
-      - mariadb-backup
+      - mariadb-server-10.2
+      - mariadb-backup-10.2
     cache_valid_time: 3600
 
 - name: copy mariadb config files
