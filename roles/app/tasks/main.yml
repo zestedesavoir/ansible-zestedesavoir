@@ -68,12 +68,11 @@
   become: true
   become_user: "{{ appuser }}"
   pip:
-    name: "{{ item }}"
+    name:
+      - wheel
+      - sqlparse
     virtualenv: "{{ virtualenv }}"
     virtualenv_command: /usr/bin/pyvenv
-  with_items:
-    - wheel
-    - sqlparse
 
 - name: install requirements in virtualenv
   become: true

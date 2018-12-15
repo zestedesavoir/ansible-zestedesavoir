@@ -6,7 +6,6 @@
 - name: Install HTTPS transport for APT
   apt:
     pkg: apt-transport-https
-    state: installed
   when: not apt_https_transport.stat.exists
 
 - name: Import the NodeSource GPG key into apt
