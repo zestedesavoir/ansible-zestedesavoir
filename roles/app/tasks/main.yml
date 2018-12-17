@@ -117,6 +117,14 @@
     src: templates/config.toml.j2
     dest: "{{ workdir }}/config.toml"
 
+- name: create Google Analytics API secrets file
+  become: true
+  become_user: "{{ appuser }}"
+  copy:
+    content: "{{ google_analytics_api | combine(secrets.google_analytics_api) | to_nice_json }}"
+    dest: "{{ appdir }}/api_analytics_secrets.json"
+  when: secrets.google_analytics_api is defined
+
 - name: build front if repo changed
   include_tasks: frontend.yml
   when: app.changed
