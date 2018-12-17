@@ -156,6 +156,14 @@
     - src: "{{ datadir }}/static"
       dest: "static"
 
+- name: create symlink to the maintenance page
+  file:
+    src: "{{ webroot }}/errors/maintenance.html"
+    dest: "{{ webroot }}/maintenance.html"
+    state: link
+  when: app.changed
+  notify: remove maintenance symlink
+
 - name: migrate database
   become: true
   become_user: "{{ appuser }}"

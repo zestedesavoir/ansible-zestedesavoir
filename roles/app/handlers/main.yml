@@ -7,3 +7,8 @@
   systemd:
     name: zds-watchdog
     state: restarted
+
+- name: remove maintenance symlink
+  file:
+    path: "{{ webroot }}/maintenance.html"
+    state: absent
