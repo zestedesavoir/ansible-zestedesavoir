@@ -47,12 +47,14 @@
 
 - name: checkout the application
   become: true
-  become_user: "{{ appuser }}"
+  become_user: "{{ appuser }}"
+  vars:
+    refspec: "{{ '+refs/pull/*:refs/pull/*' if 'pull/' in appversion else '+refs/heads/*:refs/remotes/origin/*' }}"
   git:
     repo: "{{ apprepo }}"
     dest: "{{ appdir }}"
     version: "{{ appversion }}"
-    refspec: "+refs/pull/*:refs/pull/*"
+    refspec: "{{ refspec }}"
   register: app
   notify:
     - reload zds
