@@ -1,38 +1,13 @@
-- name: Ensure the system can use the HTTPS transport for APT
-  stat:
-    path: /usr/lib/apt/methods/https
-  register: apt_https_transport
-
-- name: Install HTTPS transport for APT
-  apt:
-    pkg: apt-transport-https
-  when: not apt_https_transport.stat.exists
-
-- name: Import the NodeSource GPG key into apt
-  apt_key:
-    id: 68576280
-    keyserver: "keyserver.ubuntu.com"
-
-- name: Add NodeSource deb repository
-  apt_repository:
-    repo: "{{ item }} https://deb.nodesource.com/node_8.x {{ ansible_distribution_release }} main"
-    state: present
-  with_items:
-    - deb
-    - deb-src
-
-- name: Install Node.js
-  apt:
-    pkg:
-      - nodejs
-    state: present
-    cache_valid_time: 3600
+- include_role:
+    name: common
+    tasks_from: nodejs
+  tags:
+    - bootstrap
 
 - name: installing frontend
   npm: path="{{ appdir }}"
   become: true
   become_user: "{{ appuser }}"
-  register: frontend
 
 - name: building frontend
   command: npm run build

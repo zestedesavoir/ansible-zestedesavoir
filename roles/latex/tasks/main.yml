@@ -10,14 +10,21 @@
       - xzdec
       - wget
     cache_valid_time: 3600
+  tags:
+    - bootstrap
 
 - include_tasks: packages.yml
+  tags:
+    - bootstrap
 
 - name: clone the template
   git:
     repo: "https://github.com/zestedesavoir/latex-template/"
     dest: /opt/zds/texmf/tex/generic/latex-template
   notify: run texhash
+  tags:
+    - bootstrap
+    - upgrade
 
 - name: create font folders
   file:
@@ -26,6 +33,8 @@
   with_nested:
     - "{{ fonttypes }}"
     - "{{ fonts }}"
+  tags:
+    - bootstrap
 
 - name: download fonts
   get_url:
@@ -46,4 +55,6 @@
       - Regular
       - Semibold
       - SemiboldIt
+  tags:
+    - bootstrap
   notify: refresh font-config cache

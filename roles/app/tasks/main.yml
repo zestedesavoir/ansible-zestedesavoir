@@ -11,6 +11,8 @@
       - libmariadb-dev
     state: present
     cache_valid_time: 3600
+  tags:
+    - bootstrap
 
 - name: should have a {{ appuser }} user
   become: true
@@ -19,6 +21,8 @@
     shell: /bin/false
     home: "{{ workdir }}"
     comment: "Zeste de Savoir"
+  tags:
+    - bootstrap
 
 - name: create the needed directories
   become: true
@@ -37,6 +41,8 @@
     - "{{ datadir }}/contents-public"
     - "{{ datadir }}/media"
     - "{{ datadir }}/static"
+  tags:
+    - bootstrap
 
 - name: checkout the application
   become: true
@@ -50,6 +56,9 @@
   notify:
     - reload zds
     - restart watchdog
+  tags:
+    - bootstrap
+    - upgrade
 
 - name: symlink data folders
   become: true
@@ -63,6 +72,8 @@
     - contents-public
     - media
     - static
+  tags:
+    - bootstrap
 
 - name: install wheel and sqlparse in virtualenv
   become: true
@@ -73,6 +84,8 @@
       - sqlparse
     virtualenv: "{{ virtualenv }}"
     virtualenv_command: /usr/bin/pyvenv
+  tags:
+    - bootstrap
 
 - name: install requirements in virtualenv
   become: true
@@ -82,6 +95,9 @@
     virtualenv: "{{ virtualenv }}"
     virtualenv_command: /usr/bin/pyvenv
   when: app.changed
+  tags:
+    - bootstrap
+    - upgrade
 
 - name: save version file
   become: true
@@ -90,6 +106,9 @@
     src: templates/_version.py.j2
     dest: "{{ appdir }}/zds/_version.py"
     mode: "0644"
+  tags:
+    - bootstrap
+    - upgrade
 
 - name: save wrapper script
   become: true
@@ -98,6 +117,8 @@
     src: templates/wrapper.j2
     dest: "{{ workdir }}/wrapper"
     mode: "0755"
+  tags:
+    - bootstrap
 
 - name: create unit files
   template:
@@ -109,6 +130,8 @@
     - zds-es-index.service
     - zds-es-index.timer
     - zds-watchdog.service
+  tags:
+    - bootstrap
 
 - name: create app config file
   become: true
@@ -119,6 +142,9 @@
   notify:
     - reload zds
     - restart watchdog
+  tags:
+    - bootstrap
+    - upgrade
 
 - name: create Google Analytics API secrets file
   become: true
@@ -127,6 +153,9 @@
     content: "{{ google_analytics_api | combine(secrets.google_analytics_api) | to_nice_json }}"
     dest: "{{ appdir }}/api_analytics_secrets.json"
   when: secrets.google_analytics_api is defined
+  tags:
+    - bootstrap
+    - upgrade
 
 - name: build front if repo changed
   include_tasks: frontend.yml
@@ -148,6 +177,8 @@
   file:
     path: "{{ webroot }}"
     state: directory
+  tags:
+    - bootstrap
 
 - name: create symlinks in webroot
   file:
@@ -163,6 +194,8 @@
       dest: "media"
     - src: "{{ datadir }}/static"
       dest: "static"
+  tags:
+    - bootstrap
 
 - name: create symlink to the maintenance page
   file:
@@ -171,6 +204,8 @@
     state: link
   when: app.changed
   notify: remove maintenance symlink
+  tags:
+    - upgrade
 
 - name: migrate database
   become: true

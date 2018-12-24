@@ -1,72 +1,61 @@
-- name: Ensure the system can use the HTTPS transport for APT
-  stat:
-    path: /usr/lib/apt/methods/https
-  register: apt_https_transport
+- include_role:
+    name: common
+    tasks_from: nodejs
+  tags:
+    - bootstrap
 
-- name: Install HTTPS transport for APT
-  apt:
-    pkg: apt-transport-https
-    state: present
-  when: not apt_https_transport.stat.exists
-
-- name: Import the NodeSource GPG key into apt
-  apt_key:
-    id: 68576280
-    keyserver: "keyserver.ubuntu.com"
-
-- name: Add NodeSource deb repository
-  apt_repository:
-    repo: "{{ item }} https://deb.nodesource.com/node_8.x {{ ansible_distribution_release }} main"
-    state: present
-  with_items:
-    - deb
-    - deb-src
-
-- name: Add NodeSource repository preferences
-  template:
-    src: deb_nodesource_com_node.pref
-    dest: /etc/apt/preferences.d/deb_nodesource_com_node.pref
-
-- name: Install Node.js
-  apt:
-    pkg: nodejs
-    cache_valid_time: 3600
-
-- name: Install pm2 globally
+- name: install pm2 globally
   npm:
     name: pm2
     global: yes
+  tags:
+    - bootstrap
 
-- name: Create zmd home directory
+- name: create zmd home directory
   file:
     state: directory
     path: /opt/zmd
     owner: zds
     group: zds
     mode: 0755
+  tags:
+    - bootstrap
 
-- name: Add server package.json
+- name: add server package.json
   template:
     src: package.json.j2
     dest: /opt/zmd/package.json
+  register: zmd_package
+  notify: restart zmd
+  tags:
+    - bootstrap
+    - upgrade
 
-- name: Install zmarkdown
+- name: install zmarkdown
   npm:
     name: zmarkdown
     path: /opt/zmd
+  when: zmd_package.changed
 
-- name: Add zmarkdown unit file
+- name: add zmarkdown unit file
   template:
     src: zmd.service.j2
     dest: /etc/systemd/system/zmd.service
   notify: restart zmd
 
-- name: Ensure zmd is running.
-  service: name=zmd state=started enabled=yes
+- name: ensure zmd is running.
+  service:
+    name: zmd
+    state: started
+    enabled: yes
   register: zmd_service
 
 - pause:
     seconds: 3
-  when: zmd_service.changed
+  when: zmd_service.changed or zmd_package.changed
 
-- shell: wget -qO- http://localhost:27272/
+- name: check that zmd is running
+  uri:
+    url: http://localhost:27272/
+  register: this
+  failed_when: "this.content is not 'zmd is running'"

@@ -1,10 +1,14 @@
 - hosts: app
   become: true
   roles:
-    - common
-    - elasticsearch
-    - mysql
-    - web
+    - role: common
+      tags: bootstrap
+    - role: elasticsearch
+      tags: bootstrap
+    - role: mysql
+      tags: bootstrap
+    - role: web
+      tags: bootstrap
     - app
     - latex
     - zmd

@@ -1,0 +1,33 @@
+- name: ensure the system can use the HTTPS transport for APT
+  stat:
+    path: /usr/lib/apt/methods/https
+  register: apt_https_transport
+
+- name: install HTTPS transport for APT
+  apt:
+    pkg: apt-transport-https
+    state: present
+  when: not apt_https_transport.stat.exists
+
+- name: import the NodeSource GPG key into apt
+  apt_key:
+    id: 68576280
+    keyserver: "keyserver.ubuntu.com"
+
+- name: add NodeSource deb repository
+  apt_repository:
+    repo: "{{ item }} https://deb.nodesource.com/node_8.x {{ ansible_distribution_release }} main"
+    state: present
+  with_items:
+    - deb
+    - deb-src
+
+- name: add NodeSource repository preferences
+  template:
+    src: deb_nodesource_com_node.pref
+    dest: /etc/apt/preferences.d/deb_nodesource_com_node.pref
+
+- name: install Node.js
+  apt:
+    pkg: nodejs
+    cache_valid_time: 3600
