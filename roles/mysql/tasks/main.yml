@@ -5,6 +5,10 @@
   with_items:
     - F1656F24C74CD1D8 # MariaDB
     - 8507EFA5 # Percona
+  retries: 10
+  delay: 1
+  register: this
+  until: this.rc == 0
 
 - name: add mariadb and percona repositories
   apt_repository:

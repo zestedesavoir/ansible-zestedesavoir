@@ -13,6 +13,10 @@
   apt_key:
     id: 68576280
     keyserver: "keyserver.ubuntu.com"
+  retries: 10
+  delay: 1
+  register: this
+  until: this.rc == 0
 
 - name: add NodeSource deb repository
   apt_repository:
