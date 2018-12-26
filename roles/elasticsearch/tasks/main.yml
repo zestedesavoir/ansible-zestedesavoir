@@ -1,11 +1,7 @@
 - name: add elasticsearch repository key
   apt_key:
-    keyserver: pgp.mit.edu
     id: 46095ACC8548582C1A2699A9D27D666CD88E42B4
-  retries: 10
-  delay: 1
-  register: this
-  until: this.rc == 0
+    keyserver: "pool.sks-keyservers.net"
 
 - name: add elasticsearch repository
   apt_repository:
