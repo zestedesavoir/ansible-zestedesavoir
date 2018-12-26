@@ -1,12 +1,5 @@
 upstream zdsappserver {
-    server unix:/opt/zds/run/gunicorn.sock fail_timeout=0;
-}
-
-# Active le header X-Robots-Tag sur la beta pour éviter d'indexer la beta
-map $http_host $robots_tag_header {
-    hostnames;
-    default '';
-    beta.zestedesavoir.com 'none';
+    server unix:{{ rundir }}/gunicorn.sock fail_timeout=0;
 }
 
 server {
@@ -14,13 +7,17 @@ server {
     listen [::]:80 default_server;
 
 
+{% if acme %}
     location ~ /.well-known/acme-challenge {
         include snippets/proxy.conf;
         proxy_pass http://localhost:402;
     }
+{% endif %}
 
 {% if certificate is defined and cert.stat.exists %}
+{% if http_host %}
     server_name {{ http_host }};
+{% endif %}
     return 301 https://$server_name$request_uri;
 }
 
@@ -29,7 +26,9 @@ server {
     listen 443 ssl http2 default_server;
     listen [::]:443 ssl http2 default_server;
 
+{% if http_host %}
     server_name {{ http_host }};
+{% endif %}
 
     try_files $uri @proxy;
     server_tokens off;
@@ -42,17 +41,23 @@ server {
     include snippets/ssl.conf;
 
     # Logging
-    access_log /var/log/zds/nginx-access.log;
-    error_log /var/log/zds/nginx-error.log;
+    access_log {{ logdir }}/nginx-access.log;
+    error_log {{ logdir }}/nginx-error.log;
 
     # Rewrite de l'ancienne page de teasing
     rewrite ^/teasing/$ / permanent;
 
     root {{ webroot }};
 
+{% if acme %}
     location ~ /.well-known {
         allow all;
     }
+{% endif %}
+
+{% if not public %}
+    add_header X-Robots-Tag "none" always;
+{% endif %}
 
     location @proxy {
         # 503 si la maintenance est active
@@ -98,4 +103,3 @@ server {
     include snippets/headers.conf;
     include snippets/antispam.conf;
 }
-

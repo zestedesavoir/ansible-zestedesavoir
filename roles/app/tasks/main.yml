@@ -5,6 +5,7 @@
       - python3
       - python3-dev
       - python3-venv
+      - python-setuptools
       - build-essential
       - libffi-dev
       - libssl-dev
@@ -83,7 +84,7 @@
       - wheel
       - sqlparse
     virtualenv: "{{ virtualenv }}"
-    virtualenv_command: /usr/bin/pyvenv
+    virtualenv_command: /usr/bin/python3 -m venv
   tags:
     - bootstrap
 
@@ -93,7 +94,7 @@
   pip:
     requirements: "{{ appdir }}/requirements-prod.txt"
     virtualenv: "{{ virtualenv }}"
-    virtualenv_command: /usr/bin/pyvenv
+    virtualenv_command: /usr/bin/python3 -m venv
   when: app.changed
   tags:
     - bootstrap

@@ -1,5 +1,6 @@
 appversion: v27.4-klaxon
 env: prod
+public: true
 http_host: zestedesavoir.com
 certificate:
   cert: /var/lib/acme/live/zestedesavoir.com/fullchain
