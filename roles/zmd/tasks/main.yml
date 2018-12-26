@@ -50,12 +50,11 @@
     enabled: yes
   register: zmd_service
 
-- pause:
-    seconds: 3
-  when: zmd_service.changed or zmd_package.changed
-
 - name: check that zmd is running
   uri:
     url: http://localhost:27272/
+    return_content: yes
   register: this
-  failed_when: "this.content is not 'zmd is running'"
+  delay: 1
+  retries: 10
+  until: "'zmd is running' in this.content"
