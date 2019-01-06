@@ -5,7 +5,3 @@ http_host: zestedesavoir.com
 certificate:
   cert: /var/lib/acme/live/zestedesavoir.com/fullchain
   key: /var/lib/acme/live/zestedesavoir.com/privkey
-
-visual_changes:
-  - snow
-  - clem-christmas
