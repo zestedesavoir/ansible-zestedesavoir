@@ -36,12 +36,18 @@
     name: zmarkdown
     path: /opt/zmd
   when: zmd_package.changed
+  tags:
+    - bootstrap
+    - upgrade
 
 - name: add zmarkdown unit file
   template:
     src: zmd.service.j2
     dest: /etc/systemd/system/zmd.service
   notify: restart zmd
+  tags:
+    - bootstrap
+    - upgrade
 
 - name: ensure zmd is running.
   service:
@@ -49,6 +55,9 @@
     state: started
     enabled: yes
   register: zmd_service
+  tags:
+    - bootstrap
+    - upgrade
 
 - name: check that zmd is running
   uri:
@@ -58,3 +67,6 @@
   delay: 1
   retries: 10
   until: "'zmd is running' in this.content"
+  tags:
+    - bootstrap
+    - upgrade

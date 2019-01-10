@@ -163,6 +163,9 @@
 - name: build front if repo changed
   include_tasks: frontend.yml
   when: app.changed
+  tags:
+    - bootstrap
+    - upgrade
 
 - name: collect static files
   become: true
@@ -175,6 +178,9 @@
     virtualenv: "{{ virtualenv }}"
     command: collectstatic
   when: app.changed
+  tags:
+    - bootstrap
+    - upgrade
 
 - name: create webroot
   file:
@@ -221,6 +227,9 @@
     virtualenv: "{{ virtualenv }}"
     command: migrate
   when: app.changed
+  tags:
+    - bootstrap
+    - upgrade
 
 - name: start services and timers
   systemd:
@@ -233,3 +242,6 @@
     - zds.socket
     - zds-es-index.timer
     - zds-watchdog.service
+  tags:
+    - bootstrap
+    - upgrade
