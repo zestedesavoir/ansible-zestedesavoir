@@ -9,6 +9,6 @@
       tags: bootstrap
     - role: web
       tags: bootstrap
+    - zmd
     - app
     - latex
-    - zmd
