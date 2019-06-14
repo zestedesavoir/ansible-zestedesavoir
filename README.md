@@ -19,6 +19,8 @@ Vous pouvez accéder au site web sur `localhost:8080` (HTTP) ou `localhost:8443`
 
 # Déployer une version de `zds-site` sur un serveur de production
 
+[Installer Ansible à partir de leur site web](https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html)
+
 - `ENV` = "beta" ou "production"
 - `TAG` = "bootstrap" (pour une installation complète) ou "upgrade" (pour une mise à jour)
 - `appversion` = un tag (ex, "v27.1") ou une branche (ex, "release_v28") ou une PR (ex, "pull/5158/head" pour la PR 5158)
