@@ -160,9 +160,9 @@
     - bootstrap
     - upgrade
 
-- name: build front if repo or zmd changed
+- name: build front if repo changed
   include_tasks: frontend.yml
-  when: app.changed or zmd_package.changed
+  when: app.changed
   tags:
     - bootstrap
     - upgrade
@@ -177,7 +177,7 @@
     app_path: "{{ appdir }}"
     virtualenv: "{{ virtualenv }}"
     command: collectstatic
-  when: app.changed or zmd_package.changed
+  when: app.changed
   tags:
     - bootstrap
     - upgrade
