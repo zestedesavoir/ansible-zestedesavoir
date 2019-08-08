@@ -119,7 +119,7 @@ alias zmv="noglob zmv -W"
 
 for dir in /etc/zsh ~/.zsh; do
     if [[ -d $dir ]]; then
-        for file in $dir/*.zsh; do
+        for file in $dir/*.zsh(N); do
             source $file
         done
     fi
