@@ -1,4 +1,4 @@
-appversion: v27.4-klaxon
+appversion: v28.1a-feve
 env: prod
 public: true
 http_host: zestedesavoir.com
