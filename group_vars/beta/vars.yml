@@ -2,5 +2,5 @@ appversion: dev
 env: beta
 http_host: beta.zestedesavoir.com
 certificate:
-  cert: /etc/letsencrypt/live/beta.zestedesavoir.com/fullchain.pem
-  key: /etc/letsencrypt/live/beta.zestedesavoir.com/privkey.pem
+  cert: /var/lib/acme/live/beta.zestedesavoir.com/fullchain
+  key: /var/lib/acme/live/beta.zestedesavoir.com/privkey
