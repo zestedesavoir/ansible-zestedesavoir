@@ -16,7 +16,7 @@
 
 - name: add NodeSource deb repository
   apt_repository:
-    repo: "{{ item }} https://deb.nodesource.com/node_8.x {{ ansible_distribution_release }} main"
+    repo: "{{ item }} https://deb.nodesource.com/node_10.x {{ ansible_distribution_release }} main"
     state: present
   with_items:
     - deb
