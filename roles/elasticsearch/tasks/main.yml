@@ -5,7 +5,7 @@
 
 - name: add elasticsearch repository
   apt_repository:
-    repo: "deb http://packages.elastic.co/elasticsearch/5.x/debian stable main"
+    repo: "deb https://artifacts.elastic.co/packages/5.x/apt stable main"
     state: present
 
 - name: install openjdk8-jre and elasticsearch

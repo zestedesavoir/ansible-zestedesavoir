@@ -3,19 +3,17 @@
     id: "{{ item }}"
     keyserver: "pool.sks-keyservers.net"
   with_items:
-    - 177F4010FE56CA3336300305F1656F24C74CD1D8 # MariaDB
-    - 4D1BB29D63D98E422B2113B19334A25F8507EFA5 # Percona
+    - 177F4010FE56CA3336300305F1656F24C74CD1D8
 
-- name: add mariadb and percona repositories
+- name: add mariadb repository
   apt_repository:
     repo: "{{ item }}"
     state: present
   with_items:
-    - "deb http://repo.percona.com/apt {{ ansible_distribution_release }} main"
-    - "deb [arch=amd64,i386,ppc64el] http://mariadb.mirrors.ovh.net/MariaDB/repo/10.2/debian {{ ansible_distribution_release }} main"
+    - "deb http://downloads.mariadb.com/MariaDB/mariadb-10.2/repo/debian {{ ansible_distribution_release }} main"
   register: repo
 
-- name: install mariadb-server and percona-xtrabackup
+- name: install mariadb-server and mariadb-backup
   apt:
     pkg:
       - mariadb-server-10.2
