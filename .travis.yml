@@ -1,7 +1,15 @@
 ---
 sudo: required
+
+language: ruby
+cache: bundler
+
 # docker is required to run tests
 services: docker
+
+before_install:
+  # install bundler 2.x
+  - gem install bundler
 
 install:
   - bundle install

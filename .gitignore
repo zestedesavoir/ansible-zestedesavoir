@@ -2,3 +2,5 @@
 .vagrant/
 vault-secret
 *.retry
+.bundle/
+vendor/
