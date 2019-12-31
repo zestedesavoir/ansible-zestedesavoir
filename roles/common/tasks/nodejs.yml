@@ -1,14 +1,3 @@
-- name: ensure the system can use the HTTPS transport for APT
-  stat:
-    path: /usr/lib/apt/methods/https
-  register: apt_https_transport
-
-- name: install HTTPS transport for APT
-  apt:
-    pkg: apt-transport-https
-    state: present
-  when: not apt_https_transport.stat.exists
-
 - name: import the NodeSource GPG key into apt
   apt_key:
     id: 9FD3B784BC1C6FC31A8A0A1C1655A0AB68576280

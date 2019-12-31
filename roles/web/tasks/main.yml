@@ -5,11 +5,11 @@
 
 - name: add nginx repository
   apt_repository:
-    repo: "{{ item }}"
+    repo: "{{ item }} https://nginx.org/packages/debian/ {{ ansible_distribution_release }} nginx"
     state: present
   with_items:
-    - "deb http://nginx.org/packages/debian/ {{ ansible_distribution_release }} nginx"
-    - "deb-src http://nginx.org/packages/debian/ {{ ansible_distribution_release }} nginx"
+    - "deb"
+    - "deb-src"
   register: repo
 
 - name: install nginx

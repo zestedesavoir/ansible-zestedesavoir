@@ -29,3 +29,14 @@
     dest: "/etc/zsh/{{ item.path }}"
   with_filetree: zsh/
   when: item.state == 'file'
+
+- name: ensure the system can use the HTTPS transport for APT
+  stat:
+    path: /usr/lib/apt/methods/https
+  register: apt_https_transport
+
+- name: install HTTPS transport for APT
+  apt:
+    pkg: apt-transport-https
+    state: present
+  when: not apt_https_transport.stat.exists
