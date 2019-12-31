@@ -1,8 +1,10 @@
 server {
         listen 80;
         listen [::]:80;
+{% if certificate is defined and cert.stat.exists %}
         listen 443 ssl http2;
         listen [::]:443 ssl http2;
+{% endif %}
         server_name
                 www.zestedesavoir.com
                 ftp.zestedesavoir.com

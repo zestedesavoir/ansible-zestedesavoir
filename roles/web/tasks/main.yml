@@ -17,7 +17,7 @@
     pkg: nginx
     cache_valid_time: 3600
 
-- name: check if letsencrypt certificate is present
+- name: check if tls certificate is present
   stat:
     path: "{{ certificate.cert }}"
   register: cert
