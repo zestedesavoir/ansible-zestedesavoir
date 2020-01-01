@@ -23,6 +23,13 @@
   become: true
   become_user: zds
   shell: >
+    # we make sure that tlmgr repository correspond to texlive annual release
+    texlive_year=$(tlmgr --version) &&
+    texlive_year=$(echo -n $texlive_year | tail -c 4) &&
+    tlmgr option repository http://ftp.math.utah.edu/pub/tex/historic/systems/texlive/$texlive_year/tlnet-final &&
+    # we tell updmap to go user mode, not system mode
+    updmap-user &&
+    # we update and install
     tlmgr update --list &&
     tlmgr install {{ ' '.join(latex_packages) }} &&
     echo {{ ' '.join(latex_packages) }} > $HOME/texmf/ansible-state
