@@ -13,7 +13,7 @@ provisioner:
   ansible_inventory: kitchen-hosts
 
 platforms:
-  - name: debian-9.3
+  - name: debian-10
 
 suites:
   - name: default

@@ -5,15 +5,15 @@
 
 - name: add mariadb repository
   apt_repository:
-    repo: "deb https://downloads.mariadb.com/MariaDB/mariadb-10.2/repo/debian {{ ansible_distribution_release }} main"
+    repo: "deb https://downloads.mariadb.com/MariaDB/mariadb-10.4/repo/debian {{ ansible_distribution_release }} main"
     state: present
   register: repo
 
 - name: install mariadb-server and mariadb-backup
   apt:
     pkg:
-      - mariadb-server-10.2
-      - mariadb-backup-10.2
+      - mariadb-server
+      - mariadb-backup
     cache_valid_time: 3600
 
 - name: copy mariadb config files
