@@ -51,7 +51,7 @@ bind-address            = 127.0.0.1
 # * Fine Tuning
 #
 key_buffer              = 16M
-max_allowed_packet      = 16M
+max_allowed_packet      = 64M
 thread_stack            = 256K
 thread_cache_size       = 8
 # This replaces the startup script and checks MyISAM tables if needed
