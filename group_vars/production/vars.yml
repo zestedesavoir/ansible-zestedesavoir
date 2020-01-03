@@ -1,4 +1,4 @@
-appversion: v28.2b-feve
+appversion: v28.2c-feve
 env: prod
 public: true
 http_host: zestedesavoir.com
