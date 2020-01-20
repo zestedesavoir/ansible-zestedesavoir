@@ -1,4 +1,4 @@
-appversion: v29-plume
+appversion: v29b-plume
 env: prod
 public: true
 http_host: zestedesavoir.com
