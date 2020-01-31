@@ -15,7 +15,6 @@ latex_packages:
   - ntheorem
   - pagecolor
   - relsize
-  - tabu
   - varwidth
   - xpatch
   - xstring

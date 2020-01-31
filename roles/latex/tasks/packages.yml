@@ -36,3 +36,17 @@
   when: installed_packages.content|b64decode|trim != latex_packages|join(" ")
   tags:
     - bootstrap
+
+- name: create tabu directory
+  file:
+    path: /opt/zds/texmf/tex/latex/tabu/
+    state: directory
+  tags:
+    - bootstrap
+
+- name: install tabu package
+  get_url:
+    url: https://raw.githubusercontent.com/tabu-issues-for-future-maintainer/tabu/master/tabu.sty
+    dest: /opt/zds/texmf/tex/latex/tabu/tabu.sty
+  tags:
+    - bootstrap
