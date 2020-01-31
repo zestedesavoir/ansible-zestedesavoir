@@ -13,7 +13,7 @@ LimitCORE=infinity
 Environment=PATH=/usr/bin:/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin
 Environment=PM2_HOME=/opt/zmd/.pm2
 Environment=SENTRY_DSN={{ zmarkdown_sentry_dsn }}
-Environment=ZDS_ENVIRONMENT=beta
+Environment=ZDS_ENVIRONMENT={{ env }}
 PIDFile=/opt/zmd/.pm2/pm2.pid
 
 ExecStart=/usr/lib/node_modules/pm2/bin/pm2 start -f /opt/zmd/node_modules/zmarkdown/server/index.js -i 3 --max-memory-restart 150M
