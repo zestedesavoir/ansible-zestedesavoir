@@ -18,7 +18,6 @@ latex_packages:
   - ifplatform
 # - ifthen
   - luacode
-  - media9
   - menukeys
   - mfirstuc
   - minted
@@ -34,7 +33,6 @@ latex_packages:
   - xfor
   - xifthen
   - xpatch
-  - xsavebox
   - xstring
 
 fonttypes:
