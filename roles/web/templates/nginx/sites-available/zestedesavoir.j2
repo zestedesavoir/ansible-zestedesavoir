@@ -80,6 +80,9 @@ server {
 
     # Cache headers on static resources
     location ~* ^/(static|media|errors)/ {
+        access_log off;
+        log_not_found off;
+
         include snippets/static-cache.conf;
         include snippets/clem_smileys.conf;
     }
