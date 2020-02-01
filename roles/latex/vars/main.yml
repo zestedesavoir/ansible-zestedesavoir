@@ -5,37 +5,37 @@ latex_packages:
   - catoptions
   - cm-super
   - collectbox
+  - ctablestack
+  - datatool
+  - environ
+  - etoolbox
+  - fontspec
   - framed
   - fvextra
-  # - glossaries
+  - geometry
+# - glossaries
+  - ifmtarg
   - ifplatform
+# - ifthen
+  - luacode
+  - media9
   - menukeys
+  - mfirstuc
   - minted
   - multirow
   - ntheorem
   - pagecolor
   - relsize
-  - varwidth
-  - xpatch
-  - xstring
-  - mfirstuc
-  - xfor
-  - datatool
   - substr
-  - tracklang
-  - xsavebox
-  - media9
   - tcolorbox
-  - environ
-  - etoolbox
+  - tracklang
   - trimspaces
-  # - ifthen
-  - geometry
+  - varwidth
+  - xfor
   - xifthen
-  - ifmtarg
-  - fontspec
-  - luacode
-  - ctablestack
+  - xpatch
+  - xsavebox
+  - xstring
 
 fonttypes:
   - ext: otf
