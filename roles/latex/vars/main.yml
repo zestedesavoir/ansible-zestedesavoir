@@ -20,6 +20,7 @@ latex_packages:
   - luacode
   - menukeys
   - mfirstuc
+  - mhchem
   - minted
   - multirow
   - ntheorem
