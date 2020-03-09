@@ -3,6 +3,7 @@ latex_packages:
   - blindtext
   - capt-of
   - catoptions
+  - chemgreek
   - cm-super
   - collectbox
   - ctablestack
@@ -13,10 +14,8 @@ latex_packages:
   - framed
   - fvextra
   - geometry
-# - glossaries
   - ifmtarg
   - ifplatform
-# - ifthen
   - luacode
   - menukeys
   - mfirstuc
