@@ -94,6 +94,41 @@ Depuis une copie de `ansible-zestedesavoir` sur votre ordinateur :
         - (version courte) `ansible-playbook playbook.yml -l ENV -t TAG -K --vault-password-file=vault-secret`
 6. Vérifier que le serveur fonctionne bien et siroter un diabolo
 
+## Actions manuelles sur le serveur
+
+### Effectuer une opération de maintenance
+
+Si jamais vous devez effectuer des actions manuelles sur la base de données ou des logiciels utilisés par le site web, il vous faut le mettre en maintenance comme ceci :
+
+```bash
+# On affiche la page de maintenance
+cd /opt/zds/webroot
+sudo ln -s errors/maintenance.html
+# On attend quelques secondes
+# On arrête le serveur et le watchdog associé
+sudo systemctl stop zds-watchdog
+sudo systemctl stop zds
+# Si besoin, on arrête la base de données
+sudo systemctl stop mariadb
+```
+
+Pour le redémarrer, on effectue les étapes inverses :
+
+```bash
+# Si besoin, on redémarre la base de données
+sudo systemctl start mariadb
+# On redémarre le serveur et le watchdog associé
+sudo systemctl start zds
+sudo systemctl start zds-watchdog
+# On attend quelques secondes
+# On enlève la page de maintenance
+sudo rm /opt/zds/webroot/maintenance.html
+```
+
+### Lancer une commande `python manage.py`
+
+Si jamais vous devez lancer une commande `python manage.py`, ne le faites pas, utilisez le script `wrapper` présent dans le dossier `/opt/zds` ! Cet enrobage permet de lancer `python manage.py` avec l'utilisateur `zds` et les configurations spécifiques au serveur de production. Il s'utilise de la même manière : par exemple, `python manage.py shell` devient simplement `/opt/zds/wrapper shell`.
+
 ## (Archive) Configuration du Munin
 
 *Actuellement, notre script Ansible ne prend pas en charge la configuration du Munin. J'archive ici les anciennes instructions pour l'installation du Munin. Je ne sais pas si elles sont encore valables.*
