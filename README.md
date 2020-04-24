@@ -94,6 +94,31 @@ Depuis une copie de `ansible-zestedesavoir` sur votre ordinateur :
         - (version courte) `ansible-playbook playbook.yml -l ENV -t TAG -K --vault-password-file=vault-secret`
 6. Vérifier que le serveur fonctionne bien et siroter un diabolo
 
+## Configuration temporaire
+
+### Changements visuels temporaires
+
+Plusieurs changements visuels sont activables et désactivables en modifiant la configuration dans `group_vars/beta/vars.yml` ou `group_vars/production/vars.yml` :
+
+```yaml
+visual_changes:
+  - snow # Neige animée dans le bandeau de navigation
+  - clem-christmas # Affiche la Clem Christmas sur la page d'accueil
+  - clem-halloween # Affiche la Clem Halloween sur la page d'accueil
+```
+
+### Ajouter un bandeau temporaire
+
+Il est possible d'ajouter un bandeau d'information tout en haut du site pour prévenir les utilisateurs en amont d'une longue maintenance du serveur de production. Pour se faire, il suffit de modifier `group_vars/production/vars.yml` en s'inspirant du bandeau actuellement utilisé sur le serveur de bêta :
+
+```yaml
+very_top_banner:
+  background_color: '#800'
+  border_color: '#450000'
+  color: 'white'
+  message: 'Pour des raisons de maintenance, le serveur sera inaccessible de 13h à 14h.'
+```
+
 ## Actions manuelles sur le serveur
 
 ### Effectuer une opération de maintenance
