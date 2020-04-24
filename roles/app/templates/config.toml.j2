@@ -33,6 +33,14 @@ association_fee = "25 €"
 
 visual_changes = {{ visual_changes | default([]) | to_json }}
 
+{% if very_top_banner is defined %}
+[very_top_banner]
+background_color = "{{ very_top_banner.background_color }}"
+border_color = "{{ very_top_banner.border_color }}"
+color = "{{ very_top_banner.color }}"
+message = "{{ very_top_banner.message }}"
+{% endif %}
+
 [databases.default]
 name = "{{ mysql.name }}"
 user = "{{ mysql.user }}"
