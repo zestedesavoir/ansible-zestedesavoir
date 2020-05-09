@@ -43,18 +43,9 @@ Ces deux serveurs doivent être identiques autant que possible pour pouvoir repr
 | Base de données à sauvegarder (et ses sauvegardes régulières) | `/var/lib/mysql` (et `/var/backups/mysql`) |
 | Fichiers de journalisation                                   | `/var/log/zds`                             |
 
-### Sauvegarde des fichiers
+### Sauvegardes
 
-Concernant la base de données :
-
-- une sauvegarde complète est réalisée chaque jour ;
-- une sauvegarde incrémentale est réalisée toute les quatre heures.
-
-Ces sauvegardes sont disponibles dans `/var/backups/mysql`.
-
-Concernant les données importantes, une sauvegarde complète est réalisée chaque jour.
-
-Ces sauvegardes sont copiées régulièrement sur un autre serveur appartenant à [Sandhose]
+Une explication détaillée est disponible dans le fichier `BACKUP.md` !
 
 ## Déployer dans une machine virtuelle
 
