@@ -101,7 +101,7 @@ On utilise :
 Un volume dédié aux sauvegardes de 50 Go est monté sur `/opt/sauvegarde` sur le serveur de bêta et contient :
 
 - les sauvegardes de la base de données dans `/opt/sauvegarde/db` (l'équivalent de `/var/backups/mysql` mais sans la suppression des anciennes sauvegardes) ;
-- les sauvegardes des fichiers importants dans `/opt/sauvegarde/data` (que l'on initialise au préalable avec `borg init --encryption=none /opt/sauvegarde/data` avec l'utilisateur `clem`).
+- les sauvegardes des fichiers importants dans `/opt/sauvegarde/data` (que l'on initialise au préalable avec `borg init --encryption=none /opt/sauvegarde/data` avec l'utilisateur `root`).
 
 On utilise l'utilitaire `cron` *depuis le serveur de prod* pour envoyer les données vers le serveur de bêta :
 
@@ -119,7 +119,7 @@ On utilise l'utilitaire `cron` *depuis le serveur de prod* pour envoyer les donn
 BASE=opt/sauvegarde
 
 echo "Synchronisation des sauvegardes de la base de donnée"
-rsync -azvr /var/backups/mysql/ clem@scaleway.zestedesavoir.com:/$BASE/db
+rsync -azvr /var/backups/mysql/ root@scaleway.zestedesavoir.com:/$BASE/db
 ```
 
 **`donnees.sh`**
@@ -130,7 +130,7 @@ rsync -azvr /var/backups/mysql/ clem@scaleway.zestedesavoir.com:/$BASE/db
 # Script from https://borgbackup.readthedocs.io/en/stable/quickstart.html#automating-backups
 
 # Setting this, so the repo does not need to be given on the commandline:
-export BORG_REPO=ssh://clem@scaleway.zestedesavoir.com/opt/sauvegarde/data
+export BORG_REPO=ssh://root@scaleway.zestedesavoir.com/opt/sauvegarde/data
 
 # See the section "Passphrase notes" for more infos.
 #export BORG_PASSPHRASE='XYZl0ngandsecurepa_55_phrasea&&123'
@@ -199,7 +199,7 @@ Voici les commandes que j'ai effectuée pour restaurer la bêta à partir des sa
 # Script de mise à jour de la bêta avec les backups de la prod
 
 # En premier il faut passer arrêter le site web
-cd /opt/zds/webroot
+cd /opt/zds/webroot/
 sudo ln -s errors/maintenance.html
 sudo systemctl stop zds
 sudo systemctl stop zds-watchdog
@@ -215,32 +215,32 @@ sudo mv /var/lib/mysql{,.bck}/
 # - la sauvegarde incrémentale de 8h : 20200509-0800
 
 # On copie les sauvegardes concernées pour ne pas qu'elles soient modifiées
-sudo cp -r /opt/sauvegarde/db/20200509-0315-full{,.bck}
-sudo cp -r /opt/sauvegarde/db/20200509-0400{,.bck}
-sudo cp -r /opt/sauvegarde/db/20200509-0800{,.bck}
+sudo cp -r /opt/sauvegarde/db/20200509-0315-full{,.bck}/
+sudo cp -r /opt/sauvegarde/db/20200509-0400{,.bck}/
+sudo cp -r /opt/sauvegarde/db/20200509-0800{,.bck}/
 
 # On décompresse les sauvegardes
-sudo mariabackup -V --decompress --target-dir /opt/sauvegarde/db/20200509-0315-full
-sudo mariabackup -V --decompress --target-dir /opt/sauvegarde/db/20200509-0400
-sudo mariabackup -V --decompress --target-dir /opt/sauvegarde/db/20200509-0800
+sudo mariabackup -V --decompress --target-dir /opt/sauvegarde/db/20200509-0315-full/
+sudo mariabackup -V --decompress --target-dir /opt/sauvegarde/db/20200509-0400/
+sudo mariabackup -V --decompress --target-dir /opt/sauvegarde/db/20200509-0800/
 
 # On prépare la sauvegarde complète
 sudo mariabackup -V --prepare \
-   --target-dir=/opt/sauvegarde/db/20200509-0315-full
+   --target-dir=/opt/sauvegarde/db/20200509-0315-full/
    
 # On met à jour la sauvegarde complète grâce aux sauvegardes incrémentales
 sudo mariabackup -V --prepare \
-   --target-dir=/opt/sauvegarde/db/20200509-0315-full \
-   --incremental-dir=/opt/sauvegarde/db/20200509-0400
+   --target-dir=/opt/sauvegarde/db/20200509-0315-full/ \
+   --incremental-dir=/opt/sauvegarde/db/20200509-0400/
 sudo mariabackup -V --prepare \
-   --target-dir=/opt/sauvegarde/db/20200509-0315-full \
-   --incremental-dir=/opt/sauvegarde/db/20200509-0800
+   --target-dir=/opt/sauvegarde/db/20200509-0315-full/ \
+   --incremental-dir=/opt/sauvegarde/db/20200509-0800/
 
 # On restaure la base de données avec la sauvegarde complète
-sudo mariabackup -V --copy-back --target-dir /opt/sauvegarde/db/20200509-0315-full
+sudo mariabackup -V --copy-back --target-dir /opt/sauvegarde/db/20200509-0315-full/
 
 # On met les bons droits et on relance MySQL
-sudo chown -R mysql:mysql /var/lib/mysql
+sudo chown -R mysql:mysql /var/lib/mysql/
 sudo systemctl start mysql
 
 # Si tout va bien on peut continuer, sinon on débug
@@ -271,6 +271,12 @@ sudo systemctl start zds-watchdog
 sudo rm /opt/zds/webroot/maintenance.html
 
 # On vérifie que tout fonctionne bien
+
+# Si tout est parfait, on peut supprimer les copies temporaires
+sudo rm -rI /var/lib/mysql.bck/
+sudo rm -rI /opt/sauvegarde/db/20200509-0315-full.bck/
+sudo rm -rI /opt/sauvegarde/db/20200509-0400.bck/
+sudo rm -rI /opt/sauvegarde/db/20200509-0800.bck/
 ```
 
 ## Perdre des données, cela n'arrive pas qu'aux autres !
