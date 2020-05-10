@@ -98,7 +98,12 @@ On utilise :
 - rsync pour les sauvegardes de la base de données ;
 - [BorgBackup](https://borgbackup.readthedocs.io/en/stable/index.html) pour les fichiers importants.
 
-On utilise l'utilitaire `cron` depuis le serveur de prod pour envoyer les données vers le serveur de bêta :
+Un volume dédié aux sauvegardes de 50 Go est monté sur `/opt/sauvegarde` sur le serveur de bêta et contient :
+
+- les sauvegardes de la base de données dans `/opt/sauvegarde/db` (l'équivalent de `/var/backups/mysql` mais sans la suppression des anciennes sauvegardes) ;
+- les sauvegardes des fichiers importants dans `/opt/sauvegarde/data` (que l'on initialise au préalable avec `borg init --encryption=none /opt/sauvegarde/data` avec l'utilisateur `clem`).
+
+On utilise l'utilitaire `cron` *depuis le serveur de prod* pour envoyer les données vers le serveur de bêta :
 
 ```cron
 # min hour dom month dow command
