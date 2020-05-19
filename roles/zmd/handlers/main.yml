@@ -1,4 +1,4 @@
-- name: restart zmd
+- name: restart zmarkdown service
   systemd:
     name: zmd
     state: restarted

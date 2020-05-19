@@ -4,38 +4,13 @@
   tags:
     - bootstrap
 
-- name: install pm2 globally
-  npm:
-    name: pm2
-    global: yes
-  tags:
-    - bootstrap
-
-- name: create zmd home directory
-  file:
-    state: directory
-    path: /opt/zmd
-    owner: zds
-    group: zds
-    mode: 0755
-  tags:
-    - bootstrap
-
-- name: add server package.json
-  template:
-    src: package.json.j2
-    dest: /opt/zmd/package.json
-  register: zmd_package
-  notify: restart zmd
-  tags:
-    - bootstrap
-    - upgrade
-
 - name: install zmarkdown
+  become: true
+  become_user: zds
   npm:
-    name: zmarkdown
-    path: /opt/zmd
-  when: zmd_package.changed
+    path: "{{ zmarkdown_dir }}"
+    production: yes
+  notify: restart zmarkdown service
   tags:
     - bootstrap
     - upgrade
@@ -44,22 +19,22 @@
   template:
     src: zmd.service.j2
     dest: /etc/systemd/system/zmd.service
-  notify: restart zmd
+  notify: restart zmarkdown service
   tags:
     - bootstrap
     - upgrade
 
-- name: ensure zmd is running.
+- name: start zmarkdown service
   service:
     name: zmd
-    state: started
+    state: restarted
     enabled: yes
-  register: zmd_service
+    daemon_reload: true
   tags:
     - bootstrap
     - upgrade
 
-- name: check that zmd is running
+- name: check that zmarkdown is running
   uri:
     url: http://localhost:27272/
     return_content: yes
