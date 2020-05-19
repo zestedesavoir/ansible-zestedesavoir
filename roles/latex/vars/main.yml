@@ -1,39 +1,6 @@
-latex_packages:
-  - adjustbox
-  - blindtext
-  - capt-of
-  - catoptions
-  - chemgreek
-  - cm-super
-  - collectbox
-  - ctablestack
-  - datatool
-  - environ
-  - etoolbox
-  - fontspec
-  - framed
-  - fvextra
-  - geometry
-  - ifmtarg
-  - ifplatform
-  - luacode
-  - menukeys
-  - mfirstuc
-  - mhchem
-  - minted
-  - multirow
-  - ntheorem
-  - pagecolor
-  - relsize
-  - substr
-  - tcolorbox
-  - tracklang
-  - trimspaces
-  - varwidth
-  - xfor
-  - xifthen
-  - xpatch
-  - xstring
+texlive_dir: "{{ workdir }}/texlive"
+texlive_binaries: "{{ texlive_dir }}/bin/x86_64-linux"
+template_dir: "{{ texlive_dir }}/texmf-dist/tex/generic/latex-template"
 
 fonttypes:
   - ext: otf

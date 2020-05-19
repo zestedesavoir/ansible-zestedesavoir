@@ -1,53 +1,34 @@
-- name: create tlmgr usertree
+- name: clone latex template  # noqa git-latest
   become: true
   become_user: zds
-  ansible.builtin.command: tlmgr init-usertree
+  ansible.builtin.git:
+    repo: "https://github.com/zestedesavoir/latex-template/"
+    dest: "{{ template_dir }}"
+  notify: run texhash
+
+- name: install latex packages
+  become: true
+  become_user: zds
+  vars:
+    packages: "{{ template_dir }}/scripts/packages"
+  ansible.builtin.shell: |
+    packages=$(cat {{ packages }})
+    {{ texlive_binaries }}/tlmgr update --self
+    {{ texlive_binaries }}/tlmgr install $packages
   args:
-    creates: $HOME/texmf
-  tags:
-    - bootstrap
-
-- name: create ansible state if non-existant
-  ansible.builtin.file:
-    path: /opt/zds/texmf/ansible-state
-    state: touch
-    mode: u=rw,g=r,o=r
-  tags:
-    - bootstrap
-
-- name: check ansible state
-  ansible.builtin.slurp: src=/opt/zds/texmf/ansible-state
-  register: installed_packages
-
-- name: install packages  # noqa risky-shell-pipe
-  become: true
-  become_user: zds
-  ansible.builtin.shell: >
-    # we make sure that tlmgr repository correspond to texlive annual release
-    texlive_year=$(tlmgr --version) &&
-    texlive_year=$(echo -n $texlive_year | tail -c 4) &&
-    tlmgr option repository http://ftp.math.utah.edu/pub/tex/historic/systems/texlive/$texlive_year/tlnet-final &&
-    # we tell updmap to go user mode, not system mode
-    updmap-user &&
-    # we update and install
-    tlmgr update --list &&
-    tlmgr install {{ ' '.join(latex_packages) }} &&
-    echo {{ ' '.join(latex_packages) }} > $HOME/texmf/ansible-state
-  when: installed_packages.content|b64decode|trim != latex_packages|join(" ")
-  tags:
-    - bootstrap
+    executable: /bin/bash
 
 - name: create tabu directory
+  become: true
+  become_user: zds
   ansible.builtin.file:
-    path: /opt/zds/texmf/tex/latex/tabu/
+    path: "{{ texlive_dir }}/texmf-dist/tex/latex/tabu/"
     state: directory
     mode: u=rw,g=r,o=r
-  tags:
-    - bootstrap
 
 - name: install tabu package
+  become: true
+  become_user: zds
   ansible.builtin.get_url:
     url: https://raw.githubusercontent.com/tabu-issues-for-future-maintainer/tabu/master/tabu.sty
-    dest: /opt/zds/texmf/tex/latex/tabu/tabu.sty
-  tags:
-    - bootstrap
+    dest: "{{ texlive_dir }}/texmf-dist/tex/latex/tabu/tabu.sty"

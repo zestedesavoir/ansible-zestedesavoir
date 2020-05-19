@@ -1,30 +1,51 @@
-- name: install texlive packages
-  ansible.builtin.apt:
-    pkg:
-      - texlive
-      - texlive-luatex
-      - texlive-lang-french
-      - texlive-latex-extra
-      - texlive-fonts-extra
-      - python-pygments
-      - xzdec
-      - wget
-    cache_valid_time: 3600
+- name: download latest texlive
+  become: true
+  become_user: zds
+  ansible.builtin.unarchive:
+    src: http://mirror.ctan.org/systems/texlive/tlnet/install-tl-unx.tar.gz
+    dest: "{{ workdir }}"
+    remote_src: true
   tags:
     - bootstrap
 
-- include_tasks: packages.yml
+- name: copy texlive.profile
+  become: true
+  become_user: zds
+  ansible.builtin.template:
+    src: texlive.profile
+    dest: "{{ workdir }}/texlive.profile"
   tags:
     - bootstrap
 
-- name: clone the template  # noqa git-latest
-  ansible.builtin.git:
-    repo: "https://github.com/zestedesavoir/latex-template/"
-    dest: /opt/zds/texmf/tex/generic/latex-template
-  notify: run texhash
+- name: install latest texlive
+  become: true
+  become_user: zds
+  ansible.builtin.shell: |
+    if [ -d "{{ texlive_dir }}/bin" ]; then
+        echo "TeXLive is already installed"
+    else
+        ./install-tl*/install-tl -v -profile texlive.profile
+    fi
+  args:
+    executable: /bin/bash
+    chdir: "{{ workdir }}"
+  notify: remove texlive installation files
+  tags:
+    - bootstrap
+
+- name: include packages tasks
+  include_tasks: packages.yml
   tags:
     - bootstrap
     - upgrade
+
+- name: install fontconfig
+  ansible.builtin.apt:
+    pkg: fontconfig
+    state: present
+    cache_valid_time: 3600
+  tags:
+    - bootstrap
 
 - name: create font folders
   ansible.builtin.file:
@@ -56,6 +77,6 @@
       - Regular
       - Semibold
       - SemiboldIt
+  notify: refresh font-config cache
   tags:
     - bootstrap
-  notify: refresh font-config cache
