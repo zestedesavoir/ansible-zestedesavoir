@@ -1,20 +1,21 @@
-- name: import the NodeSource GPG key into apt
+- name: add Node.js repository key
   apt_key:
     id: 9FD3B784BC1C6FC31A8A0A1C1655A0AB68576280
     keyserver: "pool.sks-keyservers.net"
 
-- name: add NodeSource deb repository
+- name: add Node.js repository
   apt_repository:
+    filename: nodejs
     repo: "{{ item }} https://deb.nodesource.com/node_10.x {{ ansible_distribution_release }} main"
     state: present
   with_items:
     - deb
     - deb-src
 
-- name: add NodeSource repository preferences
+- name: add Node.js repository preferences
   template:
-    src: deb_nodesource_com_node.pref
-    dest: /etc/apt/preferences.d/deb_nodesource_com_node.pref
+    src: nodejs.pref
+    dest: /etc/apt/preferences.d/nodejs.pref
 
 - name: install Node.js
   apt:

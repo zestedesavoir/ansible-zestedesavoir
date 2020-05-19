@@ -4,20 +4,21 @@
   tags:
     - bootstrap
 
-- name: installing frontend
-  npm: path="{{ appdir }}"
+- name: install frontend
   become: true
   become_user: "{{ appuser }}"
+  npm:
+    path: "{{ appdir }}"
   tags:
     - bootstrap
     - upgrade
 
-- name: building frontend
+- name: build frontend
+  become: true
+  become_user: "{{ appuser }}"
   command: npm run build
   args:
     chdir: "{{ appdir }}"
-  become: true
-  become_user: "{{ appuser }}"
   tags:
     - bootstrap
     - upgrade

@@ -5,6 +5,7 @@
 
 - name: add mariadb repository
   apt_repository:
+    filename: mariadb
     repo: "deb https://downloads.mariadb.com/MariaDB/mariadb-10.4/repo/debian {{ ansible_distribution_release }} main"
     state: present
   register: repo
