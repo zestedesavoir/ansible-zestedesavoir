@@ -111,7 +111,7 @@ On utilise l'utilitaire `cron` *depuis le serveur de prod* pour envoyer les donn
 5 */4 * * * /root/sauvegarde-vers-la-beta/bdd.sh
 ```
 
-**`bdd.sh`**
+**`bdd.sh` (sur le serveur de prod)**
 
 ```sh
 #!/bin/sh
@@ -122,7 +122,7 @@ echo "Synchronisation des sauvegardes de la base de donnée"
 rsync -azvr /var/backups/mysql/ root@scaleway.zestedesavoir.com:/$BASE/db
 ```
 
-**`donnees.sh`**
+**`donnees.sh` (sur le serveur de prod)**
 
 ```sh
 #!/bin/sh
@@ -187,6 +187,37 @@ else
 fi
 
 exit ${global_exit}
+```
+
+Enfin, voici le script qui s'occupe de garder les 60 derniers jours de sauvegardes et de supprimer le reste.
+
+**cleaning.sh (sur le serveur de bêta)**
+
+```sh
+#!/bin/sh
+
+# Get the list of the full database backups, sorted by date from latest to oldest
+db_full_backups=`find /opt/sauvegarde/db -type d -name *-full | sort -nr`
+
+count=0
+for db_full_backup in $db_full_backups
+do
+    count=$((count+1))
+    # We want to keep the newer 60 database backups
+    if [ $count -le 60 ]
+    then
+        continue
+    fi
+
+    # We remove the 0315-full part
+    db_daily_backups=`echo $db_full_backup | head -c -10`
+    # We remove the full database backup and its incremental database backups
+    echo "rm -r $db_daily_backups*"
+    rm -r $db_daily_backups*
+done
+
+# We keep the data backups for last 60 days and remove the rest
+borg prune --keep-within 60d --list data/
 ```
 
 ## Comment est mise en place la restauration ?
@@ -278,6 +309,8 @@ sudo rm -rI /opt/sauvegarde/db/20200509-0315-full.bck/
 sudo rm -rI /opt/sauvegarde/db/20200509-0400.bck/
 sudo rm -rI /opt/sauvegarde/db/20200509-0800.bck/
 ```
+
+
 
 ## Perdre des données, cela n'arrive pas qu'aux autres !
 
