@@ -12,6 +12,9 @@ ExecStart={{ virtualenv }}/bin/gunicorn \
         --pid {{ rundir }}/gunicorn.pid \
         --bind unix:{{ rundir }}/gunicorn.sock \
         --workers 7 \
+{% if env == "beta" %}
+        --timeout 60 \
+{% endif %}
         -e ZDS_CONFIG={{ workdir }}/config.toml \
         -e DJANGO_SETTINGS_MODULE=zds.settings.{{ env }} \
         zds.wsgi
