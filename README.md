@@ -100,7 +100,7 @@ visual_changes:
 
 ### Ajouter un bandeau temporaire
 
-Il est possible d'ajouter un bandeau d'information tout en haut du site pour prévenir les utilisateurs en amont d'une longue maintenance du serveur de production. Pour se faire, il suffit de modifier `group_vars/production/vars.yml` en s'inspirant du bandeau actuellement utilisé sur le serveur de bêta :
+Il est possible d'ajouter un bandeau d'information tout en haut du site pour prévenir les utilisateurs en amont d'une longue maintenance du serveur de production. Pour se faire, il suffit de modifier `group_vars/production/vars.yml` en s'inspirant du bandeau actuellement utilisé sur le serveur de bêta et de lancer le script Ansible pour prendre en compte les changements :
 
 ```yaml
 very_top_banner:
@@ -108,6 +108,16 @@ very_top_banner:
   border_color: '#450000'
   color: 'white'
   message: 'Pour des raisons de maintenance, le serveur sera inaccessible de 13h à 14h.'
+```
+
+Une autre façon de faire est de modifier le fichier `/opt/zds/config.toml` directement sur le serveur puis de recharger Gunicorn avec `sudo systemctl reload zds` :
+
+```toml
+[very_top_banner]
+background_color = "#800"
+border_color = "#450000"
+color = "white"
+message = "Pour des raisons de maintenance, le serveur sera inaccessible de 13h à 14h."
 ```
 
 ## Actions manuelles sur le serveur
