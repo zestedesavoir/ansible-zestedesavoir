@@ -9,3 +9,4 @@ very_top_banner:
   border_color: '#450000'
   color: 'white'
   message: 'Version bêta'
+  slug: 'version-beta'
