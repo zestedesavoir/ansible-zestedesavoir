@@ -16,8 +16,8 @@ server {
                 scaleway.zestedesavoir.com
         ;
 
-        access_log /var/log/zds/nginx-redirect-access.log;
-        error_log /var/log/zds/nginx-redirect-error.log;
+        access_log {{ logdir }}/nginx-redirect-access.log;
+        error_log {{ logdir }}/nginx-redirect-error.log;
 
         server_tokens off;
 {% if certificate is defined and cert.stat.exists %}
