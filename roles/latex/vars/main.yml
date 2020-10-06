@@ -47,4 +47,4 @@ fonts:
     url: "https://raw.githubusercontent.com/adobe-fonts/source-code-pro/release"
   - name: SourceSansPro
     slug: source-sans-pro
-    url: "https://raw.githubusercontent.com/adobe-fonts/source-sans-pro/release"
+    url: "https://raw.githubusercontent.com/adobe-fonts/source-sans-pro/3.006R"
