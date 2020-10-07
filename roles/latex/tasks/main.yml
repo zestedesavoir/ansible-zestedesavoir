@@ -2,7 +2,7 @@
   become: true
   become_user: zds
   ansible.builtin.unarchive:
-    src: http://mirror.ctan.org/systems/texlive/tlnet/install-tl-unx.tar.gz
+    src: "{{ texlive_repository }}/install-tl-unx.tar.gz"
     dest: "{{ workdir }}"
     remote_src: true
   tags:
@@ -21,14 +21,20 @@
   become: true
   become_user: zds
   ansible.builtin.shell: |
-    if [ -d "{{ texlive_dir }}/bin" ]; then
+    if [ -e installation.profile ]; then
+        ./install-tl*/install-tl -v --repository {{ texlive_repository }} --profile installation.profile
+    elif [ -d "{{ texlive_dir }}/bin" ]; then
         echo "TeXLive is already installed"
     else
-        ./install-tl*/install-tl -v -profile texlive.profile
+        ./install-tl*/install-tl -v --repository {{ texlive_repository }} --profile texlive.profile
     fi
   args:
     executable: /bin/bash
     chdir: "{{ workdir }}"
+  register: this
+  until: this is succeeded
+  delay: 5
+  retries: 5
   notify: remove texlive installation files
   tags:
     - bootstrap

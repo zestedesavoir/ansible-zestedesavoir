@@ -1,5 +1,6 @@
 texlive_dir: "{{ workdir }}/texlive"
 texlive_binaries: "{{ texlive_dir }}/bin/x86_64-linux"
+texlive_repository: "https://mirrors.ircam.fr/pub/CTAN/systems/texlive/tlnet"
 template_dir: "{{ texlive_dir }}/texmf-dist/tex/generic/latex-template"
 
 fonttypes:
