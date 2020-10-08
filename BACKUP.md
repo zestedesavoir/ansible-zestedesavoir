@@ -229,31 +229,23 @@ Voici les commandes que j'ai effectuée pour restaurer la bêta à partir des sa
 ```sh
 # Script de mise à jour de la bêta avec les backups de la prod
 
-# En premier il faut passer arrêter le site web
-cd /opt/zds/webroot/
-sudo ln -s errors/maintenance.html
-sudo systemctl stop zds
-sudo systemctl stop zds-watchdog
+### Étape 1 - On prépare ce qui peut se faire avant l'arrêt du site web
 
-# Ensuite il faut arrêter MySQL et faire une copie de la bdd existante
-sudo systemctl stop mysql
-sudo mv /var/lib/mysql{,.bck}/
-
-# Il faut identifier les backups de la base de donnée à utiliser
-# Si on est le 9 mai 2020 à 9h du matin alors il faudra utiliser :
+# Il faut identifier les backups de la base de données à utiliser
+# Si on est le 9 mai 2020 à 7h du matin alors il faudra utiliser :
 # - la sauvegarde complète de 3h15 : 20200509-0315-full
 # - la sauvegarde incrémentale de 4h : 20200509-0400
-# - la sauvegarde incrémentale de 8h : 20200509-0800
+# - la sauvegarde incrémentale de 6h : 20200509-0600
 
 # On copie les sauvegardes concernées pour ne pas qu'elles soient modifiées
 sudo cp -r /opt/sauvegarde/db/20200509-0315-full{,.bck}/
 sudo cp -r /opt/sauvegarde/db/20200509-0400{,.bck}/
-sudo cp -r /opt/sauvegarde/db/20200509-0800{,.bck}/
+sudo cp -r /opt/sauvegarde/db/20200509-0600{,.bck}/
 
 # On décompresse les sauvegardes
 sudo mariabackup -V --decompress --target-dir /opt/sauvegarde/db/20200509-0315-full/
 sudo mariabackup -V --decompress --target-dir /opt/sauvegarde/db/20200509-0400/
-sudo mariabackup -V --decompress --target-dir /opt/sauvegarde/db/20200509-0800/
+sudo mariabackup -V --decompress --target-dir /opt/sauvegarde/db/20200509-0600/
 
 # On prépare la sauvegarde complète
 sudo mariabackup -V --prepare \
@@ -265,7 +257,19 @@ sudo mariabackup -V --prepare \
    --incremental-dir=/opt/sauvegarde/db/20200509-0400/
 sudo mariabackup -V --prepare \
    --target-dir=/opt/sauvegarde/db/20200509-0315-full/ \
-   --incremental-dir=/opt/sauvegarde/db/20200509-0800/
+   --incremental-dir=/opt/sauvegarde/db/20200509-0600/
+
+### Étape 2 - On s'occupe de ce qui doit être fait avec le site web à l'arrêt
+
+# En premier il faut passer arrêter le site web
+cd /opt/zds/webroot/
+sudo ln -s errors/maintenance.html
+sudo systemctl stop zds
+sudo systemctl stop zds-watchdog
+
+# Ensuite il faut arrêter MySQL et faire une copie de la bdd existante
+sudo systemctl stop mysql
+sudo mv /var/lib/mysql{,.bck}/
 
 # On restaure la base de données avec la sauvegarde complète
 sudo mariabackup -V --copy-back --target-dir /opt/sauvegarde/db/20200509-0315-full/
@@ -274,23 +278,31 @@ sudo mariabackup -V --copy-back --target-dir /opt/sauvegarde/db/20200509-0315-fu
 sudo chown -R mysql:mysql /var/lib/mysql/
 sudo systemctl start mysql
 
-# Si tout va bien on peut continuer, sinon on débug
+# On vérifie que le démarrage de MySQL s'est bien passé
+sudo systemctl status mysql
+
+# On va chercher le mot de passe de l'utilisateur 'zds' pour la base de donnée dans le fichier '/opt/zds/config.toml'
+# On ouvre le shell de MySQL
+sudo mysql
+# On écrit dedans :
+alter user 'zds'@'localhost' identified by 'MOT DE PASSE'
+
+# On vérifie la quantité d'espace disque disponible
+df -kh
+
+# Si on a assez d'espace disque disponible (environ 15 Go) alors on effectue une copie de /opt/zds/data
+sudo cp -r /opt/zds/data{,.bck}/
+# Sinon, on supprime /opt/zds/data
+sudo rm -rI /opt/zds/data
 
 # On utilise la sauvegarde du dossier /opt/zds/data
-# (Je n'ai pas l'impression qu'il faille supprimer le dossier avant, ni changer les droits après)
 # On doit lancer la commande depuis /
 # On peut utiliser l'option -n pour faire un dry-run
 # Je n'ai pas l'impression que --verbose ne serve à grand chose, c'est dommage
 cd /
-sudo borg extract --verbose /opt/sauvegarde/data::20200509-0400 opt/zds/data
+sudo borg extract --verbose /opt/sauvegarde/data::20200509-0600 opt/zds/data
 
-# On va chercher le mot de passe de l'utilisateur 'zds' pour la base de donnée dans le fichier '/opt/zds/config.toml'
-# On ouvre le shell de MySQL
-mysql
-# On écrit dedans :
-alter user 'zds'@'localhost' identified by 'MOT DE PASSE'
-
-# Si jamais la version en prod est plus ancienne que celle en bêta :
+# Si jamais la version en production est plus ancienne que celle en bêta :
 # - on applique les migrations de la base de données
 # - on transfère les fichiers front de /opt/zds/app/dist vers /opt/zds/data/static
 /opt/zds/wrapper migrate
@@ -303,11 +315,14 @@ sudo rm /opt/zds/webroot/maintenance.html
 
 # On vérifie que tout fonctionne bien
 
+### Étape 3 - On nettoie
+
 # Si tout est parfait, on peut supprimer les copies temporaires
+sudo rm -rI /opt/zds/data.bck/
 sudo rm -rI /var/lib/mysql.bck/
 sudo rm -rI /opt/sauvegarde/db/20200509-0315-full.bck/
 sudo rm -rI /opt/sauvegarde/db/20200509-0400.bck/
-sudo rm -rI /opt/sauvegarde/db/20200509-0800.bck/
+sudo rm -rI /opt/sauvegarde/db/20200509-0600.bck/
 ```
 
 
