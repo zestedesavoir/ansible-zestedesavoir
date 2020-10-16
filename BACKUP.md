@@ -237,27 +237,27 @@ Voici les commandes que j'ai effectuée pour restaurer la bêta à partir des sa
 # - la sauvegarde incrémentale de 4h : 20200509-0400
 # - la sauvegarde incrémentale de 6h : 20200509-0600
 
-# On copie les sauvegardes concernées pour ne pas qu'elles soient modifiées
-sudo cp -r /opt/sauvegarde/db/20200509-0315-full{,.bck}/
-sudo cp -r /opt/sauvegarde/db/20200509-0400{,.bck}/
-sudo cp -r /opt/sauvegarde/db/20200509-0600{,.bck}/
+# On va travailler sur des copies des sauvegardes concernées pour ne pas les détruire
+sudo cp -r /opt/sauvegarde/db/20200509-0315-full{,.temp}/
+sudo cp -r /opt/sauvegarde/db/20200509-0400{,.temp}/
+sudo cp -r /opt/sauvegarde/db/20200509-0600{,.temp}/
 
 # On décompresse les sauvegardes
-sudo mariabackup -V --decompress --target-dir /opt/sauvegarde/db/20200509-0315-full/
-sudo mariabackup -V --decompress --target-dir /opt/sauvegarde/db/20200509-0400/
-sudo mariabackup -V --decompress --target-dir /opt/sauvegarde/db/20200509-0600/
+sudo mariabackup -V --decompress --target-dir /opt/sauvegarde/db/20200509-0315-full.temp/
+sudo mariabackup -V --decompress --target-dir /opt/sauvegarde/db/20200509-0400.temp/
+sudo mariabackup -V --decompress --target-dir /opt/sauvegarde/db/20200509-0600.temp/
 
 # On prépare la sauvegarde complète
 sudo mariabackup -V --prepare \
-   --target-dir=/opt/sauvegarde/db/20200509-0315-full/
+   --target-dir=/opt/sauvegarde/db/20200509-0315-full.temp/
    
 # On met à jour la sauvegarde complète grâce aux sauvegardes incrémentales
 sudo mariabackup -V --prepare \
-   --target-dir=/opt/sauvegarde/db/20200509-0315-full/ \
-   --incremental-dir=/opt/sauvegarde/db/20200509-0400/
+   --target-dir=/opt/sauvegarde/db/20200509-0315-full.temp/ \
+   --incremental-dir=/opt/sauvegarde/db/20200509-0400.temp/
 sudo mariabackup -V --prepare \
-   --target-dir=/opt/sauvegarde/db/20200509-0315-full/ \
-   --incremental-dir=/opt/sauvegarde/db/20200509-0600/
+   --target-dir=/opt/sauvegarde/db/20200509-0315-full.temp/ \
+   --incremental-dir=/opt/sauvegarde/db/20200509-0600.temp/
 
 ### Étape 2 - On s'occupe de ce qui doit être fait avec le site web à l'arrêt
 
@@ -269,10 +269,10 @@ sudo systemctl stop zds-watchdog
 
 # Ensuite il faut arrêter MySQL et faire une copie de la bdd existante
 sudo systemctl stop mysql
-sudo mv /var/lib/mysql{,.bck}/
+sudo mv /var/lib/mysql{,.old}/
 
 # On restaure la base de données avec la sauvegarde complète
-sudo mariabackup -V --copy-back --target-dir /opt/sauvegarde/db/20200509-0315-full/
+sudo mariabackup -V --copy-back --target-dir /opt/sauvegarde/db/20200509-0315-full.temp/
 
 # On met les bons droits et on relance MySQL
 sudo chown -R mysql:mysql /var/lib/mysql/
@@ -291,7 +291,7 @@ alter user 'zds'@'localhost' identified by 'MOT DE PASSE'
 df -kh
 
 # Si on a assez d'espace disque disponible (environ 15 Go) alors on effectue une copie de /opt/zds/data
-sudo cp -r /opt/zds/data{,.bck}/
+sudo cp -r /opt/zds/data{,.old}/
 # Sinon, on supprime /opt/zds/data
 sudo rm -rI /opt/zds/data
 
@@ -315,14 +315,16 @@ sudo rm /opt/zds/webroot/maintenance.html
 
 # On vérifie que tout fonctionne bien
 
-### Étape 3 - On nettoie
+### Étape 3 - Lorsqu'on est sûr que tout fonctionne bien, on nettoie
 
-# Si tout est parfait, on peut supprimer les copies temporaires
-sudo rm -rI /opt/zds/data.bck/
-sudo rm -rI /var/lib/mysql.bck/
-sudo rm -rI /opt/sauvegarde/db/20200509-0315-full.bck/
-sudo rm -rI /opt/sauvegarde/db/20200509-0400.bck/
-sudo rm -rI /opt/sauvegarde/db/20200509-0600.bck/
+# On peut supprimer l'ancienne base de données et l'ancien dossier /opt/zds/data
+sudo rm -rI /opt/zds/data.old/
+sudo rm -rI /var/lib/mysql.old/
+
+# On supprime les sauvegardes de travail de la base de données
+sudo rm -rI /opt/sauvegarde/db/20200509-0315-full.temp/
+sudo rm -rI /opt/sauvegarde/db/20200509-0400.temp/
+sudo rm -rI /opt/sauvegarde/db/20200509-0600.temp/
 ```
 
 
