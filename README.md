@@ -104,20 +104,22 @@ Il est possible d'ajouter un bandeau d'information tout en haut du site pour pr�
 
 ```yaml
 very_top_banner:
-  background_color: '#800'
-  border_color: '#450000'
+  background_color: '#132DAE'
+  border_color: '#061279'
   color: 'white'
-  message: 'Pour des raisons de maintenance, le serveur sera inaccessible de 13h à 14h.'
+  message: 'Site web en maintenance pendant quelques minutes à 11 heures'
+  slug: 'maintenance-09/11/2020-11h'
 ```
 
 Une autre façon de faire est de modifier le fichier `/opt/zds/config.toml` directement sur le serveur puis de recharger Gunicorn avec `sudo systemctl reload zds` :
 
 ```toml
 [very_top_banner]
-background_color = "#800"
-border_color = "#450000"
+background_color = "#132DAE"
+border_color = "#061279"
 color = "white"
-message = "Pour des raisons de maintenance, le serveur sera inaccessible de 13h à 14h."
+message = "Site web en maintenance pendant quelques minutes à 11 heures"
+slug = "maintenance-09/11/2020-11h"
 ```
 
 ## Actions manuelles sur le serveur
