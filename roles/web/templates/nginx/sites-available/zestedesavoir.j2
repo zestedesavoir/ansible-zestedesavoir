@@ -6,19 +6,20 @@ server {
     listen 80 default_server;
     listen [::]:80 default_server;
 
-
-{% if acme %}
-    location ~ /.well-known/acme-challenge {
-        include snippets/proxy.conf;
-        proxy_pass http://localhost:402;
-    }
-{% endif %}
-
 {% if certificate is defined and cert.stat.exists %}
 {% if http_host %}
     server_name {{ http_host }};
 {% endif %}
-    return 301 https://$server_name$request_uri;
+
+    root /var/www/html;
+
+    location /.well-known {
+        allow all;
+    }
+
+    location / {
+        return 301 https://$server_name$request_uri;
+    }
 }
 
 server {
@@ -30,6 +31,8 @@ server {
     server_name {{ http_host }};
 {% endif %}
 
+    root {{ webroot }};
+
     try_files $uri @proxy;
     server_tokens off;
     client_max_body_size 100M;
@@ -40,20 +43,13 @@ server {
     include snippets/ssl.conf;
 {% endif %}
 
-    # Logging
     access_log {{ logdir }}/nginx-access.log;
     error_log {{ logdir }}/nginx-error.log;
 
     # Rewrite de l'ancienne page de teasing
     rewrite ^/teasing/$ / permanent;
 
-    root {{ webroot }};
-
-{% if acme %}
-    location ~ /.well-known {
-        allow all;
-    }
-{% endif %}
+    include snippets/ban.conf;
 
 {% if not public %}
     add_header X-Robots-Tag "none" always;

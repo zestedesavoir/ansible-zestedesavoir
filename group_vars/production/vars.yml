@@ -3,5 +3,5 @@ env: prod
 public: true
 http_host: zestedesavoir.com
 certificate:
-  cert: /var/lib/acme/live/zestedesavoir.com/fullchain
-  key: /var/lib/acme/live/zestedesavoir.com/privkey
+  cert: /etc/letsencrypt/live/www.zestedesavoir.com/fullchain.pem
+  key: /etc/letsencrypt/live/www.zestedesavoir.com/privkey.pem
