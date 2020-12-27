@@ -19,16 +19,16 @@ Ces deux serveurs doivent être identiques autant que possible pour pouvoir repr
 
 ### Logiciels utilisés
 
-| Paramètre                                                    | Valeur                            |
-| ------------------------------------------------------------ | --------------------------------- |
-| Système d'exploitation                                       | Debian 10 « Buster »              |
-| Serveur web                                                  | nginx                             |
-| Interface WSGI (entre le serveur web et Django)              | Gunicorn                          |
-| Base de donnée                                               | MariaDB                           |
-| Moteur de recherche                                          | ElasticSearch                     |
-| Outil de surveillance du système d'exploitation et des requêtes de Zeste de Savoir * | Munin                             |
-| Outil de surveillance des erreurs de Zeste de Savoir *       | Sentry                            |
-| Outil pour les certificats TLS                               | acmetool (prod) et certbot (bêta) |
+| Paramètre                                                    | Valeur               |
+| ------------------------------------------------------------ | -------------------- |
+| Système d'exploitation                                       | Debian 10 « Buster » |
+| Serveur web                                                  | nginx                |
+| Interface WSGI (entre le serveur web et Django)              | Gunicorn             |
+| Base de donnée                                               | MariaDB              |
+| Moteur de recherche                                          | ElasticSearch        |
+| Outil de surveillance du système d'exploitation et des requêtes de Zeste de Savoir * | Munin                |
+| Outil de surveillance des erreurs de Zeste de Savoir *       | Sentry               |
+| Outil pour les certificats TLS                               | Certbot              |
 
 \* Actuellement, les deux outils de surveillance sont installés sur un serveur à part du serveur de production. (Un serveur appartenant à [vhf] pour le Munin et un serveur appartenant à [Sandhose] pour le Sentry.)
 
@@ -37,9 +37,8 @@ Ces deux serveurs doivent être identiques autant que possible pour pouvoir repr
 | Paramètre                                                    | Valeur                                     |
 | ------------------------------------------------------------ | ------------------------------------------ |
 | Utilisateur et groupe local                                  | `zds` et `zds`                             |
-| Dossier dédié à `zds-site`                                   | `/opt/zds`                                 |
-| Dossier dédié à `zmarkdown`                                  | `/opt/zmd`                                 |
-| Données importantes (contenus, galeries...) à sauvegarder    | `/opt/zds/data`                            |
+| Dossier dédié à `zds-site`                                   | `/opt/zds/app`                             |
+| Dossier avec les données importantes à sauvegarder (dépôts Git des contenus et images des galeries) | `/opt/zds/data`                            |
 | Base de données à sauvegarder (et ses sauvegardes régulières) | `/var/lib/mysql` (et `/var/backups/mysql`) |
 | Fichiers de journalisation                                   | `/var/log/zds`                             |
 
@@ -156,6 +155,10 @@ sudo rm /opt/zds/webroot/maintenance.html
 ### Lancer une commande `python manage.py`
 
 Si jamais vous devez lancer une commande `python manage.py`, ne le faites pas, utilisez le script `wrapper` présent dans le dossier `/opt/zds` ! Cet enrobage permet de lancer `python manage.py` avec l'utilisateur `zds` et les configurations spécifiques au serveur de production. Il s'utilise de la même manière : par exemple, `python manage.py shell` devient simplement `/opt/zds/wrapper shell`.
+
+### Interdire la connexion ou l'inscription pour une certaine IP
+
+Lorsque plusieurs comptes de spam sont créés régulièrement à partir d'une même IP, il peut être nécessaire d'interdire la connexion ou l'inscription sur le site web à partir de cette IP. Il suffit donc de rajouter une ligne `deny ADRESSE_IP;` au fichier `/etc/nginx/snippets/ban.conf` pour que l'accès aux URL commençant par `/membres/` soit interdit avec cette IP.
 
 ## (Archive) Configuration du Munin
 
