@@ -49,8 +49,6 @@ server {
     # Rewrite de l'ancienne page de teasing
     rewrite ^/teasing/$ / permanent;
 
-    include snippets/ban.conf;
-
 {% if not public %}
     add_header X-Robots-Tag "none" always;
 {% endif %}
