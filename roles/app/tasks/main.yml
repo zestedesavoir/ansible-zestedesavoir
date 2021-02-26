@@ -234,6 +234,21 @@
     - bootstrap
     - upgrade
 
+- name: clear cache
+  become: true
+  become_user: "{{ appuser }}"
+  environment:
+    DJANGO_SETTINGS_MODULE: "zds.settings.{{ env }}"
+    ZDS_CONFIG: "{{ workdir }}/config.toml"
+  django_manage:
+    app_path: "{{ appdir }}"
+    virtualenv: "{{ virtualenv }}"
+    command: clear_cache
+  when: app.changed
+  tags:
+    - bootstrap
+    - upgrade
+
 - name: start services and timers
   systemd:
     state: started
