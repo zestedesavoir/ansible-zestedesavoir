@@ -1,4 +1,4 @@
 - name: restart mariadb
-  service:
+  systemd:
     name: mariadb
     state: restarted

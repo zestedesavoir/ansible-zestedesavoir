@@ -41,10 +41,3 @@
     state: present
   when: not apt_https_transport.stat.exists
 
-- name: required packages for gulp-imagemin
-  apt:
-    pkg:
-      - autoconf
-      - automake
-    state: present
-    cache_valid_time: 3600

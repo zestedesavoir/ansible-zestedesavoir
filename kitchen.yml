@@ -11,6 +11,7 @@ provisioner:
   hosts: test
   playbook: playbook.yml
   ansible_inventory: kitchen-hosts
+  ansible_verbose: true
 
 platforms:
   - name: debian-10
