@@ -21,8 +21,8 @@
   copy: src="99-zds.cnf" dest="/etc/mysql/conf.d/99-zds.cnf"
   notify: restart mariadb
 
-- name: ensure mysqld is started
-  service:
+- name: ensure mariadb is started
+  systemd:
     name: mariadb
     state: started
     enabled: yes
