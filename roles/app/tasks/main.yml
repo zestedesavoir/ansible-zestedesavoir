@@ -100,7 +100,6 @@
     requirements: "{{ appdir }}/requirements-prod.txt"
     virtualenv: "{{ virtualenv }}"
     virtualenv_command: /usr/bin/python3 -m venv
-  when: app.changed
   tags:
     - bootstrap
     - upgrade
@@ -165,7 +164,6 @@
 
 - name: build front if repo changed
   include_tasks: frontend.yml
-  when: app.changed
   tags:
     - bootstrap
     - upgrade
@@ -180,7 +178,6 @@
     app_path: "{{ appdir }}"
     virtualenv: "{{ virtualenv }}"
     command: collectstatic
-  when: app.changed
   tags:
     - bootstrap
     - upgrade
@@ -214,7 +211,6 @@
     src: "{{ webroot }}/errors/maintenance.html"
     dest: "{{ webroot }}/maintenance.html"
     state: link
-  when: app.changed
   notify: remove maintenance symlink
   tags:
     - upgrade
@@ -229,7 +225,6 @@
     app_path: "{{ appdir }}"
     virtualenv: "{{ virtualenv }}"
     command: migrate
-  when: app.changed
   tags:
     - bootstrap
     - upgrade
@@ -244,7 +239,6 @@
     app_path: "{{ appdir }}"
     virtualenv: "{{ virtualenv }}"
     command: clear_cache
-  when: app.changed
   tags:
     - bootstrap
     - upgrade
