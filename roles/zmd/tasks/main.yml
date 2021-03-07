@@ -10,7 +10,6 @@
   npm:
     path: "{{ zmarkdown_dir }}"
     production: yes
-  notify: restart zmarkdown service
   tags:
     - bootstrap
     - upgrade
@@ -19,22 +18,29 @@
   template:
     src: zmd.service.j2
     dest: /etc/systemd/system/zmd.service
-  notify: restart zmarkdown service
   tags:
     - bootstrap
     - upgrade
 
 - name: start zmarkdown service
-  service:
+  systemd:
     name: zmd
-    state: restarted
+    state: started
     enabled: yes
+    daemon_reload: true
+  tags:
+    - bootstrap
+
+- name: reload zmarkdown service
+  systemd:
+    name: zmd
+    state: reloaded
     daemon_reload: true
   tags:
     - bootstrap
     - upgrade
 
-- name: check that zmarkdown is running
+- name: ensure that zmarkdown is running
   uri:
     url: http://localhost:27272/
     return_content: yes
