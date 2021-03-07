@@ -1,4 +1,4 @@
-appversion: v30-elpis
+appversion: v30a-elpis
 env: prod
 public: true
 http_host: zestedesavoir.com
