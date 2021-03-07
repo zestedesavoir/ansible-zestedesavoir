@@ -61,9 +61,6 @@
     version: "{{ appversion }}"
     refspec: "{{ refspec }}"
   register: app
-  notify:
-    - reload zds
-    - restart watchdog
   tags:
     - bootstrap
     - upgrade
@@ -146,9 +143,6 @@
   template:
     src: templates/config.toml.j2
     dest: "{{ workdir }}/config.toml"
-  notify:
-    - reload zds
-    - restart watchdog
   tags:
     - bootstrap
     - upgrade
@@ -208,13 +202,29 @@
   tags:
     - bootstrap
 
+- name: check if database migration is needed
+  become: true
+  become_user: "{{ appuser }}"
+  environment:
+    DJANGO_SETTINGS_MODULE: "zds.settings.{{ env }}"
+    ZDS_CONFIG: "{{ workdir }}/config.toml"
+  django_manage:
+    app_path: "{{ appdir }}"
+    virtualenv: "{{ virtualenv }}"
+    command: migrate --plan
+  register: migrate_plan
+  tags:
+    - bootstrap
+    - upgrade
+
 - name: create symlink to the maintenance page
   file:
     src: "{{ webroot }}/errors/maintenance.html"
     dest: "{{ webroot }}/maintenance.html"
     state: link
-  notify: remove maintenance symlink
+  when: "'No planned migration operations.' not in migrate_plan.out"
   tags:
+    - bootstrap
     - upgrade
 
 - name: migrate database
@@ -227,6 +237,7 @@
     app_path: "{{ appdir }}"
     virtualenv: "{{ virtualenv }}"
     command: migrate
+  when: "'No planned migration operations.' not in migrate_plan.out"
   tags:
     - bootstrap
     - upgrade
@@ -256,6 +267,29 @@
     - zds.socket
     - zds-es-index.timer
     - zds-watchdog.service
+  tags:
+    - bootstrap
+
+- name: reload zds
+  systemd:
+    name: zds
+    state: reloaded
+  tags:
+    - bootstrap
+    - upgrade
+
+- name: restart watchdog
+  systemd:
+    name: zds-watchdog
+    state: restarted
+  tags:
+    - bootstrap
+    - upgrade
+
+- name: remove maintenance symlink
+  file:
+    path: "{{ webroot }}/maintenance.html"
+    state: absent
   tags:
     - bootstrap
     - upgrade
