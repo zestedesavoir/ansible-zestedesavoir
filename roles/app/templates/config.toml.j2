@@ -59,7 +59,7 @@ shards = 3
 
 {% if recaptcha is defined %}
 [recaptcha]
-use_captcha = {{ recaptcha.use_captcha | bool | lower }}
+use_captcha = {{ recaptcha.use_captcha | lower }}
 public_key = "{{ recaptcha.public_key }}"
 private_key = "{{ recaptcha.private_key }}"
 {% endif %}
