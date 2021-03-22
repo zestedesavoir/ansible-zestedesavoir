@@ -10,5 +10,4 @@
     - role: web
       tags: bootstrap
     - app
-    - zmd
     - latex
