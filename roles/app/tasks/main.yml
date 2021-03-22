@@ -1,3 +1,5 @@
+# Basic dependencies installation 
+
 - name: install app dependencies
   become: true
   apt:
@@ -19,6 +21,8 @@
     cache_valid_time: 3600
   tags:
     - bootstrap
+
+# User, directories, files and symlink creation
 
 - name: should have a {{ appuser }} user
   become: true
@@ -80,29 +84,6 @@
   tags:
     - bootstrap
 
-- name: install wheel and sqlparse in virtualenv
-  become: true
-  become_user: "{{ appuser }}"
-  pip:
-    name:
-      - wheel
-      - sqlparse
-    virtualenv: "{{ virtualenv }}"
-    virtualenv_command: /usr/bin/python3 -m venv
-  tags:
-    - bootstrap
-
-- name: install requirements in virtualenv
-  become: true
-  become_user: "{{ appuser }}"
-  pip:
-    requirements: "{{ appdir }}/requirements-prod.txt"
-    virtualenv: "{{ virtualenv }}"
-    virtualenv_command: /usr/bin/python3 -m venv
-  tags:
-    - bootstrap
-    - upgrade
-
 - name: save version file
   become: true
   become_user: "{{ appuser }}"
@@ -124,26 +105,6 @@
   tags:
     - bootstrap
 
-- name: create unit files
-  template:
-    src: templates/{{ item }}.j2
-    dest: "/etc/systemd/system/{{ item }}"
-  with_items:
-    - zds.service
-    - zds.socket
-    - zds-es-index.service
-    - zds-es-index.timer
-    - zds-watchdog.service
-  tags:
-    - bootstrap
-- name: add zmarkdown unit file
-  template:
-    src: zmd.service.j2
-    dest: /etc/systemd/system/zmd.service
-  tags:
-    - bootstrap
-    - upgrade
-
 - name: create app config file
   become: true
   become_user: "{{ appuser }}"
@@ -161,45 +122,6 @@
     content: "{{ google_analytics_api | combine(secrets.google_analytics_api) | to_nice_json }}"
     dest: "{{ appdir }}/api_analytics_secrets.json"
   when: secrets.google_analytics_api is defined
-  tags:
-    - bootstrap
-    - upgrade
-
-- include_role:
-    name: common
-    tasks_from: nodejs
-  tags:
-    - bootstrap
-
-- name: install frontend
-  become: true
-  become_user: "{{ appuser }}"
-  npm:
-    path: "{{ appdir }}"
-  tags:
-    - bootstrap
-    - upgrade
-
-- name: build frontend
-  become: true
-  become_user: "{{ appuser }}"
-  command: npm run build
-  args:
-    chdir: "{{ appdir }}"
-  tags:
-    - bootstrap
-    - upgrade
-
-- name: collect static files
-  become: true
-  become_user: "{{ appuser }}"
-  environment:
-    DJANGO_SETTINGS_MODULE: "zds.settings.{{ env }}"
-    ZDS_CONFIG: "{{ workdir }}/config.toml"
-  django_manage:
-    app_path: "{{ appdir }}"
-    virtualenv: "{{ virtualenv }}"
-    command: collectstatic
   tags:
     - bootstrap
     - upgrade
@@ -228,6 +150,46 @@
   tags:
     - bootstrap
 
+# Installation of backend, frontend and zmd dependencies
+
+- name: install wheel and sqlparse in virtualenv
+  become: true
+  become_user: "{{ appuser }}"
+  pip:
+    name:
+      - wheel
+      - sqlparse
+    virtualenv: "{{ virtualenv }}"
+    virtualenv_command: /usr/bin/python3 -m venv
+  tags:
+    - bootstrap
+
+- name: install requirements in virtualenv
+  become: true
+  become_user: "{{ appuser }}"
+  pip:
+    requirements: "{{ appdir }}/requirements-prod.txt"
+    virtualenv: "{{ virtualenv }}"
+    virtualenv_command: /usr/bin/python3 -m venv
+  tags:
+    - bootstrap
+    - upgrade
+
+- include_role:
+    name: common
+    tasks_from: nodejs
+  tags:
+    - bootstrap
+
+- name: install frontend
+  become: true
+  become_user: "{{ appuser }}"
+  npm:
+    path: "{{ appdir }}"
+  tags:
+    - bootstrap
+    - upgrade
+
 - name: install zmarkdown
   become: true
   become_user: zds
@@ -237,6 +199,35 @@
   tags:
     - bootstrap
     - upgrade
+
+# Frontend building
+
+- name: build frontend
+  become: true
+  become_user: "{{ appuser }}"
+  command: npm run build
+  args:
+    chdir: "{{ appdir }}"
+  tags:
+    - bootstrap
+    - upgrade
+
+- name: collect static files
+  become: true
+  become_user: "{{ appuser }}"
+  environment:
+    DJANGO_SETTINGS_MODULE: "zds.settings.{{ env }}"
+    ZDS_CONFIG: "{{ workdir }}/config.toml"
+  django_manage:
+    app_path: "{{ appdir }}"
+    virtualenv: "{{ virtualenv }}"
+    command: collectstatic
+  tags:
+    - bootstrap
+    - upgrade
+
+# Database migration and cache clearing
+# Start of maintenance, if needed
 
 - name: check if database migration is needed
   become: true
@@ -292,6 +283,22 @@
     - bootstrap
     - upgrade
 
+# Services and timers
+
+- name: create services and timers files
+  template:
+    src: templates/{{ item }}.j2
+    dest: "/etc/systemd/system/{{ item }}"
+  with_items:
+    - zmd.service
+    - zds.service
+    - zds.socket
+    - zds-es-index.service
+    - zds-es-index.timer
+    - zds-watchdog.service
+  tags:
+    - bootstrap
+
 - name: start services and timers
   systemd:
     state: started
@@ -299,6 +306,7 @@
     enabled: yes
     daemon_reload: yes
   with_items:
+    - zmd.service
     - zds.service
     - zds.socket
     - zds-es-index.timer
@@ -306,10 +314,13 @@
   tags:
     - bootstrap
 
-- name: reload zds
+- name: reload zmarkdown and zds
   systemd:
-    name: zds
+    name: "{{ item }}"
     state: reloaded
+  with_items:
+    - zmd
+    - zds
   tags:
     - bootstrap
     - upgrade
@@ -318,24 +329,6 @@
   systemd:
     name: zds-watchdog
     state: restarted
-  tags:
-    - bootstrap
-    - upgrade
-
-- name: start zmarkdown service
-  systemd:
-    name: zmd
-    state: started
-    enabled: yes
-    daemon_reload: true
-  tags:
-    - bootstrap
-
-- name: reload zmarkdown service
-  systemd:
-    name: zmd
-    state: reloaded
-    daemon_reload: true
   tags:
     - bootstrap
     - upgrade
@@ -350,6 +343,9 @@
   until: "'zmd is running' in this.content"
   tags:
     - bootstrap
+    - upgrade
+
+# End of maintenance, if needed
 
 - name: remove maintenance symlink
   file:
