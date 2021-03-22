@@ -1,2 +1,0 @@
-zmarkdown_sentry_dsn: ""
-zmarkdown_dir: "{{ appdir }}/zmd"

@@ -136,6 +136,13 @@
     - zds-watchdog.service
   tags:
     - bootstrap
+- name: add zmarkdown unit file
+  template:
+    src: zmd.service.j2
+    dest: /etc/systemd/system/zmd.service
+  tags:
+    - bootstrap
+    - upgrade
 
 - name: create app config file
   become: true
@@ -158,8 +165,27 @@
     - bootstrap
     - upgrade
 
-- name: build front if repo changed
-  include_tasks: frontend.yml
+- include_role:
+    name: common
+    tasks_from: nodejs
+  tags:
+    - bootstrap
+
+- name: install frontend
+  become: true
+  become_user: "{{ appuser }}"
+  npm:
+    path: "{{ appdir }}"
+  tags:
+    - bootstrap
+    - upgrade
+
+- name: build frontend
+  become: true
+  become_user: "{{ appuser }}"
+  command: npm run build
+  args:
+    chdir: "{{ appdir }}"
   tags:
     - bootstrap
     - upgrade
@@ -201,6 +227,16 @@
       dest: "static"
   tags:
     - bootstrap
+
+- name: install zmarkdown
+  become: true
+  become_user: zds
+  npm:
+    path: "{{ zmarkdown_dir }}"
+    production: yes
+  tags:
+    - bootstrap
+    - upgrade
 
 - name: check if database migration is needed
   become: true
@@ -286,6 +322,35 @@
     - bootstrap
     - upgrade
 
+- name: start zmarkdown service
+  systemd:
+    name: zmd
+    state: started
+    enabled: yes
+    daemon_reload: true
+  tags:
+    - bootstrap
+
+- name: reload zmarkdown service
+  systemd:
+    name: zmd
+    state: reloaded
+    daemon_reload: true
+  tags:
+    - bootstrap
+    - upgrade
+
+- name: ensure that zmarkdown is running
+  uri:
+    url: http://localhost:27272/
+    return_content: yes
+  register: this
+  delay: 1
+  retries: 10
+  until: "'zmd is running' in this.content"
+  tags:
+    - bootstrap
+
 - name: remove maintenance symlink
   file:
     path: "{{ webroot }}/maintenance.html"
@@ -293,3 +358,4 @@
   tags:
     - bootstrap
     - upgrade
+
