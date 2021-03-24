@@ -1,10 +1,10 @@
 - name: add nginx repository key
-  apt_key:
+  ansible.builtin.apt_key:
     id: 573BFD6B3D8FBC641079A6ABABF5BD827BD9BF62
     keyserver: "pool.sks-keyservers.net"
 
 - name: add nginx repository
-  apt_repository:
+  ansible.builtin.apt_repository:
     filename: nginx
     repo: "{{ item }} https://nginx.org/packages/debian/ {{ ansible_distribution_release }} nginx"
     state: present
@@ -14,18 +14,18 @@
   register: repo
 
 - name: install nginx
-  apt:
+  ansible.builtin.apt:
     pkg: nginx
     cache_valid_time: 3600
 
 - name: check if tls certificate is present
-  stat:
+  ansible.builtin.stat:
     path: "{{ certificate.cert }}"
   register: cert
   when: certificate is defined
 
 - name: create config dirs
-  file:
+  ansible.builtin.file:
     path: "/etc/nginx/{{ item }}"
     state: directory
     mode: u=rwx,g=rx,o=rx
@@ -35,7 +35,7 @@
     - sites-enabled/
 
 - name: copy config files
-  copy:
+  ansible.builtin.copy:
     src: "{{ item.src }}"
     dest: "/etc/nginx/{{ item.path }}"
     mode: u=rw,g=r,o=r
@@ -44,7 +44,7 @@
   notify: reload nginx
 
 - name: generate config files
-  template:
+  ansible.builtin.template:
     src: "{{ item }}.j2"
     dest: "/etc/{{ item }}"
     mode: u=rw,g=r,o=r
@@ -54,14 +54,14 @@
   notify: reload nginx
 
 - name: enable zds site
-  file:
+  ansible.builtin.file:
     src: "/etc/nginx/sites-available/zestedesavoir"
     dest: "/etc/nginx/sites-enabled/zestedesavoir"
     state: link
   notify: reload nginx
 
 - name: enable prod redirect site
-  file:
+  ansible.builtin.file:
     src: "/etc/nginx/sites-available/prod-redirect"
     dest: "/etc/nginx/sites-enabled/prod-redirect"
     state: link

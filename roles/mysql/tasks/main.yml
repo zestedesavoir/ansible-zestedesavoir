@@ -1,46 +1,46 @@
 - name: add mariadb repository key
-  apt_key:
+  ansible.builtin.apt_key:
     id: 177F4010FE56CA3336300305F1656F24C74CD1D8
     keyserver: "pool.sks-keyservers.net"
 
 - name: add mariadb repository
-  apt_repository:
+  ansible.builtin.apt_repository:
     filename: mariadb
     repo: "deb https://downloads.mariadb.com/MariaDB/mariadb-10.4/repo/debian {{ ansible_distribution_release }} main"
     state: present
   register: repo
 
 - name: install mariadb-server and mariadb-backup
-  apt:
+  ansible.builtin.apt:
     pkg:
       - mariadb-server
       - mariadb-backup
     cache_valid_time: 3600
 
 - name: copy mariadb config files
-  copy:
+  ansible.builtin.copy:
     src: 99-zds.cnf
     dest: /etc/mysql/conf.d/99-zds.cnf
     mode: u=rw,g=r,o=r
   notify: restart mariadb
 
 - name: ensure mariadb is started
-  systemd:
+  ansible.builtin.systemd:
     name: mariadb
     state: started
     enabled: true
 
 - name: install MySQLdb-python
-  apt:
+  ansible.builtin.apt:
     name: python-mysqldb
 
 - name: create mysql database
-  mysql_db:
+  community.mysql.mysql_db:
     name: "{{ mysql.name }}"
     state: present
 
 - name: create mysql user
-  mysql_user:
+  community.mysql.mysql_user:
     name: "{{ mysql.user }}"
     password: "{{ mysql.password }}"
     host: localhost

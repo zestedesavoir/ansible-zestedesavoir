@@ -1,10 +1,10 @@
 - name: add Node.js repository key
-  apt_key:
+  ansible.builtin.apt_key:
     id: 9FD3B784BC1C6FC31A8A0A1C1655A0AB68576280
     keyserver: "pool.sks-keyservers.net"
 
 - name: add Node.js repository
-  apt_repository:
+  ansible.builtin.apt_repository:
     filename: nodejs
     repo: "{{ item }} https://deb.nodesource.com/node_12.x {{ ansible_distribution_release }} main"
     state: present
@@ -13,12 +13,12 @@
     - deb-src
 
 - name: add Node.js repository preferences
-  template:
+  ansible.builtin.template:
     src: nodejs.pref
     dest: /etc/apt/preferences.d/nodejs.pref
     mode: u=rw,g=r,o=r
 
 - name: install Node.js
-  apt:
+  ansible.builtin.apt:
     pkg: nodejs
     cache_valid_time: 3600

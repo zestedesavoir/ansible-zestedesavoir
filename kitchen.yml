@@ -12,6 +12,8 @@ provisioner:
   playbook: playbook.yml
   ansible_inventory: kitchen-hosts
   ansible_verbose: true
+  ansible_version: 3.2.0
+  require_pip: true
 
 platforms:
   - name: debian-10
