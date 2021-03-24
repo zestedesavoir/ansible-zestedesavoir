@@ -1,7 +1,7 @@
 # Basic dependencies installation
 
 - name: install app dependencies
-  apt:
+  ansible.builtin.apt:
     pkg:
       - python3
       - python3-dev
@@ -24,7 +24,7 @@
 # User, directories, files and symlink creation
 
 - name: should have a {{ appuser }} user
-  user:
+  ansible.builtin.user:
     name: "{{ appuser }}"
     shell: /bin/false
     home: "{{ workdir }}"
@@ -33,7 +33,7 @@
     - bootstrap
 
 - name: create the needed directories
-  file:
+  ansible.builtin.file:
     path: "{{ item }}"
     state: directory
     owner: "{{ appuser }}"
@@ -56,7 +56,7 @@
   become_user: "{{ appuser }}"
   vars:
     refspec: "{{ '+refs/pull/*:refs/pull/*' if 'pull/' in appversion else '+refs/heads/*:refs/remotes/origin/*' }}"
-  git:
+  ansible.builtin.git:
     repo: "{{ apprepo }}"
     dest: "{{ appdir }}"
     version: "{{ appversion }}"
@@ -68,7 +68,7 @@
 
 - name: symlink data folders
   become_user: "{{ appuser }}"
-  file:
+  ansible.builtin.file:
     src: "{{ datadir }}/{{ item }}"
     dest: "{{ appdir }}/{{ item }}"
     state: link
@@ -82,7 +82,7 @@
 
 - name: save version file
   become_user: "{{ appuser }}"
-  template:
+  ansible.builtin.template:
     src: templates/_version.py.j2
     dest: "{{ appdir }}/zds/_version.py"
     mode: u=rw,g=r,o=r
@@ -92,7 +92,7 @@
 
 - name: save wrapper script
   become_user: "{{ appuser }}"
-  template:
+  ansible.builtin.template:
     src: templates/wrapper.j2
     dest: "{{ workdir }}/wrapper"
     mode: u=rwx,g=rx,o=rx
@@ -101,7 +101,7 @@
 
 - name: create app config file
   become_user: "{{ appuser }}"
-  template:
+  ansible.builtin.template:
     src: templates/config.toml.j2
     dest: "{{ workdir }}/config.toml"
     mode: u=rw,g=r,o=r
@@ -111,7 +111,7 @@
 
 - name: create Google Analytics API secrets file
   become_user: "{{ appuser }}"
-  copy:
+  ansible.builtin.copy:
     content: "{{ google_analytics_api | combine(secrets.google_analytics_api) | to_nice_json }}"
     dest: "{{ appdir }}/api_analytics_secrets.json"
     mode: u=rw,g=r,o=r
@@ -121,7 +121,7 @@
     - upgrade
 
 - name: create webroot
-  file:
+  ansible.builtin.file:
     path: "{{ webroot }}"
     state: directory
     mode: u=rwx,g=rx,o=rx
@@ -129,7 +129,7 @@
     - bootstrap
 
 - name: create symlinks in webroot
-  file:
+  ansible.builtin.file:
     src: "{{ item.src }}"
     dest: "{{ webroot }}/{{ item.dest }}"
     state: link
@@ -149,7 +149,7 @@
 
 - name: install wheel and sqlparse in virtualenv
   become_user: "{{ appuser }}"
-  pip:
+  ansible.builtin.pip:
     name:
       - wheel
       - sqlparse
@@ -160,7 +160,7 @@
 
 - name: install requirements in virtualenv
   become_user: "{{ appuser }}"
-  pip:
+  ansible.builtin.pip:
     requirements: "{{ appdir }}/requirements-prod.txt"
     virtualenv: "{{ virtualenv }}"
     virtualenv_command: /usr/bin/python3 -m venv
@@ -177,7 +177,7 @@
 
 - name: install frontend
   become_user: "{{ appuser }}"
-  npm:
+  community.general.npm:
     path: "{{ appdir }}"
   tags:
     - bootstrap
@@ -185,7 +185,7 @@
 
 - name: install zmarkdown
   become_user: "{{ appuser }}"
-  npm:
+  community.general.npm:
     path: "{{ zmarkdown_dir }}"
     production: true
   tags:
@@ -196,7 +196,7 @@
 
 - name: build frontend  # noqa no-changed-when
   become_user: "{{ appuser }}"
-  command: npm run build
+  ansible.builtin.command: npm run build
   args:
     chdir: "{{ appdir }}"
   tags:
@@ -208,7 +208,7 @@
   environment:
     DJANGO_SETTINGS_MODULE: "zds.settings.{{ env }}"
     ZDS_CONFIG: "{{ workdir }}/config.toml"
-  django_manage:
+  community.general.django_manage:
     app_path: "{{ appdir }}"
     virtualenv: "{{ virtualenv }}"
     command: collectstatic
@@ -224,7 +224,7 @@
   environment:
     DJANGO_SETTINGS_MODULE: "zds.settings.{{ env }}"
     ZDS_CONFIG: "{{ workdir }}/config.toml"
-  django_manage:
+  community.general.django_manage:
     app_path: "{{ appdir }}"
     virtualenv: "{{ virtualenv }}"
     command: migrate --plan
@@ -234,7 +234,7 @@
     - upgrade
 
 - name: create symlink to the maintenance page
-  file:
+  ansible.builtin.file:
     src: "{{ webroot }}/errors/maintenance.html"
     dest: "{{ webroot }}/maintenance.html"
     state: link
@@ -248,7 +248,7 @@
   environment:
     DJANGO_SETTINGS_MODULE: "zds.settings.{{ env }}"
     ZDS_CONFIG: "{{ workdir }}/config.toml"
-  django_manage:
+  community.general.django_manage:
     app_path: "{{ appdir }}"
     virtualenv: "{{ virtualenv }}"
     command: migrate
@@ -262,7 +262,7 @@
   environment:
     DJANGO_SETTINGS_MODULE: "zds.settings.{{ env }}"
     ZDS_CONFIG: "{{ workdir }}/config.toml"
-  django_manage:
+  community.general.django_manage:
     app_path: "{{ appdir }}"
     virtualenv: "{{ virtualenv }}"
     command: clear_cache
@@ -273,7 +273,7 @@
 # Services and timers
 
 - name: create services and timers files
-  template:
+  ansible.builtin.template:
     src: templates/{{ item }}.j2
     dest: "/etc/systemd/system/{{ item }}"
     mode: u=rw,g=r,o=r
@@ -288,7 +288,7 @@
     - bootstrap
 
 - name: start services and timers
-  systemd:
+  ansible.builtin.systemd:
     state: started
     name: "{{ item }}"
     enabled: true
@@ -303,7 +303,7 @@
     - bootstrap
 
 - name: reload zmarkdown and zds
-  systemd:
+  ansible.builtin.systemd:
     name: "{{ item }}"
     state: reloaded
   with_items:
@@ -314,7 +314,7 @@
     - upgrade
 
 - name: restart watchdog
-  systemd:
+  ansible.builtin.systemd:
     name: zds-watchdog
     state: restarted
   tags:
@@ -322,7 +322,7 @@
     - upgrade
 
 - name: ensure that zmarkdown is running
-  uri:
+  ansible.builtin.uri:
     url: http://localhost:27272/
     return_content: true
   register: this
@@ -336,7 +336,7 @@
 # End of maintenance, if needed
 
 - name: remove maintenance symlink
-  file:
+  ansible.builtin.file:
     path: "{{ webroot }}/maintenance.html"
     state: absent
   tags:

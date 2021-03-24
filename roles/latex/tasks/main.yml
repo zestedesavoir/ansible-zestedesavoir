@@ -1,5 +1,5 @@
 - name: install texlive packages
-  apt:
+  ansible.builtin.apt:
     pkg:
       - texlive
       - texlive-luatex
@@ -18,7 +18,7 @@
     - bootstrap
 
 - name: clone the template  # noqa git-latest
-  git:
+  ansible.builtin.git:
     repo: "https://github.com/zestedesavoir/latex-template/"
     dest: /opt/zds/texmf/tex/generic/latex-template
   notify: run texhash
@@ -27,7 +27,7 @@
     - upgrade
 
 - name: create font folders
-  file:
+  ansible.builtin.file:
     path: /usr/local/share/fonts/{{ item[0].path }}/{{ item[1].slug }}/
     state: directory
     mode: u=rw,g=r,o=r
@@ -38,7 +38,7 @@
     - bootstrap
 
 - name: download fonts
-  get_url:
+  ansible.builtin.get_url:
     url: "{{ item[0].url }}/{{ item[1].ext | upper }}/{{ item[0].name }}-{{ item[2] }}.{{ item[1].ext }}"
     dest: /usr/local/share/fonts/{{ item[1].path }}/{{ item[0].slug }}/{{ item[0].name }}-{{ item[2] }}.{{ item[1].ext }}
   with_nested:

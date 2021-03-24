@@ -1,30 +1,30 @@
 - name: add elasticsearch repository key
-  apt_key:
+  ansible.builtin.apt_key:
     id: 46095ACC8548582C1A2699A9D27D666CD88E42B4
     keyserver: "pool.sks-keyservers.net"
 
 - name: add elasticsearch repository
-  apt_repository:
+  ansible.builtin.apt_repository:
     filename: elasticsearch
     repo: "deb https://artifacts.elastic.co/packages/5.x/apt stable main"
     state: present
 
 - name: install openjdk-11-jre-headless and elasticsearch
-  apt:
+  ansible.builtin.apt:
     pkg:
       - openjdk-11-jre-headless
       - elasticsearch
     cache_valid_time: 3600
 
 - name: copy elasticsearch config files
-  copy:
+  ansible.builtin.copy:
     src: jvm.options
     dest: /etc/elasticsearch/jvm.options
     mode: u=rw,g=rw
   notify: restart elasticsearch
 
 - name: start elasticsearch
-  systemd:
+  ansible.builtin.systemd:
     name: elasticsearch.service
     state: started
     enabled: true

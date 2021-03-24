@@ -1,5 +1,5 @@
 - name: should have some base packages
-  apt:
+  ansible.builtin.apt:
     pkg:
       - locales
       - vim
@@ -11,7 +11,7 @@
     cache_valid_time: 3600
 
 - name: should have UTF-8 locales enabled
-  locale_gen:
+  community.general.locale_gen:
     name: "{{ item }}"
     state: present
   with_items:
@@ -19,12 +19,12 @@
     - en_US.UTF-8
 
 - name: set default shell to zsh for root
-  user:
+  ansible.builtin.user:
     user: root
     shell: /usr/bin/zsh
 
 - name: copy zsh config files
-  copy:
+  ansible.builtin.copy:
     src: "{{ item.src }}"
     dest: "/etc/zsh/{{ item.path }}"
     mode: u=rw,g=r,o=r
@@ -32,12 +32,12 @@
   when: item.state == 'file'
 
 - name: ensure the system can use the HTTPS transport for APT
-  stat:
+  ansible.builtin.stat:
     path: /usr/lib/apt/methods/https
   register: apt_https_transport
 
 - name: install HTTPS transport for APT
-  apt:
+  ansible.builtin.apt:
     pkg: apt-transport-https
     state: present
   when: not apt_https_transport.stat.exists
