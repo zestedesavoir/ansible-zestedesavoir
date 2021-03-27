@@ -13,6 +13,8 @@
       - autoconf # for gulp-imagemin Node.js package
       - automake # for gulp-imagemin Node.js package
       - rustc # for cryptography Python package
+      - optipng # for easy-thumbnails Python package
+      - jpegoptim # for easy-thumbnails Python package
     state: present
     cache_valid_time: 3600
   tags:
