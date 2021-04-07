@@ -94,6 +94,9 @@ server {
     # END HOTFIX
 
     # Error pages
+    error_page 403 /errors/403.html;
+    error_page 404 /errors/404.html;
+    error_page 429 /errors/429.html;
     error_page 500 502 504 /errors/500.html;
     error_page 503 @maintenance;
 
