@@ -160,6 +160,36 @@ Si jamais vous devez lancer une commande `python manage.py`, ne le faites pas, u
 
 Lorsque plusieurs comptes de spam sont créés régulièrement à partir d'une même IP, il peut être nécessaire d'interdire la connexion ou l'inscription sur le site web à partir de cette IP. Il suffit donc de rajouter une ligne `deny ADRESSE_IP;` au fichier `/etc/nginx/snippets/ban.conf` pour que l'accès aux URL commençant par `/membres/` soit interdit avec cette IP.
 
+
+## Utilisation de Vagrant et Ansible pour une instance de test
+
+### Installation initiale
+
+```bash
+vagrant up
+```
+
+### Mise à jour
+
+Pour faire l'équivalent de `ansible-playbook --tags=upgrade`, il est nécessaire d'ajouter cette ligne dans le `Vagrantfile`, dans le bloc `config.vm.provision "ansible" do |ansible|`:
+```ruby
+ansible.tags = "upgrade"
+```
+
+
+### Charger les données initiales
+
+```bash
+vagrant ssh
+sudo -u zds bash
+/opt/zds/virtualenv/bin/pip3 install -r /opt/zds/app/requirements-dev.txt
+/opt/zds/wrapper loaddata /opt/zds/app/fixtures/*.yaml
+/opt/zds/wrapper load_factory_data fixtures/advanced/aide_tuto_media.yaml
+/opt/zds/wrapper load_fixtures --size=low --all
+```
+
+
+
 ## (Archive) Configuration du Munin
 
 *Actuellement, notre script Ansible ne prend pas en charge la configuration du Munin. J'archive ici les anciennes instructions pour l'installation du Munin. Je ne sais pas si elles sont encore valables.*
