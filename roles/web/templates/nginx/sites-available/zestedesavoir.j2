@@ -1,3 +1,6 @@
+limit_req_zone $binary_remote_addr zone=remote_addr:10m rate=5r/s;
+limit_req_zone $request_uri zone=request_uri:10m rate=10r/s;
+
 upstream zdsappserver {
     server unix:{{ rundir }}/gunicorn.sock fail_timeout=0;
 }
@@ -64,12 +67,16 @@ server {
             rewrite ^(.*[^/])$ $1/ permanent;
         }
 
+        limit_req zone=remote_addr burst=10;
+        limit_req zone=request_uri burst=20;
+        limit_req_status 429;
+
         include snippets/proxy.conf;
         proxy_pass http://zdsappserver;
     }
 
     location @maintenance {
-        rewrite ^(.*)$ /maintenance.html break;
+        rewrite ^(.*)$ /errors/maintenance.html break;
     }
 
     # Cache headers on static resources
