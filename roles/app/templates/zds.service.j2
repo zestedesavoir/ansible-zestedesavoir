@@ -5,8 +5,8 @@ After=network.target
 
 [Service]
 PIDFile={{ workdir }}/run/gunicorn.pid
-User=zds
-Group=zds
+User={{ appuser }}
+Group={{ appuser }}
 WorkingDirectory={{ appdir }}
 ExecStart={{ virtualenv }}/bin/gunicorn \
         --pid {{ rundir }}/gunicorn.pid \

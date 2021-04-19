@@ -3,8 +3,8 @@ Description=Zeste de Savoir - Watchdog
 After=network.target
 
 [Service]
-User=zds
-Group=zds
+User={{ appuser }}
+Group={{ appuser }}
 ExecStart={{ workdir }}/wrapper publication_watchdog
 ExecStop=/bin/kill -s TERM $MAINPID
 Restart=on-failure
