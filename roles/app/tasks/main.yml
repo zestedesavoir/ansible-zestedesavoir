@@ -1,7 +1,6 @@
 # Basic dependencies installation 
 
 - name: install app dependencies
-  become: true
   apt:
     pkg:
       - python3
@@ -24,10 +23,9 @@
 
 # User, directories, files and symlink creation
 
-- name: should have a {{ appuser }} user
-  become: true
+- name: should have a {{ appuser }} user
   user:
-    name: "{{ appuser }}"
+    name: "{{ appuser }}"
     shell: /bin/false
     home: "{{ workdir }}"
     comment: "Zeste de Savoir"
@@ -35,12 +33,11 @@
     - bootstrap
 
 - name: create the needed directories
-  become: true
   file:
     path: "{{ item }}"
     state: directory
-    owner: "{{ appuser }}"
-    group: "{{ appuser }}"
+    owner: "{{ appuser }}"
+    group: "{{ appuser }}"
   with_items:
     - "{{ logdir }}"
     - "{{ workdir }}"
@@ -55,7 +52,6 @@
     - bootstrap
 
 - name: checkout the application
-  become: true
   become_user: "{{ appuser }}"
   vars:
     refspec: "{{ '+refs/pull/*:refs/pull/*' if 'pull/' in appversion else '+refs/heads/*:refs/remotes/origin/*' }}"
@@ -70,8 +66,7 @@
     - upgrade
 
 - name: symlink data folders
-  become: true
-  become_user: "{{ appuser }}"
+  become_user: "{{ appuser }}"
   file:
     src: "{{ datadir }}/{{ item }}"
     dest: "{{ appdir }}/{{ item }}"
@@ -85,7 +80,6 @@
     - bootstrap
 
 - name: save version file
-  become: true
   become_user: "{{ appuser }}"
   template:
     src: templates/_version.py.j2
@@ -96,8 +90,7 @@
     - upgrade
 
 - name: save wrapper script
-  become: true
-  become_user: "{{ appuser }}"
+  become_user: "{{ appuser }}"
   template:
     src: templates/wrapper.j2
     dest: "{{ workdir }}/wrapper"
@@ -106,7 +99,6 @@
     - bootstrap
 
 - name: create app config file
-  become: true
   become_user: "{{ appuser }}"
   template:
     src: templates/config.toml.j2
@@ -116,7 +108,6 @@
     - upgrade
 
 - name: create Google Analytics API secrets file
-  become: true
   become_user: "{{ appuser }}"
   copy:
     content: "{{ google_analytics_api | combine(secrets.google_analytics_api) | to_nice_json }}"
@@ -153,8 +144,7 @@
 # Installation of backend, frontend and zmd dependencies
 
 - name: install wheel and sqlparse in virtualenv
-  become: true
-  become_user: "{{ appuser }}"
+  become_user: "{{ appuser }}"
   pip:
     name:
       - wheel
@@ -165,8 +155,7 @@
     - bootstrap
 
 - name: install requirements in virtualenv
-  become: true
-  become_user: "{{ appuser }}"
+  become_user: "{{ appuser }}"
   pip:
     requirements: "{{ appdir }}/requirements-prod.txt"
     virtualenv: "{{ virtualenv }}"
@@ -182,7 +171,6 @@
     - bootstrap
 
 - name: install frontend
-  become: true
   become_user: "{{ appuser }}"
   npm:
     path: "{{ appdir }}"
@@ -191,8 +179,7 @@
     - upgrade
 
 - name: install zmarkdown
-  become: true
-  become_user: zds
+  become_user: "{{ appuser }}"
   npm:
     path: "{{ zmarkdown_dir }}"
     production: yes
@@ -203,7 +190,6 @@
 # Frontend building
 
 - name: build frontend
-  become: true
   become_user: "{{ appuser }}"
   command: npm run build
   args:
@@ -213,7 +199,6 @@
     - upgrade
 
 - name: collect static files
-  become: true
   become_user: "{{ appuser }}"
   environment:
     DJANGO_SETTINGS_MODULE: "zds.settings.{{ env }}"
@@ -230,7 +215,6 @@
 # Start of maintenance, if needed
 
 - name: check if database migration is needed
-  become: true
   become_user: "{{ appuser }}"
   environment:
     DJANGO_SETTINGS_MODULE: "zds.settings.{{ env }}"
@@ -255,7 +239,6 @@
     - upgrade
 
 - name: migrate database
-  become: true
   become_user: "{{ appuser }}"
   environment:
     DJANGO_SETTINGS_MODULE: "zds.settings.{{ env }}"
@@ -270,7 +253,6 @@
     - upgrade
 
 - name: clear cache
-  become: true
   become_user: "{{ appuser }}"
   environment:
     DJANGO_SETTINGS_MODULE: "zds.settings.{{ env }}"

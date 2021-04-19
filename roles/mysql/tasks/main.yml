@@ -18,7 +18,9 @@
     cache_valid_time: 3600
 
 - name: copy mariadb config files
-  copy: src="99-zds.cnf" dest="/etc/mysql/conf.d/99-zds.cnf"
+  copy:
+    src: 99-zds.cnf
+    dest: /etc/mysql/conf.d/99-zds.cnf
   notify: restart mariadb
 
 - name: ensure mariadb is started
@@ -41,5 +43,5 @@
     name: "{{ mysql.user }}"
     password: "{{ mysql.password }}"
     host: localhost
-    priv: "{{ mysql.name }}.*:ALL"
+    priv: "{{ mysql.name }}.*:ALL"
     state: present

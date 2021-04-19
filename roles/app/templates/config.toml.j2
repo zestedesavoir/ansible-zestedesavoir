@@ -6,8 +6,8 @@ secret_key = "{{ secrets.django }}"
 
 [social_auth]
 {% if 'facebook' in secrets %}
-facebook_key = "{{ secrets.facebook.key }}"
-facebook_secret = "{{ secrets.facebook.secret }}"
+facebook_key = "{{ secrets.facebook.key }}"
+facebook_secret = "{{ secrets.facebook.secret }}"
 {% endif %}
 {% if 'twitter' in secrets %}
 twitter_key = "{{ secrets.twitter.key }}"
@@ -33,7 +33,7 @@ member_anonymous_username = "anonyme"
 association_fee = "25 €"
 association_subscribe_link = "https://www.helloasso.com/associations/zeste-de-savoir/adhesions/cotisations-2020-2021"
 
-visual_changes = {{ visual_changes | default([]) | to_json }}
+visual_changes = {{ visual_changes | default([]) | to_json }}
 
 {% if very_top_banner is defined %}
 [very_top_banner]
