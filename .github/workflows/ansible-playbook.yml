@@ -9,6 +9,19 @@ on:
       - main
 
 jobs:
+  lint:
+    runs-on: ubuntu-20.04
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+
+      - name: Run pre-commit
+        uses: pre-commit/action@v2.0.2
+
   test:
     runs-on: ubuntu-20.04
 
