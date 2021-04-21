@@ -21,7 +21,7 @@ Deux sauvegardes de la prod sont actuellement en place :
 Pour les fichiers importants, il n'y a pas de sauvegarde sur le serveur de prod lui-même. Par contre, la base de données fait l'objet :
 
 - d'une sauvegarde complète chaque jour à 3h15 ;
-- d'une sauvegarde incrémentale toutes les quatre heures à 4h, 8h, 12h, 16h, 20h et minuit.
+- d'une sauvegarde incrémentale aux heures paires, donc toutes les deux heures.
 
 Ces sauvegardes sont disponibles dans le dossier `/var/backups/mysql` avec comme nom la date et l'heure de la sauvegarde (au format `AAAAMMJJ-HHMM`). On supprime au fur et à mesure les anciennes sauvegardes pour libérer de l'espace disque.
 
