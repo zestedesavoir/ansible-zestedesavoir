@@ -9,5 +9,7 @@
       tags: bootstrap
     - role: web
       tags: bootstrap
+    - role: firewall
+      tags: bootstrap
     - app
     - latex

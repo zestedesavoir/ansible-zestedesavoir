@@ -1,0 +1,22 @@
+- name: Install firewall (ufw)
+  ansible.builtin.apt:
+    pkg: ufw
+    cache_valid_time: 3600
+
+- name: Configure firewall (ufw) rules
+  community.general.ufw:
+    rule: allow
+    proto: tcp
+    port: "{{ item }}"
+  loop:
+    - "80"  # HTTP
+    - "443"  # HTTPS
+    - "22"  # SSH
+    - "4949"  # Munin
+    - "25"  # SMTP
+    - "465"  # SMTP
+    - "587"  # SMTP
+
+- name: Enable firewall (ufw)
+  community.general.ufw:
+    state: enabled
