@@ -27,6 +27,7 @@
   copy:
     src: "{{ item.src }}"
     dest: "/etc/zsh/{{ item.path }}"
+    mode: u=rw,g=r,o=r
   with_filetree: zsh/
   when: item.state == 'file'
 
@@ -40,4 +41,3 @@
     pkg: apt-transport-https
     state: present
   when: not apt_https_transport.stat.exists
-

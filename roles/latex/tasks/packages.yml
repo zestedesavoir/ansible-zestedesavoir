@@ -1,7 +1,7 @@
 - name: create tlmgr usertree
   become: true
   become_user: zds
-  shell: tlmgr init-usertree
+  command: tlmgr init-usertree
   args:
     creates: $HOME/texmf
   tags:
@@ -11,7 +11,7 @@
   file:
     path: /opt/zds/texmf/ansible-state
     state: touch
-    mode: 0666
+    mode: u=rw,g=r,o=r
   tags:
     - bootstrap
 
@@ -19,7 +19,7 @@
   slurp: src=/opt/zds/texmf/ansible-state
   register: installed_packages
 
-- name: install packages
+- name: install packages  # noqa risky-shell-pipe
   become: true
   become_user: zds
   shell: >
@@ -41,6 +41,7 @@
   file:
     path: /opt/zds/texmf/tex/latex/tabu/
     state: directory
+    mode: u=rw,g=r,o=r
   tags:
     - bootstrap
 

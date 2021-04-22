@@ -4,4 +4,4 @@
   shell: texhash $HOME/texmf
 
 - name: refresh font-config cache
-  shell: fc-cache -f
+  command: fc-cache -f

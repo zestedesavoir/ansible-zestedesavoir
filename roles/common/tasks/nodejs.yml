@@ -16,6 +16,7 @@
   template:
     src: nodejs.pref
     dest: /etc/apt/preferences.d/nodejs.pref
+    mode: u=rw,g=r,o=r
 
 - name: install Node.js
   apt:

@@ -20,6 +20,7 @@
   copy:
     src: jvm.options
     dest: /etc/elasticsearch/jvm.options
+    mode: u=rw,g=rw
   notify: restart elasticsearch
 
 - name: start elasticsearch

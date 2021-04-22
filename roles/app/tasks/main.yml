@@ -1,4 +1,4 @@
-# Basic dependencies installation 
+# Basic dependencies installation
 
 - name: install app dependencies
   apt:
@@ -11,11 +11,11 @@
       - libffi-dev
       - libssl-dev
       - libmariadb-dev
-      - autoconf # for gulp-imagemin Node.js package
-      - automake # for gulp-imagemin Node.js package
-      - rustc # for cryptography Python package
-      - optipng # for easy-thumbnails Python package
-      - jpegoptim # for easy-thumbnails Python package
+      - autoconf  # for gulp-imagemin Node.js package
+      - automake  # for gulp-imagemin Node.js package
+      - rustc  # for cryptography Python package
+      - optipng  # for easy-thumbnails Python package
+      - jpegoptim  # for easy-thumbnails Python package
     state: present
     cache_valid_time: 3600
   tags:
@@ -38,6 +38,7 @@
     state: directory
     owner: "{{ appuser }}"
     group: "{{ appuser }}"
+    mode: u=rwx,g=rx,o=rx
   with_items:
     - "{{ logdir }}"
     - "{{ workdir }}"
@@ -84,7 +85,7 @@
   template:
     src: templates/_version.py.j2
     dest: "{{ appdir }}/zds/_version.py"
-    mode: "0644"
+    mode: u=rw,g=r,o=r
   tags:
     - bootstrap
     - upgrade
@@ -94,7 +95,7 @@
   template:
     src: templates/wrapper.j2
     dest: "{{ workdir }}/wrapper"
-    mode: "0755"
+    mode: u=rwx,g=rx,o=rx
   tags:
     - bootstrap
 
@@ -103,6 +104,7 @@
   template:
     src: templates/config.toml.j2
     dest: "{{ workdir }}/config.toml"
+    mode: u=rw,g=r,o=r
   tags:
     - bootstrap
     - upgrade
@@ -112,6 +114,7 @@
   copy:
     content: "{{ google_analytics_api | combine(secrets.google_analytics_api) | to_nice_json }}"
     dest: "{{ appdir }}/api_analytics_secrets.json"
+    mode: u=rw,g=r,o=r
   when: secrets.google_analytics_api is defined
   tags:
     - bootstrap
@@ -121,6 +124,7 @@
   file:
     path: "{{ webroot }}"
     state: directory
+    mode: u=rwx,g=rx,o=rx
   tags:
     - bootstrap
 
@@ -164,7 +168,8 @@
     - bootstrap
     - upgrade
 
-- include_role:
+- name: include nodejs installation
+  include_role:
     name: common
     tasks_from: nodejs
   tags:
@@ -182,14 +187,14 @@
   become_user: "{{ appuser }}"
   npm:
     path: "{{ zmarkdown_dir }}"
-    production: yes
+    production: true
   tags:
     - bootstrap
     - upgrade
 
 # Frontend building
 
-- name: build frontend
+- name: build frontend  # noqa no-changed-when
   become_user: "{{ appuser }}"
   command: npm run build
   args:
@@ -271,6 +276,7 @@
   template:
     src: templates/{{ item }}.j2
     dest: "/etc/systemd/system/{{ item }}"
+    mode: u=rw,g=r,o=r
   with_items:
     - zmd.service
     - zds.service
@@ -285,8 +291,8 @@
   systemd:
     state: started
     name: "{{ item }}"
-    enabled: yes
-    daemon_reload: yes
+    enabled: true
+    daemon_reload: true
   with_items:
     - zmd.service
     - zds.service
@@ -318,7 +324,7 @@
 - name: ensure that zmarkdown is running
   uri:
     url: http://localhost:27272/
-    return_content: yes
+    return_content: true
   register: this
   delay: 1
   retries: 10
@@ -336,4 +342,3 @@
   tags:
     - bootstrap
     - upgrade
-

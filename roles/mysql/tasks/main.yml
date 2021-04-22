@@ -21,13 +21,14 @@
   copy:
     src: 99-zds.cnf
     dest: /etc/mysql/conf.d/99-zds.cnf
+    mode: u=rw,g=r,o=r
   notify: restart mariadb
 
 - name: ensure mariadb is started
   systemd:
     name: mariadb
     state: started
-    enabled: yes
+    enabled: true
 
 - name: install MySQLdb-python
   apt:

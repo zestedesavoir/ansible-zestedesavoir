@@ -28,6 +28,7 @@
   file:
     path: "/etc/nginx/{{ item }}"
     state: directory
+    mode: u=rwx,g=rx,o=rx
   with_items:
     - snippets/
     - sites-available/
@@ -37,6 +38,7 @@
   copy:
     src: "{{ item.src }}"
     dest: "/etc/nginx/{{ item.path }}"
+    mode: u=rw,g=r,o=r
   with_filetree: nginx/
   when: item.state == 'file'
   notify: reload nginx
@@ -45,6 +47,7 @@
   template:
     src: "{{ item }}.j2"
     dest: "/etc/{{ item }}"
+    mode: u=rw,g=r,o=r
   with_items:
     - nginx/sites-available/zestedesavoir
     - nginx/sites-available/prod-redirect
