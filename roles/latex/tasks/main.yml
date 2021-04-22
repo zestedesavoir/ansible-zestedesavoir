@@ -17,7 +17,7 @@
   tags:
     - bootstrap
 
-- name: clone the template
+- name: clone the template  # noqa git-latest
   git:
     repo: "https://github.com/zestedesavoir/latex-template/"
     dest: /opt/zds/texmf/tex/generic/latex-template
@@ -30,6 +30,7 @@
   file:
     path: /usr/local/share/fonts/{{ item[0].path }}/{{ item[1].slug }}/
     state: directory
+    mode: u=rw,g=r,o=r
   with_nested:
     - "{{ fonttypes }}"
     - "{{ fonts }}"
