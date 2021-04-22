@@ -1,0 +1,209 @@
+munin_node_plugins:
+  - name: acpi
+    plugin: acpi
+  - name: cpu
+    plugin: cpu
+  - name: df
+    plugin: df
+  - name: df_inode
+    plugin: df_inode
+  - name: diskstats
+    plugin: diskstats
+  - name: elasticsearch_cache
+    plugin: elasticsearch_cache
+  - name: elasticsearch_cluster_shards
+    plugin: elasticsearch_cluster_shards
+  - name: elasticsearch_docs
+    plugin: elasticsearch_docs
+  - name: elasticsearch_gc_time
+    plugin: elasticsearch_gc_time
+  - name: elasticsearch_index_size
+    plugin: elasticsearch_index_size
+  - name: elasticsearch_index_total
+    plugin: elasticsearch_index_total
+  - name: elasticsearch_jvm_memory
+    plugin: elasticsearch_jvm_memory
+  - name: elasticsearch_jvm_pools_size
+    plugin: elasticsearch_jvm_pools_size
+  - name: elasticsearch_jvm_threads
+    plugin: elasticsearch_jvm_threads
+  - name: elasticsearch_open_files
+    plugin: elasticsearch_open_files
+  - name: entropy
+    plugin: entropy
+  - name: exim_mailstats
+    plugin: exim_mailstats
+  - name: forks
+    plugin: forks
+  - name: fw_conntrack
+    plugin: fw_conntrack
+  - name: fw_forwarded_local
+    plugin: fw_forwarded_local
+  - name: fw_packets
+    plugin: fw_packets
+  - name: http_loadtime
+    plugin: http_loadtime
+  - name: if_err_eth0
+    plugin: if_err_
+  - name: if_eth0
+    plugin: if_
+  - name: interrupts
+    plugin: interrupts
+  - name: irqstats
+    plugin: irqstats
+  - name: load
+    plugin: load
+  - name: memcached_multi_bytes
+    plugin: memcached_multi_
+  - name: memcached_multi_commands
+    plugin: memcached_multi_
+  - name: memcached_multi_conns
+    plugin: memcached_multi_
+  - name: memcached_multi_evictions
+    plugin: memcached_multi_
+  - name: memcached_multi_items
+    plugin: memcached_multi_
+  - name: memcached_multi_memory
+    plugin: memcached_multi_
+  - name: memcached_multi_unfetched
+    plugin: memcached_multi_
+  - name: memory
+    plugin: memory
+  - name: mysql_bin_relay_log
+    plugin: mysql_
+  - name: mysql_commands
+    plugin: mysql_
+  - name: mysql_connections
+    plugin: mysql_
+  - name: mysql_files_tables
+    plugin: mysql_
+  - name: mysql_innodb_bpool
+    plugin: mysql_
+  - name: mysql_innodb_bpool_act
+    plugin: mysql_
+  - name: mysql_innodb_insert_buf
+    plugin: mysql_
+  - name: mysql_innodb_io
+    plugin: mysql_
+  - name: mysql_innodb_io_pend
+    plugin: mysql_
+  - name: mysql_innodb_log
+    plugin: mysql_
+  - name: mysql_innodb_rows
+    plugin: mysql_
+  - name: mysql_innodb_semaphores
+    plugin: mysql_
+  - name: mysql_innodb_tnx
+    plugin: mysql_
+  - name: mysql_myisam_indexes
+    plugin: mysql_
+  - name: mysql_network_traffic
+    plugin: mysql_
+  - name: mysql_qcache
+    plugin: mysql_
+  - name: mysql_qcache_mem
+    plugin: mysql_
+  - name: mysql_replication
+    plugin: mysql_
+  - name: mysql_select_types
+    plugin: mysql_
+  - name: mysql_slow
+    plugin: mysql_
+  - name: mysql_sorts
+    plugin: mysql_
+  - name: mysql_table_locks
+    plugin: mysql_
+  - name: mysql_tmp_tables
+    plugin: mysql_
+  - name: netstat
+    plugin: netstat
+  - name: nginx_request
+    plugin: nginx_request
+  - name: nginx_status
+    plugin: nginx_status
+  - name: open_files
+    plugin: open_files
+  - name: open_inodes
+    plugin: open_inodes
+  - name: postfix_mailqueue
+    plugin: postfix_mailqueue
+  - name: postfix_mailstats
+    plugin: postfix_mailstats
+  - name: postfix_mailvolume
+    plugin: postfix_mailvolume
+  - name: processes
+    plugin: processes
+  - name: proc_pri
+    plugin: proc_pri
+  - name: swap
+    plugin: swap
+  - name: threads
+    plugin: threads
+  - name: uptime
+    plugin: uptime
+  - name: users
+    plugin: users
+  - name: vmstat
+    plugin: vmstat
+  - name: wget_page
+    plugin: wget_page
+  - name: zds_active_sessions
+    plugin: django.py
+  - name: zds_active_users
+    plugin: django.py
+  - name: zds_db_performance
+    plugin: django.py
+  - name: zds_total_articles
+    plugin: django.py
+  - name: zds_total_mps
+    plugin: django.py
+  - name: zds_total_posts
+    plugin: django.py
+  - name: zds_total_sessions
+    plugin: django.py
+  - name: zds_total_topics
+    plugin: django.py
+  - name: zds_total_tribunes
+    plugin: django.py
+  - name: zds_total_tutorials
+    plugin: django.py
+  - name: zds_total_users
+    plugin: django.py
+  - name: zmd_avg_per_endpoint
+    plugin: zmd.sh
+  - name: zmd_avg_per_process
+    plugin: zmd.sh
+  - name: zmd_cpu
+    plugin: zmd.sh
+  - name: zmd_event_loop_lag
+    plugin: zmd.sh
+  - name: zmd_memory
+    plugin: zmd.sh
+  - name: zmd_req_per_endpoint
+    plugin: zmd.sh
+  - name: zmd_req_per_process
+    plugin: zmd.sh
+  - name: zmd_status
+    plugin: zmd.sh
+
+munin_node_install_plugins:
+  - src: plugins/django.py
+  - src: plugins/elasticsearch_cache
+  - src: plugins/elasticsearch_cluster_shards
+  - src: plugins/elasticsearch_docs
+  - src: plugins/elasticsearch_gc_time
+  - src: plugins/elasticsearch_index_size
+  - src: plugins/elasticsearch_index_total
+  - src: plugins/elasticsearch_jvm_memory
+  - src: plugins/elasticsearch_jvm_pools_size
+  - src: plugins/elasticsearch_jvm_threads
+  - src: plugins/elasticsearch_open_files
+  - src: plugins/memcached_multi_
+  - src: plugins/wget_page
+  - src: plugins/zmd.sh
+
+munin_node_install_confs:
+  - src: plugin-conf.d/elasticsearch.conf
+  - src: plugin-conf.d/wget_page.conf
+  - src: plugin-conf.d/zds.conf
+  - src: plugin-conf.d/zmd.conf
