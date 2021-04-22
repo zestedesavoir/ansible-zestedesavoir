@@ -1,3 +1,5 @@
+![Github Actions status](https://github.com/zestedesavoir/ansible-zestedesavoir/actions/workflows/ansible-playbook.yml/badge.svg)
+
 # Zeste de Savoir sur un serveur de production
 
 Ce dépôt contient tous les fichiers nécessaire au déploiement d'un serveur de production pour Zeste de Savoir grâce à [Ansible](https://docs.ansible.com/ansible/latest/index.html). Vous trouverez ci-dessous toutes les informations pour prendre en main une installation de Zeste de Savoir sur un serveur de production.
