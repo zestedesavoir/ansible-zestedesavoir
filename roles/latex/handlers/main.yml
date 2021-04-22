@@ -1,7 +1,15 @@
 - name: run texhash
   become: true
   become_user: zds
-  ansible.builtin.shell: texhash $HOME/texmf
+  ansible.builtin.shell: "{{ texlive_binaries }}/texhash $HOME/texmf"
 
 - name: refresh font-config cache
   ansible.builtin.command: fc-cache -f
+
+- name: remove texlive installation files  # noqa deprecated-command-syntax
+  ansible.builtin.shell: |
+    rm -rf ./install-tl-*/
+    rm ./texlive.profile
+  args:
+    executable: /bin/bash
+    chdir: "{{ workdir }}"
