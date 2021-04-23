@@ -29,7 +29,7 @@ On utilise l'utilitaire `cron` pour lancer ces sauvegardes :
 
 ```cron
 # min hour dom month dow command
-0 */4 * * * /var/backups/mysql/backup.sh
+0 */2 * * * /var/backups/mysql/backup.sh
 15 3 * * * /var/backups/mysql/backup.sh full
 15 4 * * * /var/backups/mysql/cleanup.sh
 ```
@@ -107,8 +107,10 @@ On utilise l'utilitaire `cron` *depuis le serveur de prod* pour envoyer les donn
 
 ```cron
 # min hour dom month dow command
-0 */4 * * * /root/sauvegarde-vers-la-beta/donnees.sh
-5 */4 * * * /root/sauvegarde-vers-la-beta/bdd.sh
+0 */2 * * * /root/sauvegarde-vers-la-beta/donnees.sh
+5 */2 * * * /root/sauvegarde-vers-la-beta/bdd.sh
+15 3 * * * /root/sauvegarde-vers-la-beta/donnees.sh
+20 3 * * * /root/sauvegarde-vers-la-beta/bdd.sh
 ```
 
 **`bdd.sh` (sur le serveur de prod)**
@@ -224,7 +226,7 @@ borg prune --keep-within 60d --list data/
 
 C'est bien beau d'avoir des sauvegardes, mais fonctionneront-elles le jour où on en aura besoin ? Pour cela, il est impératif de vérifier que la restauration des sauvegardes fonctionne. Une bonne manière de tester cela est d'utiliser les sauvegardes du serveur de prod sur le serveur de bêta !
 
-Voici les commandes que j'ai effectuée pour restaurer la bêta à partir des sauvegardes de la prod :
+Voici les commandes que j'effectue régulièrement *manuellement* (car **ce n'est pas un script**) pour restaurer la bêta à partir des sauvegardes de la prod :
 
 ```sh
 # Script de mise à jour de la bêta avec les backups de la prod
@@ -326,8 +328,6 @@ sudo rm -rI /opt/sauvegarde/db/20200509-0315-full.temp/
 sudo rm -rI /opt/sauvegarde/db/20200509-0400.temp/
 sudo rm -rI /opt/sauvegarde/db/20200509-0600.temp/
 ```
-
-
 
 ## Perdre des données, cela n'arrive pas qu'aux autres !
 

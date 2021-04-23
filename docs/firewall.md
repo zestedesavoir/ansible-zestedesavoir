@@ -1,6 +1,7 @@
-# Documentation du pare-feu
+# Configuration du pare-feu
 
 Le pare-feu actuellement utilisé sur les serveurs de production et de bêta est `ufw`.
+Il est installé et configuré automatiquement à l'installation du serveur avec le rôle `firewall`.
 
 Les règles par défaut sont :
 
@@ -12,7 +13,10 @@ Commandes bonnes à savoir :
 
 - `sudo ufw status verbose` pour lister les règles actuellement appliquées ;
 - `sudo ufw insert 1 deny from IP` pour rejeter les connexions entrantes d'une IP ;
-- `sudo ufw status numbered` puis `sudo ufw delete NOMBRE` pour supprimer une règle.
+- `sudo ufw status numbered` puis `sudo ufw delete NOMBRE` pour supprimer une règle ;
+- `sudo ufw enable` et `sudo ufw disable` pour respectivement activer et désactiver le pare-feu.
+
+**Attention ! Si vous désactivez puis réactivez le pare-feu, vérifiez bien que les connexions entrantes sur le port 22 (SSH) sont autorisées !**
 
 Deux ressources utiles :
 
