@@ -67,10 +67,11 @@
     - upgrade
 
 - name: symlink data folders
-  become_user: "{{ appuser }}"
   ansible.builtin.file:
     src: "{{ datadir }}/{{ item }}"
     dest: "{{ appdir }}/{{ item }}"
+    owner: "{{ appuser }}"
+    group: "{{ appuser }}"
     state: link
   with_items:
     - contents-private
@@ -81,39 +82,43 @@
     - bootstrap
 
 - name: save version file
-  become_user: "{{ appuser }}"
   ansible.builtin.template:
     src: templates/_version.py.j2
     dest: "{{ appdir }}/zds/_version.py"
+    owner: "{{ appuser }}"
+    group: "{{ appuser }}"
     mode: u=rw,g=r,o=r
   tags:
     - bootstrap
     - upgrade
 
-- name: save wrapper script
-  become_user: "{{ appuser }}"
+- name: save wrapper
   ansible.builtin.template:
     src: templates/wrapper.j2
     dest: "{{ workdir }}/wrapper"
+    owner: "{{ appuser }}"
+    group: "{{ appuser }}"
     mode: u=rwx,g=rx,o=rx
   tags:
     - bootstrap
 
 - name: create app config file
-  become_user: "{{ appuser }}"
   ansible.builtin.template:
     src: templates/config.toml.j2
     dest: "{{ workdir }}/config.toml"
+    owner: "{{ appuser }}"
+    group: "{{ appuser }}"
     mode: u=rw,g=r,o=r
   tags:
     - bootstrap
     - upgrade
 
 - name: create Google Analytics API secrets file
-  become_user: "{{ appuser }}"
   ansible.builtin.copy:
     content: "{{ google_analytics_api | combine(secrets.google_analytics_api) | to_nice_json }}"
     dest: "{{ appdir }}/api_analytics_secrets.json"
+    owner: "{{ appuser }}"
+    group: "{{ appuser }}"
     mode: u=rw,g=r,o=r
   when: secrets.google_analytics_api is defined
   tags:
