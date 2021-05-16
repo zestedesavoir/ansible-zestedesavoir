@@ -5,3 +5,7 @@ mysql:
   user: test
   password: test
   name: test
+matomo:
+  url: "https://matomo.zestedesavoir.com"
+  site_id: "4"
+  token_auth: "2fa86dde2945cac5d1a7fa224e10e191"

@@ -35,6 +35,12 @@ association_subscribe_link = "https://www.helloasso.com/associations/zeste-de-sa
 
 visual_changes = {{ visual_changes | default([]) | to_json }}
 
+{% if matomo is defined %}
+matomo_url = "{{ matomo.url }}"
+matomo_site_id = "{{ matomo.site_id }}"
+matomo_token_auth = "{{ matomo.token_auth }}"
+{% endif %}
+
 {% if very_top_banner is defined %}
 [very_top_banner]
 background_color = "{{ very_top_banner.background_color }}"
