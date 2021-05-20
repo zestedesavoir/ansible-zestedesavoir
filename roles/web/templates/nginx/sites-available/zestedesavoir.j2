@@ -62,11 +62,6 @@ server {
             return 503;
         }
 
-        # Ajout d'un trailing slash sur les URLs
-        if ($uri !~ (\.|^/api)) {
-            rewrite ^(.*[^/])$ $1/ permanent;
-        }
-
         limit_req zone=remote_addr burst=10;
         limit_req zone=request_uri burst=20;
         limit_req_status 429;
