@@ -36,7 +36,7 @@ association_subscribe_link = "https://www.helloasso.com/associations/zeste-de-sa
 visual_changes = {{ visual_changes | default([]) | to_json }}
 
 {% if matomo is defined %}
-matomo_tracking_enabled = "{{ matomo.tracking_enabled | lower }}"
+matomo_tracking_enabled = {{ matomo.tracking_enabled | lower }}
 matomo_url = "{{ matomo.url }}"
 matomo_site_id = "{{ matomo.site_id }}"
 matomo_token_auth = "{{ matomo.token_auth }}"
