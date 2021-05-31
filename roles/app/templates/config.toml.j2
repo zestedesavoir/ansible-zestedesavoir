@@ -56,8 +56,14 @@ name = "{{ mysql.name }}"
 user = "{{ mysql.user }}"
 password = "{{ mysql.password }}"
 
-[raven]
 {% if sentry_dsn is defined %}
+[sentry]
+dsn = "{{ sentry_dsn }}"
+environment = "{{ env }}"
+{% endif %}
+
+{% if sentry_dsn is defined %}
+[raven]
 dsn = "{{ sentry_dsn }}"
 {% endif %}
 
