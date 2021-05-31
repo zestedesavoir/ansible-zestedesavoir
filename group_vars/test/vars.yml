@@ -6,6 +6,7 @@ mysql:
   password: test
   name: test
 # matomo:
+#   tracking_enabled: true
 #   url: "https://matomo.zestedesavoir.com"
 #   site_id: "4"
 #   token_auth: ""
