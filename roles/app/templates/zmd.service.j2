@@ -17,7 +17,7 @@ Environment=ZDS_ENVIRONMENT={{ env }}
 PIDFile={{ zmarkdown_dir }}/.pm2/pm2.pid
 
 ExecStart={{ zmarkdown_dir }}/node_modules/pm2/bin/pm2 start -f {{ zmarkdown_dir }}/node_modules/zmarkdown/server/index.js -i 3 --max-memory-restart 150M
-ExecReload={{ zmarkdown_dir }}/node_modules/pm2/bin/pm2 reload all
+ExecReload={{ zmarkdown_dir }}/node_modules/pm2/bin/pm2 reload all --update-env
 ExecStop={{ zmarkdown_dir }}/node_modules/pm2/bin/pm2 kill
 
 [Install]
