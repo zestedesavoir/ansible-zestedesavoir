@@ -1,7 +1,7 @@
 - name: add elasticsearch repository key
   ansible.builtin.apt_key:
     id: 46095ACC8548582C1A2699A9D27D666CD88E42B4
-    keyserver: "pool.sks-keyservers.net"
+    keyserver: "hkp://keyserver.ubuntu.com:80"
 
 - name: add elasticsearch repository
   ansible.builtin.apt_repository:
