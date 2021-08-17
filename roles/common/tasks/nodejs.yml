@@ -6,11 +6,8 @@
 - name: add Node.js repository
   ansible.builtin.apt_repository:
     filename: nodejs
-    repo: "{{ item }} https://deb.nodesource.com/node_12.x {{ ansible_distribution_release }} main"
+    repo: "deb https://deb.nodesource.com/node_12.x {{ ansible_distribution_release }} main"
     state: present
-  with_items:
-    - deb
-    - deb-src
 
 - name: add Node.js repository preferences
   ansible.builtin.template:

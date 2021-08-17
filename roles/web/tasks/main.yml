@@ -6,11 +6,8 @@
 - name: add nginx repository
   ansible.builtin.apt_repository:
     filename: nginx
-    repo: "{{ item }} https://nginx.org/packages/debian/ {{ ansible_distribution_release }} nginx"
+    repo: "deb https://nginx.org/packages/debian/ {{ ansible_distribution_release }} nginx"
     state: present
-  with_items:
-    - "deb"
-    - "deb-src"
   register: repo
 
 - name: install nginx
