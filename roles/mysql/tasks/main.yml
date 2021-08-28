@@ -1,15 +1,3 @@
-- name: add mariadb repository key
-  ansible.builtin.apt_key:
-    id: 177F4010FE56CA3336300305F1656F24C74CD1D8
-    keyserver: "hkp://keyserver.ubuntu.com:80"
-
-- name: add mariadb repository
-  ansible.builtin.apt_repository:
-    filename: mariadb
-    repo: "deb https://downloads.mariadb.com/MariaDB/mariadb-10.4/repo/debian {{ ansible_distribution_release }} main"
-    state: present
-  register: repo
-
 - name: install mariadb-server and mariadb-backup
   ansible.builtin.apt:
     pkg:
@@ -31,7 +19,7 @@
     state: started
     enabled: true
 
-- name: install MySQLdb-python
+- name: install Python wrapper for MySQL
   pip:
     name: mysqlclient
     executable: pip3

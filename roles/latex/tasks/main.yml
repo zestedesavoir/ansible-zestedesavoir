@@ -6,7 +6,8 @@
       - texlive-lang-french
       - texlive-latex-extra
       - texlive-fonts-extra
-      - python-pygments
+      - texlive-science
+      - python3-pygments
       - xzdec
       - wget
     cache_valid_time: 3600

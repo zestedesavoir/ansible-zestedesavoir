@@ -35,13 +35,13 @@ jobs:
           ruby-version: 2.7
           bundler-cache: true
 
-      - name: Set up Python 3.7
+      - name: Set up Python 3.9
         uses: actions/setup-python@v2
         with:
-          python-version: 3.7
+          python-version: 3.9
 
       - name: Install Ansible
-        run: python3.7 -m pip install ansible
+        run: python3.9 -m pip install ansible
 
       - name: disable apparmor profile for mysqld # Needed to start mariadb server without AppArmor getting in the way
         run: >

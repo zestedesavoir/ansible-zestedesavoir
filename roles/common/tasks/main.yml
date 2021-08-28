@@ -7,6 +7,7 @@
       - zsh
       - logrotate
       - tmux
+      - acl  # required by Ansible for the "checkout the application" step
     state: present
     cache_valid_time: 3600
 
