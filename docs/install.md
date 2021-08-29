@@ -22,3 +22,18 @@ pip install -r requirements.txt
 # - Ansible Lint pour avoir un code propre
 pre-commit install
 ```
+
+
+## Pour exécuter localement kitchen
+
+Pour exécuter localement ce qui est exécuté par GitHub Actions:
+```shell
+sudo apt install bundler
+bundle config set --local path 'vendor/bundle'
+bundle install
+```
+
+Pour lancer les tests:
+```shell
+bundle exec kitchen test
+```
