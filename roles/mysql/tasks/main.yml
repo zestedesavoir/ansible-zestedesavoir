@@ -15,6 +15,7 @@
     pkg:
       - mariadb-server
       - mariadb-backup
+      - libmariadb-dev  # pour le paquet Python mysqlclient
     cache_valid_time: 3600
 
 - name: copy mariadb config files
@@ -31,8 +32,9 @@
     enabled: true
 
 - name: install MySQLdb-python
-  ansible.builtin.apt:
-    name: python-mysqldb
+  pip:
+    name: mysqlclient
+    executable: pip3
 
 - name: create mysql database
   community.mysql.mysql_db:

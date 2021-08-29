@@ -13,6 +13,13 @@
   tags:
     - bootstrap
 
+- name: install pygments
+  pip:
+    name: Pygments
+    executable: pip3
+  tags:
+    - bootstrap
+
 - include_tasks: packages.yml
   tags:
     - bootstrap
