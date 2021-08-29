@@ -41,3 +41,10 @@
     pkg: apt-transport-https
     state: present
   when: not apt_https_transport.stat.exists
+
+- name: install basic Python packages
+  ansible.builtin.apt:
+    pkg:
+      - python3
+      - python3-pip
+    state: present
