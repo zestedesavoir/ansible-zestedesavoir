@@ -1,8 +1,8 @@
 [production]
-zdsprod1.zestedesavoir.com
+zds-prod-2016.zestedesavoir.com
 
 [beta]
-scaleway.zestedesavoir.com
+zds-beta-2016.zestedesavoir.com
 
 
 [app:children]
