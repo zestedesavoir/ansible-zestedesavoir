@@ -1,2 +1,2 @@
-ansible==3.2.0
+ansible==4.2.0
 pre-commit==2.12.1
