@@ -33,5 +33,5 @@ server {
         allow all;
     }
 
-    rewrite ^(.*) $scheme://zestedesavoir.com$1 permanent;
+    return 301 $scheme://zestedesavoir.com$request_uri;
 }
