@@ -152,6 +152,17 @@
 
 # Installation of backend, frontend and zmd dependencies
 
+- name: update pip in virtualenv  # some dependencies (like rust ones) require a recent pip
+  become_user: "{{ appuser }}"
+  ansible.builtin.pip:
+    name:
+      - pip
+    extra_args: --upgrade
+    virtualenv: "{{ virtualenv }}"
+    virtualenv_command: /usr/bin/python3 -m venv
+  tags:
+    - bootstrap
+
 - name: install wheel and sqlparse in virtualenv
   become_user: "{{ appuser }}"
   ansible.builtin.pip:
