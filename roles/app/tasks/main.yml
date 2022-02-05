@@ -15,8 +15,16 @@
       - rustc  # for cryptography Python package
       - optipng  # for easy-thumbnails Python package
       - jpegoptim  # for easy-thumbnails Python package
+      - memcached  # for cache storage in prod configuration
     state: present
     cache_valid_time: 3600
+  tags:
+    - bootstrap
+
+- name: restart memcached
+  ansible.builtin.systemd:
+    name: memcached
+    state: restarted
   tags:
     - bootstrap
 
