@@ -7,6 +7,7 @@
       - zsh
       - logrotate
       - tmux
+      - acl  # Allow Ansible to use 'become' command (see https://docs.ansible.com/ansible/latest/user_guide/become.html#risks-and-limitations-of-become)
     state: present
     cache_valid_time: 3600
 
