@@ -8,7 +8,7 @@ Ce dépôt contient tous les fichiers nécessaires au déploiement d'un serveur 
 - [Installation](docs/install.md)
 - [Présentation des serveurs](docs/presentation.md)
 - [Déploiement d'une version de Zeste de Savoir](docs/deployment.md)
-- [Foire Aux Questions concernent le déploiement](docs/deployment-faq.md)
+- [Foire Aux Questions concernant le déploiement](docs/deployment-faq.md)
 - [Fonctionnement des sauvegardes de Zeste de Savoir](docs/backup.md)
 - [Fonctionnement du pare-feu](docs/firewall.md)
 - [(Archive) Configuration de Munin-Node](docs/munin-node.md)
