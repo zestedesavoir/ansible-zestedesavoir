@@ -191,7 +191,7 @@ fi
 exit ${global_exit}
 ```
 
-Enfin, voici le script qui s'occupe de garder les 60 derniers jours de sauvegardes et de supprimer le reste.
+Enfin, voici le script qui s'occupe de garder les 60 derniers jours de sauvegardes et de supprimer le reste. Il est lancé chaque jour sur la bêta avec l'utilitaire `cron` pour garder toujours assez d'espace libre sur le disque dédié aux sauvegardes.
 
 **cleaning.sh (sur le serveur de bêta)**
 
@@ -219,8 +219,14 @@ do
 done
 
 # We keep the data backups for last 60 days and remove the rest
-borg prune --keep-within 60d --list data/
+borg prune --keep-within 60d --list /opt/sauvegarde/data/
 ```
+
+### Précisions concernant BorgBackup
+
+Ce petit logiciel est installé à la fois sur le serveur de bêta et le serveur de prod tel que recommandé par la documentation ([Quickstart > Remote repositories](https://borgbackup.readthedocs.io/en/stable/quickstart.html#remote-repositories)). Par défaut, il n'est pas très verbeux donc il ne faut pas hésiter à lui demander une barre de progression avec `-p` ou un peu plus de verbosité avec `-v` !
+
+Le cache de Borgbackup peut prendre plusieurs gigaoctets de données ce qui n'est pas souhaitable sur la bêta car l'espace disque y est assez restreint. Il a donc été désactivé en suivant les instructions de la documentation ([Frequently asked questions > The borg cache eats way too much disk space, what can I do?](https://borgbackup.readthedocs.io/en/stable/faq.html#the-borg-cache-eats-way-too-much-disk-space-what-can-i-do)).
 
 ## Comment est mise en place la restauration ?
 
@@ -327,6 +333,10 @@ sudo rm -rI /var/lib/mysql.old/
 sudo rm -rI /opt/sauvegarde/db/20200509-0315-full.temp/
 sudo rm -rI /opt/sauvegarde/db/20200509-0400.temp/
 sudo rm -rI /opt/sauvegarde/db/20200509-0600.temp/
+
+### Étape 4 - On recrée l'index de la recherche
+
+/opt/zds/wrapper es_manager index_all
 ```
 
 ## Perdre des données, cela n'arrive pas qu'aux autres !
