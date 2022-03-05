@@ -242,112 +242,14 @@ Le cache de Borgbackup peut prendre plusieurs gigaoctets de données ce qui n'es
 
 C'est bien beau d'avoir des sauvegardes, mais fonctionneront-elles le jour où on en aura besoin ? Pour cela, il est impératif de vérifier que la restauration des sauvegardes fonctionne. Une bonne manière de tester cela est d'utiliser les sauvegardes du serveur de prod sur le serveur de bêta !
 
-Voici les commandes que j'effectue régulièrement *manuellement* (car **ce n'est pas un script**) pour restaurer la bêta à partir des sauvegardes de la prod :
-
+Le script [restore-from-prod.sh](../roles/backup/files/restore-from-prod.sh)
+permet de restaurer la bêta à partir des sauvegardes de la prod. Il faut
+l'exécuter en root et préciser ce qu'il doit faire :
 ```sh
-# Script de mise à jour de la bêta avec les backups de la prod
-
-### Étape 1 - On prépare ce qui peut se faire avant l'arrêt du site web
-
-# Il faut identifier les backups de la base de données à utiliser
-# Si on est le 9 mai 2020 à 7h du matin alors il faudra utiliser :
-# - la sauvegarde complète de 3h15 : 20200509-0315-full
-# - la sauvegarde incrémentale de 4h : 20200509-0400
-# - la sauvegarde incrémentale de 6h : 20200509-0600
-
-# On va travailler sur des copies des sauvegardes concernées pour ne pas les détruire
-sudo cp -r /opt/sauvegarde/db/20200509-0315-full{,.temp}/
-sudo cp -r /opt/sauvegarde/db/20200509-0400{,.temp}/
-sudo cp -r /opt/sauvegarde/db/20200509-0600{,.temp}/
-
-# On décompresse les sauvegardes
-sudo mariabackup -V --decompress --target-dir /opt/sauvegarde/db/20200509-0315-full.temp/
-sudo mariabackup -V --decompress --target-dir /opt/sauvegarde/db/20200509-0400.temp/
-sudo mariabackup -V --decompress --target-dir /opt/sauvegarde/db/20200509-0600.temp/
-
-# On prépare la sauvegarde complète
-sudo mariabackup -V --prepare \
-   --target-dir=/opt/sauvegarde/db/20200509-0315-full.temp/
-   
-# On met à jour la sauvegarde complète grâce aux sauvegardes incrémentales
-sudo mariabackup -V --prepare \
-   --target-dir=/opt/sauvegarde/db/20200509-0315-full.temp/ \
-   --incremental-dir=/opt/sauvegarde/db/20200509-0400.temp/
-sudo mariabackup -V --prepare \
-   --target-dir=/opt/sauvegarde/db/20200509-0315-full.temp/ \
-   --incremental-dir=/opt/sauvegarde/db/20200509-0600.temp/
-
-### Étape 2 - On s'occupe de ce qui doit être fait avec le site web à l'arrêt
-
-# En premier il faut passer arrêter le site web
-cd /opt/zds/webroot/
-sudo ln -s errors/maintenance.html
-sudo systemctl stop zds
-sudo systemctl stop zds-watchdog
-
-# Ensuite il faut arrêter MySQL et faire une copie de la bdd existante
-sudo systemctl stop mysql
-sudo mv /var/lib/mysql{,.old}/
-
-# On restaure la base de données avec la sauvegarde complète
-sudo mariabackup -V --copy-back --target-dir /opt/sauvegarde/db/20200509-0315-full.temp/
-
-# On met les bons droits et on relance MySQL
-sudo chown -R mysql:mysql /var/lib/mysql/
-sudo systemctl start mysql
-
-# On vérifie que le démarrage de MySQL s'est bien passé
-sudo systemctl status mysql
-
-# On va chercher le mot de passe de l'utilisateur 'zds' pour la base de donnée dans le fichier '/opt/zds/config.toml'
-# On ouvre le shell de MySQL
-sudo mysql
-# On écrit dedans :
-alter user 'zds'@'localhost' identified by 'MOT DE PASSE'
-
-# On vérifie la quantité d'espace disque disponible
-df -kh
-
-# Si on a assez d'espace disque disponible (environ 15 Go) alors on effectue une copie de /opt/zds/data
-sudo cp -r /opt/zds/data{,.old}/
-# Sinon, on supprime /opt/zds/data
-sudo rm -rI /opt/zds/data
-
-# On utilise la sauvegarde du dossier /opt/zds/data
-# On doit lancer la commande depuis /
-# On peut utiliser l'option -n pour faire un dry-run
-# Je n'ai pas l'impression que --verbose ne serve à grand chose, c'est dommage
-cd /
-sudo borg extract --verbose /opt/sauvegarde/data::20200509-0600 opt/zds/data
-
-# Si jamais la version en production est plus ancienne que celle en bêta :
-# - on applique les migrations de la base de données
-# - on transfère les fichiers front de /opt/zds/app/dist vers /opt/zds/data/static
-/opt/zds/wrapper migrate
-/opt/zds/wrapper collectstatic
-
-# On peut relancer le site web
-sudo systemctl start zds
-sudo systemctl start zds-watchdog
-sudo rm /opt/zds/webroot/maintenance.html
-
-# On vérifie que tout fonctionne bien
-
-### Étape 3 - Lorsqu'on est sûr que tout fonctionne bien, on nettoie
-
-# On peut supprimer l'ancienne base de données et l'ancien dossier /opt/zds/data
-sudo rm -rI /opt/zds/data.old/
-sudo rm -rI /var/lib/mysql.old/
-
-# On supprime les sauvegardes de travail de la base de données
-sudo rm -rI /opt/sauvegarde/db/20200509-0315-full.temp/
-sudo rm -rI /opt/sauvegarde/db/20200509-0400.temp/
-sudo rm -rI /opt/sauvegarde/db/20200509-0600.temp/
-
-### Étape 4 - On recrée l'index de la recherche
-
-/opt/zds/wrapper es_manager index_all
+./restore-from-prod.sh all # restaure les données et la base de données de la dernière sauvegarde
+./restore-from-prod.sh clean # supprime tous les éléments intermédiaires créés par la commande précédente
 ```
+D'autres sous-commandes permettent de ne lancer que des portions du scripts.
 
 ## Perdre des données, cela n'arrive pas qu'aux autres !
 
@@ -355,4 +257,3 @@ Il y a déjà eu deux pertes de données dans l'histoire de Zeste de Savoir, ave
 
 - [Retour sur une semaine compliquée pour Zeste de Savoir](https://zestedesavoir.com/articles/194/retour-sur-une-semaine-compliquee-pour-zeste-de-savoir/)
 - [Retour dans le passé pour ZdS :(](https://zestedesavoir.com/articles/1432/retour-dans-le-passe-pour-zds/)
-
