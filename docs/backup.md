@@ -216,22 +216,14 @@ Enfin, voici le script qui s'occupe de garder les 60 derniers jours de sauvegard
 ```sh
 #!/bin/sh
 
-# Get the list of the full database backups, sorted by date from latest to oldest
-db_full_backups=`find /opt/sauvegarde/db -type d -name *-full | sort -nr`
+# Get the list of full database backups, excluding the 60 more recent ones:
+db_full_backups_to_remove=`find /opt/sauvegarde/db -type d -name *-full | sort -nr | tail -n +61`
 
-count=0
-for db_full_backup in $db_full_backups
+for db_full_backup in $db_full_backups_to_remove
 do
-    count=$((count+1))
-    # We want to keep the newer 60 database backups
-    if [ $count -le 60 ]
-    then
-        continue
-    fi
-
-    # We remove the 0315-full part
+    # We remove the 0315-full part to keep only the day
     db_daily_backups=`echo $db_full_backup | head -c -10`
-    # We remove the full database backup and its incremental database backups
+    # We remove the full database backup, its incremental database backups and logs:
     echo "rm -r $db_daily_backups*"
     rm -r $db_daily_backups*
 done
