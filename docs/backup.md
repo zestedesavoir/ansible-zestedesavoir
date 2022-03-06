@@ -116,6 +116,20 @@ On utilise :
 - rsync pour les sauvegardes de la base de données ;
 - [BorgBackup](https://borgbackup.readthedocs.io/en/stable/index.html) pour les fichiers importants.
 
+Sur la bêta et sur la prod, `borg` est installé en récupérant les binaires
+fournis par BorgBackup, plutôt que d'utiliser la version des dépôts Debian qui
+est un peu veillissante. L'installation est faite comme recommandée par la
+[documentation](https://borgbackup.readthedocs.io/en/stable/installation.html#standalone-binary) :
+```sh
+wget https://github.com/borgbackup/borg/releases/download/1.1.17/borg-linux64
+mv borg-linux64 /usr/local/bin/borg
+chown root:root /usr/local/bin/borg
+chmod 755 /usr/local/bin/borg
+```
+On reste actuellement sur la branche 1.1.*, car comme dit la
+[documentation](https://borgbackup.readthedocs.io/en/stable/changes.html#version-1-2-0-2022-02-22-22-02-22) :
+*do you already want to upgrade? 1.1.x also will get fixes for a while*.
+
 Un volume dédié aux sauvegardes de 50 Go est monté sur `/opt/sauvegarde` sur le serveur de bêta et contient :
 
 - les sauvegardes de la base de données dans `/opt/sauvegarde/db` (l'équivalent de `/var/backups/mysql` mais sans la suppression des anciennes sauvegardes) ;
