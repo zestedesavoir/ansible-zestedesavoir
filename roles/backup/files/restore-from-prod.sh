@@ -114,6 +114,7 @@ done
 readonly BACKUP_ROOT=/opt/sauvegarde
 readonly ZDS_ROOT=/opt/zds
 readonly ZDS_WRAPPER=$ZDS_ROOT/wrapper
+readonly HETRIX_URL_FILE=/root/hetrix-maintenance-url
 
 
 # Step 1: prepare database backups
@@ -177,6 +178,12 @@ fi
 if [ $stop_website -eq 1 ]
 then
 	print_info "stop-website" --bold
+	if [ -e $HETRIX_URL_FILE ]
+	then
+		print_info "Enable maintenance mode in Hetrix..."
+		# See https://hetrixtools.com/dashboard/api-explorer/ and "v2 Uptime Maintenance Mode":
+		curl $(cat $HETRIX_URL_FILE)3/
+	fi
 	cd $ZDS_ROOT/webroot
 	print_info "Enable maintenance page..."
 	ln -s errors/maintenance.html
@@ -252,6 +259,11 @@ then
 	systemctl start zds-watchdog
 	print_info "Disable maintenance page..."
 	rm $ZDS_ROOT/webroot/maintenance.html
+	if [ -e $HETRIX_URL_FILE ]
+	then
+		print_info "Disable maintenance mode in Hetrix..."
+		curl $(cat $HETRIX_URL_FILE)1/
+	fi
 fi
 
 
