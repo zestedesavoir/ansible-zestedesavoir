@@ -156,18 +156,20 @@ then
 	done
 
 	print_info "Decompress backups..."
-	mariabackup -V --decompress --target-dir ${full_backup}.temp/
+	mkdir ${full_backup}.temp/extracted
+	gunzip -c ${full_backup}.temp/backup.stream.gz | mbstream -x -C ${full_backup}.temp/extracted/
 	for b in ${incremental_backups[@]}
 	do
-		mariabackup -V --decompress --target-dir ${b}.temp/
+		mkdir ${b}.temp/extracted
+		gunzip -c ${b}.temp/backup.stream.gz | mbstream -x -C ${b}.temp/extracted/
 	done
 
 	print_info "Prepare full backup..."
-	mariabackup -V --prepare --target-dir ${full_backup}.temp/
+	mariabackup -V --prepare --target-dir ${full_backup}.temp/extracted/
 	print_info "Prepare incremental backups..."
 	for b in ${incremental_backups[@]}
 	do
-		mariabackup -V --prepare --target-dir ${full_backup}.temp/ --incremental-dir ${b}.temp/
+		mariabackup -V --prepare --target-dir ${full_backup}.temp/extracted/ --incremental-dir ${b}.temp/extracted/
 	done
 fi
 
@@ -208,7 +210,7 @@ fi
 if [ $restore_mysql -eq 1 ]
 then
 	print_info "restore-mysql" --bold
-	mariabackup -V --copy-back --target-dir ${BACKUP_ROOT}/db/${full_backup}.temp/
+	mariabackup -V --copy-back --target-dir ${BACKUP_ROOT}/db/${full_backup}.temp/extracted/
 	chown -R mysql:mysql /var/lib/mysql
 fi
 
