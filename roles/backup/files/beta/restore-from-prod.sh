@@ -135,7 +135,6 @@ do
 		full_backup=${backup::-1}
 		break;
 	else
-		# incremental_backups_rev+=($(echo $backup | head -c -1))
 		incremental_backups_rev+=(${backup::-1})
 	fi
 done
@@ -183,6 +182,7 @@ then
 		print_info "Enable maintenance mode in Hetrix..."
 		# See https://hetrixtools.com/dashboard/api-explorer/ and "v2 Uptime Maintenance Mode":
 		curl $(cat $HETRIX_URL_FILE)3/
+		echo
 	fi
 	cd $ZDS_ROOT/webroot
 	print_info "Enable maintenance page..."
@@ -232,7 +232,11 @@ if [ $restore_data -eq 1 ]
 then
 	print_info "restore-data" --bold
 	print_info "Remove $ZDS_ROOT/data..."
-	[ -e $ZDS_ROOT/data ] && rm -rI $ZDS_ROOT/data # Rather move it, if we have enough space
+	if [ -e $ZDS_ROOT/data ]
+	then
+		echo "rm -rI $ZDS_ROOT/data..."
+		rm -rI $ZDS_ROOT/data # Rather move it, if we have enough space
+	fi
 	cd / # mandatory for borg
 	print_info "Restore backup with borg..."
 	borg extract --verbose --progress $BACKUP_ROOT/data::$last_backup opt/zds/data
@@ -263,6 +267,7 @@ then
 	then
 		print_info "Disable maintenance mode in Hetrix..."
 		curl $(cat $HETRIX_URL_FILE)1/
+		echo
 	fi
 fi
 
@@ -272,6 +277,8 @@ fi
 if [ $clean -eq 1 ]
 then
 	print_info "clean" --bold
+	echo "rm -rI /var/lib/mysql.old..."
 	rm -rI /var/lib/mysql.old
+	echo "rm -rI $BACKUP_ROOT/db/*.temp..."
 	rm -rI $BACKUP_ROOT/db/*.temp
 fi
