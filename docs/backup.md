@@ -34,80 +34,10 @@ On utilise l'utilitaire `cron` pour lancer ces sauvegardes :
 15 4 * * * /var/backups/mysql/cleanup.sh
 ```
 
-**`backup.sh`**
+Les scripts [backup.sh](../roles/backup/files/prod/backup.sh) et
+[cleanup.sh](../roles/backup/files/prod/cleanup.sh) sont disponibles dans ce
+dépôt.
 
-```sh
-#!/bin/sh
-
-set -eu
-
-WD=/var/backups/mysql
-LATEST=$WD/latest
-
-PREVIOUS=`readlink -f $LATEST`
-NEXT=$WD/`date '+%Y%m%d-%H%M'`
-
-if [ -d "$NEXT" ]; then
-	echo "\`$NEXT' already exists."
-	exit 1
-fi
-
-if [ "$#" -ge 1 ] && [ "$1" = "full" ]; then
-	NEXT=$NEXT-full
-	mariabackup --backup --compress --target-dir=$NEXT 2> $NEXT.log
-else
-	if ! [ -L "$LATEST" ]; then
-		echo "\`$LATEST' does not exists. Consider doing a full backup first."
-		exit 1
-	fi
-
-	mariabackup --backup --compress --target-dir=$NEXT --incremental-basedir=$PREVIOUS 2> $NEXT.log
-fi
-
-rm -f $LATEST $LATEST.log
-ln -s $NEXT $LATEST
-ln -s $NEXT.log $LATEST.log
-```
-
-**`cleanup.sh`**
-
-```sh
-#!/bin/sh
-
-set -eu
-
-WD=/var/backups/mysql
-
-
-# Backups
-
-BACKUPS="`echo $WD/*-*/ | tr ' ' '\n' | sort -nr`"
-
-TO_DELETE="`
-	echo "$BACKUPS" | awk '
-		BEGIN { full=0 }
-		{ if (full > 1) { print $0 } }
-		/full/ { full++ }
-	'
-`"
-
-[ -z "$TO_DELETE" ] || rm -r $TO_DELETE
-
-
-# Logs
-
-LOGS="`echo $WD/*-*.log | tr ' ' '\n' | sort -nr`"
-
-TO_DELETE_LOGS="`
-	echo "$LOGS" | awk '
-		BEGIN { full=0 }
-		{ if (full > 1) { print $0 } }
-		/full/ { full++ }
-	'
-`"
-
-[ -z "$TO_DELETE_LOGS" ] || rm -r $TO_DELETE_LOGS
-```
 
 ### Sur le serveur de bêta
 
@@ -145,106 +75,19 @@ On utilise l'utilitaire `cron` *depuis le serveur de prod* pour envoyer les donn
 20 3 * * * /root/sauvegarde-vers-la-beta/bdd.sh
 ```
 
-**`bdd.sh` (sur le serveur de prod)**
+Les scripts [donnees.sh](../roles/backup/files/prod/donnees.sh) et
+[bdd.sh](../roles/backup/files/prod/bdd.sh) sont disponibles dans ce dépôt.
 
-```sh
-#!/bin/sh
 
-BASE=opt/sauvegarde
-
-echo "Synchronisation des sauvegardes de la base de donnée"
-rsync -azvr /var/backups/mysql/ root@scaleway.zestedesavoir.com:/$BASE/db
+Enfin, [cleaning.sh](../roles/backup/files/beta/cleaning.sh) est le script qui
+s'occupe de garder les 60 derniers jours de sauvegardes et de supprimer le
+reste. Il est lancé chaque jour sur la bêta avec l'utilitaire `cron` pour
+garder toujours assez d'espace libre sur le disque dédié aux sauvegardes :
+```cron
+# min hour dom month dow command
+0 5 * * * /opt/sauvegarde/cleaning.sh
 ```
 
-**`donnees.sh` (sur le serveur de prod)**
-
-```sh
-#!/bin/sh
-
-# Script from https://borgbackup.readthedocs.io/en/stable/quickstart.html#automating-backups
-
-# Setting this, so the repo does not need to be given on the commandline:
-export BORG_REPO=ssh://root@scaleway.zestedesavoir.com/opt/sauvegarde/data
-
-# See the section "Passphrase notes" for more infos.
-#export BORG_PASSPHRASE='XYZl0ngandsecurepa_55_phrasea&&123'
-
-# some helpers and error handling:
-info() { printf "\n%s %s\n\n" "$( date )" "$*" >&2; }
-trap 'echo $( date ) Backup interrupted >&2; exit 2' INT TERM
-
-info "Starting backup"
-
-# Backup the most important directories into an archive named after
-# the machine this script is currently running on:
-
-DATE=`date '+%Y%m%d-%H%M'`
-
-borg create                         \
-    --verbose                       \
-    --filter AME                    \
-    --list                          \
-    --stats                         \
-    --show-rc                       \
-    --compression lz4               \
-    --exclude-caches                \
-                                    \
-    ::$DATE                         \
-    /opt/zds/data                   \
-
-backup_exit=$?
-
-info "Pruning repository"
-
-# Use the `prune` subcommand to maintain 7 daily, 4 weekly and 6 monthly
-# archives of THIS machine. The '{hostname}-' prefix is very important to
-# limit prune's operation to this machine's archives and not apply to
-# other machines' archives also:
-
-#borg prune                          \
-#    --list                          \
-#    --show-rc                       \
-#    --keep-within 1w                \
-
-#prune_exit=$?
-
-# use highest exit code as global exit code
-#global_exit=$(( backup_exit > prune_exit ? backup_exit : prune_exit ))
-global_exit=${backup_exit}
-
-if [ ${global_exit} -eq 0 ]; then
-    info "Backup and Prune finished successfully"
-elif [ ${global_exit} -eq 1 ]; then
-    info "Backup and/or Prune finished with warnings"
-else
-    info "Backup and/or Prune finished with errors"
-fi
-
-exit ${global_exit}
-```
-
-Enfin, voici le script qui s'occupe de garder les 60 derniers jours de sauvegardes et de supprimer le reste. Il est lancé chaque jour sur la bêta avec l'utilitaire `cron` pour garder toujours assez d'espace libre sur le disque dédié aux sauvegardes.
-
-**cleaning.sh (sur le serveur de bêta)**
-
-```sh
-#!/bin/sh
-
-# Get the list of full database backups, excluding the 60 more recent ones:
-db_full_backups_to_remove=`find /opt/sauvegarde/db -type d -name *-full | sort -nr | tail -n +61`
-
-for db_full_backup in $db_full_backups_to_remove
-do
-    # We remove the 0315-full part to keep only the day
-    db_daily_backups=`echo $db_full_backup | head -c -10`
-    # We remove the full database backup, its incremental database backups and logs:
-    echo "rm -r $db_daily_backups*"
-    rm -r $db_daily_backups*
-done
-
-# We keep the data backups for last 60 days and remove the rest
-borg prune --keep-within 60d --list /opt/sauvegarde/data/
-```
 
 ### Précisions concernant BorgBackup
 
@@ -256,7 +99,7 @@ Le cache de Borgbackup peut prendre plusieurs gigaoctets de données ce qui n'es
 
 C'est bien beau d'avoir des sauvegardes, mais fonctionneront-elles le jour où on en aura besoin ? Pour cela, il est impératif de vérifier que la restauration des sauvegardes fonctionne. Une bonne manière de tester cela est d'utiliser les sauvegardes du serveur de prod sur le serveur de bêta !
 
-Le script [restore-from-prod.sh](../roles/backup/files/restore-from-prod.sh)
+Le script [restore-from-prod.sh](../roles/backup/files/beta/restore-from-prod.sh)
 permet de restaurer la bêta à partir des sauvegardes de la prod. Il faut
 l'exécuter en root et préciser ce qu'il doit faire :
 ```sh
