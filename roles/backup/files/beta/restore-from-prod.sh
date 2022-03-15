@@ -23,7 +23,8 @@ function usage()
 	echo -e "\tclean"
 }
 
-function print_info {
+function print_info()
+{
     if [[ "$2" == "--bold" ]]; then
         echo -en "\033[36;1m"
     else
@@ -112,64 +113,80 @@ do
 done
 
 readonly BACKUP_ROOT=/opt/sauvegarde
+readonly BORG_DB=$BACKUP_ROOT/db-borg
+readonly BORG_DATA=$BACKUP_ROOT/data
 readonly ZDS_ROOT=/opt/zds
 readonly ZDS_WRAPPER=$ZDS_ROOT/wrapper
 readonly HETRIX_URL_FILE=/root/hetrix-maintenance-url
+readonly BACKUP_DB_TMP=/root/db-tmp # rather work on / than /opt/sauvegarde: there is more free space
+readonly BACKUP_DB_TMP_FULL=$BACKUP_DB_TMP/var/backups/mysql # rather work on / than /opt/sauvegarde: there is more free space
 
 
 # Step 1: prepare database backups
 
-cd $BACKUP_ROOT/db
-
-readonly last_backup_trailing_slash=$(ls -d *-*/ | grep -v .temp | sort -nr | head -n 1)
-readonly last_backup=${last_backup_trailing_slash::-1}
-
-echo "Will work on backup $last_backup"
-
-full_backup=""
-incremental_backups_rev=()
-for backup in $(ls -d *-*/ | grep -v .temp | sort -nr)
-do
-	if [[ $backup == *-full/ ]]
+if [ $prepare_db -eq 1 -o $restore_mysql -eq 1 ]
+then
+	if [ ! -e $BACKUP_DB_TMP ]
 	then
-		full_backup=${backup::-1}
-		break;
-	else
-		incremental_backups_rev+=(${backup::-1})
-	fi
-done
+		print_info "Creating $BACKUP_DB_TMP..."
+		mkdir $BACKUP_DB_TMP
+		cd $BACKUP_DB_TMP
+		print_info "Extracting last database backup with borg..."
+		borg list --last 1 $BORG_DB
+		borg extract --verbose --progress $BORG_DB::$(borg list --last 1 --format '{archive}{NL}' $BORG_DB)
+        fi
 
-incremental_backups=$(echo "${incremental_backups_rev[@]} " | tac -s ' ')
+	cd $BACKUP_DB_TMP_FULL
 
-echo "Full backup is: $full_backup"
-echo "Incremental backups are: ${incremental_backups[@]}"
+	full_backup=""
+	incremental_backups_rev=()
+	for backup in $(ls -d *-*/ | grep -v .temp | sort -nr)
+	do
+		if [[ $backup == *-full/ ]]
+		then
+			full_backup=${backup::-1}
+			break;
+		else
+			incremental_backups_rev+=(${backup::-1})
+		fi
+	done
+
+	incremental_backups=$(echo "${incremental_backups_rev[@]} " | tac -s ' ')
+
+	echo "Full backup is: $full_backup"
+	echo "Incremental backups are: ${incremental_backups[@]}"
+fi
+
 
 if [ $prepare_db -eq 1 ]
 then
 	print_info "prepare-db" --bold
 
-	print_info "Copy backups on which we will work..."
-	cp -r $full_backup ${full_backup}.temp
-	for b in ${incremental_backups[@]}
-	do
-		cp -r $b ${b}.temp
-	done
-
 	print_info "Decompress backups..."
-	mkdir ${full_backup}.temp/extracted
-	gunzip -c ${full_backup}.temp/backup.stream.gz | mbstream -x -C ${full_backup}.temp/extracted/
+	if [ `tail -n 1 ${full_backup}/mariabackup.log | grep "completed OK!" | wc -l` -eq 0 ]
+	then
+		echo "Error: the backup ${full_backup} doesn't seem valid"
+		exit
+        fi
+	mkdir ${full_backup}/extracted
+	gunzip -c ${full_backup}/backup.stream.gz | mbstream -x -C ${full_backup}/extracted/
 	for b in ${incremental_backups[@]}
 	do
-		mkdir ${b}.temp/extracted
-		gunzip -c ${b}.temp/backup.stream.gz | mbstream -x -C ${b}.temp/extracted/
+		if [ `tail -n 1 ${b}/mariabackup.log | grep "completed OK!" | wc -l` -eq 0 ]
+		then
+			echo "Error: the backup ${b} doesn't seem valid"
+			exit
+		fi
+		mkdir ${b}/extracted
+		gunzip -c ${b}/backup.stream.gz | mbstream -x -C ${b}/extracted/
 	done
 
 	print_info "Prepare full backup..."
-	mariabackup -V --prepare --target-dir ${full_backup}.temp/extracted/
+	mariabackup -V --prepare --target-dir ${full_backup}/extracted/
 	print_info "Prepare incremental backups..."
 	for b in ${incremental_backups[@]}
 	do
-		mariabackup -V --prepare --target-dir ${full_backup}.temp/extracted/ --incremental-dir ${b}.temp/extracted/
+		mariabackup -V --prepare --target-dir ${full_backup}/extracted/ --incremental-dir ${b}/extracted/
 	done
 fi
 
@@ -210,7 +227,7 @@ fi
 if [ $restore_mysql -eq 1 ]
 then
 	print_info "restore-mysql" --bold
-	mariabackup -V --copy-back --target-dir ${BACKUP_ROOT}/db/${full_backup}.temp/extracted/
+	mariabackup -V --copy-back --target-dir $BACKUP_DB_TMP_FULL/${full_backup}/extracted/
 	chown -R mysql:mysql /var/lib/mysql
 fi
 
@@ -239,9 +256,10 @@ then
 		echo "rm -rI $ZDS_ROOT/data..."
 		rm -rI $ZDS_ROOT/data # Rather move it, if we have enough space
 	fi
-	cd / # mandatory for borg
+	cd / # mandatory for the following borg command
 	print_info "Restore backup with borg..."
-	borg extract --verbose --progress $BACKUP_ROOT/data::$last_backup opt/zds/data
+	borg list --last 1 $BORG_DATA
+	borg extract --verbose --progress $BORG_DATA::$(borg list --last 1 --format '{archive}{NL}' $BORG_DATA) opt/zds/data
 fi
 
 if [ $update_zds -eq 1 ]
@@ -279,8 +297,14 @@ fi
 if [ $clean -eq 1 ]
 then
 	print_info "clean" --bold
-	echo "rm -rI /var/lib/mysql.old..."
-	rm -rI /var/lib/mysql.old
-	echo "rm -rI $BACKUP_ROOT/db/*.temp..."
-	rm -rI $BACKUP_ROOT/db/*.temp
+	if [ -e /var/lib/mysql.old ]
+	then
+		echo "rm -rI /var/lib/mysql.old..."
+		rm -rI /var/lib/mysql.old
+	fi
+	if [ -e $BACKUP_DB_TMP ]
+	then
+		echo "rm -rI $BACKUP_DB_TMP..."
+		rm -rI $BACKUP_DB_TMP
+        fi
 fi

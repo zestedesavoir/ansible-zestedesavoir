@@ -1,52 +1,121 @@
 # Sauvegardes de Zeste de Savoir
 
-Zeste de Savoir c'est une communauté mais aussi un site web avec ses membres, ses contenus, ses messages, etc. Que faire pour ne pas perdre tout ça ?
+Zeste de Savoir c'est une communauté mais aussi un site web avec ses membres,
+ses contenus, ses messages, etc. Que faire pour ne pas perdre tout ça ?
 
-Dans le cas de Zeste de Savoir, deux points sont critiques :
+Dans le cas de Zeste de Savoir, deux éléments sont critiques :
+- la base de données avec les utilisateurs, les messages, les contenus, etc.
+  (dans `/var/lib/mysql`) ;
+- les fichiers importants, c'est-à-dire les dépôts Git des contenus et les
+  galeries d'images (dans `/opt/zds/data`).
 
-- la base de données avec les utilisateurs, les messages, les contenus, etc. (dans `/var/lib/mysql`) ;
-- les fichiers importants, c'est-à-dire les dépôts Git des contenus et les galeries d'images (dans `/opt/zds/data`).
+Le reste (code source, configuration du serveur, etc) n'est finalement pas très
+important car tout est présent sur GitHub et un nouveau serveur peut être
+rapidement installé !
 
-Le reste (code source, configuration du serveur, etc) n'est finalement pas très important car tout est présent sur Github et un nouveau serveur peut être rapidement installé !
+Deux types de sauvegardes sont réalisés :
+- des sauvegardes du serveur de prod vers le serveur de bêta ;
+- des sauvegardes externes, vers du stockage gracieusement mis à
+  disposition par quelques membres.
 
-Deux sauvegardes de la prod sont actuellement en place :
 
-- une sauvegarde sur un serveur appartenant à Sandhose, dont je ne parlerais pas ici ;
-- une sauvegarde sur le serveur de bêta, dont je vais parler ici.
+## Outils
 
-## Comment est mise en place la sauvegarde ?
+Les sauvegardes sont réalisées à l'aide de
+[BorgBackup](https://borgbackup.readthedocs.io/en/stable/index.html), logiciel
+qui gère les sauvegardes incrémentales, sauvegardes à distance, et
+chiffrement.
 
-### Sur le serveur de prod
+[Mariabackup](https://mariadb.com/kb/en/mariabackup-overview/) est utilisé pour
+exporter la base de données MariaDB de façon complète et incrémentale, et pour
+ensuite restaurer les sauvegardes.
 
-Pour les fichiers importants, il n'y a pas de sauvegarde sur le serveur de prod lui-même. Par contre, la base de données fait l'objet :
+Les connexions entre les serveurs pour réaliser les sauvegardes sont faites en
+SSH.
 
-- d'une sauvegarde complète chaque jour à 3h15 ;
-- d'une sauvegarde incrémentale aux heures paires, donc toutes les deux heures.
 
-Ces sauvegardes sont disponibles dans le dossier `/var/backups/mysql` avec comme nom la date et l'heure de la sauvegarde (au format `AAAAMMJJ-HHMM`). On supprime au fur et à mesure les anciennes sauvegardes pour libérer de l'espace disque.
 
-On utilise l'utilitaire `cron` pour lancer ces sauvegardes :
+## Sauvegardes
 
+Deux *dépôts* Borg sont utilisées : un pour les sauvegardes de la base de
+données, et un autre pour les contenus hébérgés sur le site.
+
+
+### Serveur de prod
+
+#### Base de données
+
+Un [script](../roles/backup/files/prod/backup.sh) utilise Mariabackup pour
+faire une sauvegarde complète chaque jour à 3h15, puis une sauvegarde
+incrémentale à chaque heure paire (donc toutes les deux heures).
+
+Ces sauvegardes sont disponibles dans le dossier `/var/backups/mysql` avec
+comme nom la date et l'heure de la sauvegarde (au format `AAAAMMJJ-HHMM`). Un
+[script](../roles/backup/files/prod/cleanup.sh) supprime au fur et à mesure les
+anciennes sauvegardes pour ne pas saturer l'espace disque.
+
+Une fois les sauvegardes réalisées, elles sont envoyées vers le serveur de bêta
+avec un [script](../roles/backup/files/prod/bdd.sh) qui lance Borg.
+
+Les scripts sont lancés par l'utilisateur root, avec les règles `cron`
+suivantes :
 ```cron
 # min hour dom month dow command
 0 */2 * * * /var/backups/mysql/backup.sh
 15 3 * * * /var/backups/mysql/backup.sh full
 15 4 * * * /var/backups/mysql/cleanup.sh
+
+5 */2 * * * /root/sauvegarde-vers-la-beta/bdd.sh
+20 3 * * * /root/sauvegarde-vers-la-beta/bdd.sh
 ```
 
-Les scripts [backup.sh](../roles/backup/files/prod/backup.sh) et
-[cleanup.sh](../roles/backup/files/prod/cleanup.sh) sont disponibles dans ce
-dépôt.
+
+#### Contenus du site
+
+Un [script](../roles/backup/files/prod/donnees.sh) utilise Borg pour
+sauvegarder le dossier `/opt/zds/data` vers le serveur de bêta.
+
+Cette sauvegarde est réalisée toutes les deux heures :
+```cron
+# min hour dom month dow command
+0 */2 * * * /root/sauvegarde-vers-la-beta/donnees.sh
+15 3 * * * /root/sauvegarde-vers-la-beta/donnees.sh
+```
 
 
-### Sur le serveur de bêta
+### Serveur de bêta
 
-On utilise :
+Un volume de 50 Go dédié aux sauvegardes est monté sur `/opt/sauvegarde` sur le
+serveur de bêta et contient :
+- le dépôt pour les sauvegardes de la base de données dans
+  `/opt/sauvegarde/db-borg` ;
+- le dépôt pour les sauvegardes des contenus du site dans
+  `/opt/sauvegarde/data`.
 
-- rsync pour les sauvegardes de la base de données ;
-- [BorgBackup](https://borgbackup.readthedocs.io/en/stable/index.html) pour les fichiers importants.
+Les sauvegardes de plus de 60 jours sont supprimées par un
+[script](../roles/backup/beta/cleaning.sh) exécuté quotidiennement :
+```cron
+# min hour dom month dow command
+0 5 * * * /opt/sauvegarde/cleaning.sh
+```
 
-Sur la bêta et sur la prod, `borg` est installé en récupérant les binaires
+
+## Restauration des sauvegardes (synchronisation de la bêta avec la prod)
+
+Le script [restore-from-prod.sh](../roles/backup/files/beta/restore-from-prod.sh)
+permet de restaurer la bêta à partir des sauvegardes de la prod. Il faut
+l'exécuter en root et préciser ce qu'il doit faire :
+```sh
+./restore-from-prod.sh all # restaure les données et la base de données de la dernière sauvegarde
+./restore-from-prod.sh clean # supprime tous les éléments intermédiaires créés par la commande précédente
+```
+D'autres sous-commandes permettent de ne lancer que des portions du script.
+
+
+
+## Précisions concernant BorgBackup
+
+Sur la bêta et sur la prod, borg est installé en récupérant les binaires
 fournis par BorgBackup, plutôt que d'utiliser la version des dépôts Debian qui
 est un peu veillissante. L'installation est faite comme recommandée par la
 [documentation](https://borgbackup.readthedocs.io/en/stable/installation.html#standalone-binary) :
@@ -60,57 +129,60 @@ On reste actuellement sur la branche 1.1.*, car comme dit la
 [documentation](https://borgbackup.readthedocs.io/en/stable/changes.html#version-1-2-0-2022-02-22-22-02-22) :
 *do you already want to upgrade? 1.1.x also will get fixes for a while*.
 
-Un volume dédié aux sauvegardes de 50 Go est monté sur `/opt/sauvegarde` sur le serveur de bêta et contient :
+Par défaut, borg n'est pas très verbeux donc il ne faut pas hésiter à lui
+demander une barre de progression avec `-p` ou un peu plus de verbosité avec
+`-v` !
 
-- les sauvegardes de la base de données dans `/opt/sauvegarde/db` (l'équivalent de `/var/backups/mysql` mais sans la suppression des anciennes sauvegardes) ;
-- les sauvegardes des fichiers importants dans `/opt/sauvegarde/data` (que l'on initialise au préalable avec `borg init --encryption=none /opt/sauvegarde/data` avec l'utilisateur `root`).
-
-On utilise l'utilitaire `cron` *depuis le serveur de prod* pour envoyer les données vers le serveur de bêta :
-
-```cron
-# min hour dom month dow command
-0 */2 * * * /root/sauvegarde-vers-la-beta/donnees.sh
-5 */2 * * * /root/sauvegarde-vers-la-beta/bdd.sh
-15 3 * * * /root/sauvegarde-vers-la-beta/donnees.sh
-20 3 * * * /root/sauvegarde-vers-la-beta/bdd.sh
-```
-
-Les scripts [donnees.sh](../roles/backup/files/prod/donnees.sh) et
-[bdd.sh](../roles/backup/files/prod/bdd.sh) sont disponibles dans ce dépôt.
+Le cache de Borgbackup peut prendre plusieurs gigaoctets de données ce qui
+n'est pas souhaitable sur la bêta car l'espace disque y est assez restreint. Il
+a donc été désactivé en suivant les instructions de la documentation
+([Frequently asked questions > The borg cache eats way too much disk space,
+what can I
+do?](https://borgbackup.readthedocs.io/en/stable/faq.html#the-borg-cache-eats-way-too-much-disk-space-what-can-i-do)).
 
 
-Enfin, [cleaning.sh](../roles/backup/files/beta/cleaning.sh) est le script qui
-s'occupe de garder les 60 derniers jours de sauvegardes et de supprimer le
-reste. Il est lancé chaque jour sur la bêta avec l'utilitaire `cron` pour
-garder toujours assez d'espace libre sur le disque dédié aux sauvegardes :
-```cron
-# min hour dom month dow command
-0 5 * * * /opt/sauvegarde/cleaning.sh
-```
+### Mise en en place des dépôts Borg
 
-
-### Précisions concernant BorgBackup
-
-Ce petit logiciel est installé à la fois sur le serveur de bêta et le serveur de prod tel que recommandé par la documentation ([Quickstart > Remote repositories](https://borgbackup.readthedocs.io/en/stable/quickstart.html#remote-repositories)). Par défaut, il n'est pas très verbeux donc il ne faut pas hésiter à lui demander une barre de progression avec `-p` ou un peu plus de verbosité avec `-v` !
-
-Le cache de Borgbackup peut prendre plusieurs gigaoctets de données ce qui n'est pas souhaitable sur la bêta car l'espace disque y est assez restreint. Il a donc été désactivé en suivant les instructions de la documentation ([Frequently asked questions > The borg cache eats way too much disk space, what can I do?](https://borgbackup.readthedocs.io/en/stable/faq.html#the-borg-cache-eats-way-too-much-disk-space-what-can-i-do)).
-
-## Comment est mise en place la restauration ?
-
-C'est bien beau d'avoir des sauvegardes, mais fonctionneront-elles le jour où on en aura besoin ? Pour cela, il est impératif de vérifier que la restauration des sauvegardes fonctionne. Une bonne manière de tester cela est d'utiliser les sauvegardes du serveur de prod sur le serveur de bêta !
-
-Le script [restore-from-prod.sh](../roles/backup/files/beta/restore-from-prod.sh)
-permet de restaurer la bêta à partir des sauvegardes de la prod. Il faut
-l'exécuter en root et préciser ce qu'il doit faire :
+Sur la prod, en root :
 ```sh
-./restore-from-prod.sh all # restaure les données et la base de données de la dernière sauvegarde
-./restore-from-prod.sh clean # supprime tous les éléments intermédiaires créés par la commande précédente
+ssh-keygen -a 100 -t ed25519 -C "zds-prod->beta" # à sauvegarder dans /root/.ssh/beta_ed25519
 ```
-D'autres sous-commandes permettent de ne lancer que des portions du scripts.
+
+Sur la bêta :
+```sh
+adduser --disabled-password zds-prod
+mkdir /home/zds-prod/.ssh
+```
+Créer le fichier `/home/zds-prod/.ssh/authorized_keys` et y ajouter :
+```
+restrict,from="2001:4b98:dc0:41:216:3eff:febc:7e10,92.243.7.44",command="borg serve --append-only --restrict-to-repository /opt/sauvegarde/db-borg --storage-quota 30G" <clé SSH publique générée sur la prod>
+```
+Ainsi, l'accès par SSH au serveur de bêta avec cette clé est restreint aux
+connexions venant du serveur de prod, et ne peut servir qu'à exécuter la
+commande borg indiquée.
+```sh
+chown -R zds-prod:zds-prod /home/zds-prod/.ssh
+chmod -R 700 ~zds-prod/.ssh
+chmod 600 ~zds-prod/.ssh/authorized_keys
+mkdir /opt/sauvegarde/db-borg
+chown -R zds-prod:zds-prod /opt/sauvegarde/db-borg
+```
+Sur la prod, ajouter dans `/root/.ssh/config` :
+```
+Host beta-backup
+	HostName scaleway.zestedesavoir.com
+	User zds-prod
+	IdentityFile ~/.ssh/beta_ed25519
+```
+Initialiser le dépôt Borg, depuis le serveur de prod, en root :
+```sh
+borg init -e none beta-backup:/opt/sauvegarde/db-borg
+```
+
 
 ## Perdre des données, cela n'arrive pas qu'aux autres !
 
-Il y a déjà eu deux pertes de données dans l'histoire de Zeste de Savoir, avec à chaque fois un article explicatif :
-
+Il y a déjà eu deux pertes de données dans l'histoire de Zeste de Savoir, avec
+à chaque fois un article explicatif :
 - [Retour sur une semaine compliquée pour Zeste de Savoir](https://zestedesavoir.com/articles/194/retour-sur-une-semaine-compliquee-pour-zeste-de-savoir/)
 - [Retour dans le passé pour ZdS :(](https://zestedesavoir.com/articles/1432/retour-dans-le-passe-pour-zds/)

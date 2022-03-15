@@ -3,7 +3,6 @@
 # Script from https://borgbackup.readthedocs.io/en/stable/quickstart.html#automating-backups
 
 # Setting this, so the repo does not need to be given on the commandline:
-export BORG_REPO=ssh://root@scaleway.zestedesavoir.com/opt/sauvegarde/data
 
 # See the section "Passphrase notes" for more infos.
 #export BORG_PASSPHRASE='XYZl0ngandsecurepa_55_phrasea&&123'
@@ -19,6 +18,7 @@ info "Starting backup"
 
 DATE=`date '+%Y%m%d-%H%M'`
 
+BORG_REPO=ssh://root@scaleway.zestedesavoir.com/opt/sauvegarde/data \
 borg create                         \
     --verbose                       \
     --filter AME                    \
@@ -31,32 +31,21 @@ borg create                         \
     ::$DATE                         \
     /opt/zds/data                   \
 
-backup_exit=$?
+backup_exit1=$?
 
-info "Pruning repository"
+# ... here go the external backup commands ...
 
-# Use the `prune` subcommand to maintain 7 daily, 4 weekly and 6 monthly
-# archives of THIS machine. The '{hostname}-' prefix is very important to
-# limit prune's operation to this machine's archives and not apply to
-# other machines' archives also:
+# backup_exit2=$?
+backup_exit2=$backup_exit1
 
-#borg prune                          \
-#    --list                          \
-#    --show-rc                       \
-#    --keep-within 1w                \
-
-#prune_exit=$?
-
-# use highest exit code as global exit code
-#global_exit=$(( backup_exit > prune_exit ? backup_exit : prune_exit ))
-global_exit=${backup_exit}
+global_exit=$(( backup_exit1 > backup_exit2 ? backup_exit1 : backup_exit2 ))
 
 if [ ${global_exit} -eq 0 ]; then
-    info "Backup and Prune finished successfully"
+    info "Backups finished successfully"
 elif [ ${global_exit} -eq 1 ]; then
-    info "Backup and/or Prune finished with warnings"
+    info "Backup finished with warnings"
 else
-    info "Backup and/or Prune finished with errors"
+    info "Backup finished with errors"
 fi
 
 exit ${global_exit}
