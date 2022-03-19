@@ -18,18 +18,17 @@ info "Starting backup"
 
 DATE=`date '+%Y%m%d-%H%M'`
 
-BORG_REPO=ssh://root@scaleway.zestedesavoir.com/opt/sauvegarde/data \
-borg create                         \
-    --verbose                       \
-    --filter AME                    \
-    --list                          \
-    --stats                         \
-    --show-rc                       \
-    --compression lz4               \
-    --exclude-caches                \
-                                    \
-    ::$DATE                         \
-    /opt/zds/data                   \
+borg create                                 \
+    --verbose                               \
+    --filter AME                            \
+    --list                                  \
+    --stats                                 \
+    --show-rc                               \
+    --compression lz4                       \
+    --exclude-caches                        \
+                                            \
+    beta-backup:/opt/sauvegarde/data::$DATE \
+    /opt/zds/data
 
 backup_exit1=$?
 
