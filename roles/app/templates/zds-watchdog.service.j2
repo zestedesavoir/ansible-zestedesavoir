@@ -8,7 +8,7 @@ Group={{ appuser }}
 ExecStart={{ workdir }}/wrapper publication_watchdog
 ExecStop=/bin/kill -s TERM $MAINPID
 Restart=on-failure
-RestartSec=5s
+RestartSec=60s
 
 [Install]
 WantedBy=multi-user.target
