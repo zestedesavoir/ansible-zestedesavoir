@@ -43,44 +43,46 @@ données, et un autre pour les contenus hébérgés sur le site.
 
 ### Serveur de prod
 
-#### Base de données
-
-Un [script](../roles/backup/files/prod/backup.sh) utilise Mariabackup pour
-faire une sauvegarde complète chaque jour à 3h15, puis une sauvegarde
-incrémentale à chaque heure paire (donc toutes les deux heures).
-
-Ces sauvegardes sont disponibles dans le dossier `/var/backups/mysql` avec
-comme nom la date et l'heure de la sauvegarde (au format `AAAAMMJJ-HHMM`). Un
-[script](../roles/backup/files/prod/cleanup.sh) supprime au fur et à mesure les
-anciennes sauvegardes pour ne pas saturer l'espace disque.
-
-Une fois les sauvegardes réalisées, elles sont envoyées vers le serveur de bêta
-avec un [script](../roles/backup/files/prod/bdd.sh) qui lance Borg.
-
-Les scripts sont lancés par l'utilisateur root, avec les règles `cron`
-suivantes :
+Le script [`backups.sh`](../roles/backup/files/prod/backups.sh) est exécuté
+régulièrement par l'utilisateur root, selon les règles `cron` suivantes, et
+réalise les sauvegardes du serveur de production.
 ```cron
 # min hour dom month dow command
-0 */2 * * * /var/backups/mysql/backup.sh
-15 3 * * * /var/backups/mysql/backup.sh full
-15 4 * * * /var/backups/mysql/cleanup.sh
-
-5 */2 * * * /root/sauvegarde-vers-la-beta/bdd.sh
-20 3 * * * /root/sauvegarde-vers-la-beta/bdd.sh
+0 */2 * * * /root/backups.sh >> /var/log/zds/backups.log 2>&1
+15  3 * * * /root/backups.sh full >> /var/log/zds/backups.log 2>&1
 ```
 
+Les logs générés sont archivés par les instructions `logrotate` suivantes (dans
+le fichier `/etc/logrotate.d/zds`) :
+```
+/var/log/zds/backups.log {
+	rotate 52
+	compress
+	size 2M
+	missingok
+	notifempty
+	delaycompress
+}
+```
+
+#### Base de données
+
+Mariabackup fait une sauvegarde complète chaque jour à 3h15, puis une
+sauvegarde incrémentale à chaque heure paire (donc toutes les deux heures)
+(fonction `db_local_backup` du script `backups.sh`).
+
+Ces sauvegardes sont disponibles dans le dossier `/var/backups/mysql` avec
+comme nom la date et l'heure de la sauvegarde (au format `AAAAMMJJ-HHMM`). Les
+sauvegardes sont supprimées au fur et à mesure pour ne pas saturer l'espace
+disque (fonction `db_clean` du script `backups.sh`).
+
+Une fois les sauvegardes réalisées, elles sont envoyées vers le serveur de bêta
+avec Borg (fonction `db_borg_backup` du script `backups.sh`).
 
 #### Contenus du site
 
-Un [script](../roles/backup/files/prod/donnees.sh) utilise Borg pour
-sauvegarder le dossier `/opt/zds/data` vers le serveur de bêta.
-
-Cette sauvegarde est réalisée toutes les deux heures :
-```cron
-# min hour dom month dow command
-0 */2 * * * /root/sauvegarde-vers-la-beta/donnees.sh
-15 3 * * * /root/sauvegarde-vers-la-beta/donnees.sh
-```
+Borg sauvegarde toutes les deux heures le dossier `/opt/zds/data` vers le
+serveur de bêta (fonction `data_borg_backup` du script `backups.sh`).
 
 
 ### Serveur de bêta
@@ -96,13 +98,34 @@ Les sauvegardes de plus de 60 jours sont supprimées par un
 [script](../roles/backup/beta/cleaning.sh) exécuté quotidiennement :
 ```cron
 # min hour dom month dow command
-0 5 * * * /opt/sauvegarde/cleaning.sh
+0 5 * * * /opt/sauvegarde/cleaning.sh >> /var/log/zds/backups-cleaning.log 2>&1
 ```
+
+Le log généré est archivé par les instructions `logrotate` suivantes (dans
+le fichier `/etc/logrotate.d/zds`) :
+```
+/var/log/zds/backups-cleaning.log {
+	rotate 52
+	compress
+	size 2M
+	missingok
+	notifempty
+	delaycompress
+}
+```
+
+### Surveillance
+
+Les scripts de sauvegardes lancés automatiquement envoient une notification au
+service [healthchecks.io](https://healthchecks.io) lorsqu'ils ont terminés. En
+cas d'erreur dans le déroulement des scripts, HealthCheck enverra un mail à
+l'adresse technique pour indiquer qu'il n'a pas reçu une notification.
 
 
 ## Restauration des sauvegardes (synchronisation de la bêta avec la prod)
 
-Le script [restore-from-prod.sh](../roles/backup/files/beta/restore-from-prod.sh)
+Le script
+[`restore-from-prod.sh`](../roles/backup/files/beta/restore-from-prod.sh)
 permet de restaurer la bêta à partir des sauvegardes de la prod. Il faut
 l'exécuter en root et préciser ce qu'il doit faire :
 ```sh
