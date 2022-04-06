@@ -198,10 +198,11 @@
   tags:
     - bootstrap
 
-- name: install frontend
+- name: install frontend  # noqa no-changed-when
   become_user: "{{ appuser }}"
-  community.general.npm:
-    path: "{{ appdir }}"
+  ansible.builtin.command: yarn install --frozen-lockfile
+  args:
+    chdir: "{{ appdir }}"
   tags:
     - bootstrap
     - upgrade
