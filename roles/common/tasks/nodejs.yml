@@ -6,7 +6,7 @@
 - name: add Node.js repository
   ansible.builtin.apt_repository:
     filename: nodejs
-    repo: "deb https://deb.nodesource.com/node_12.x {{ ansible_distribution_release }} main"
+    repo: "deb https://deb.nodesource.com/node_16.x {{ ansible_distribution_release }} main"
     state: present
 
 - name: add Node.js repository preferences
@@ -19,3 +19,8 @@
   ansible.builtin.apt:
     pkg: nodejs
     cache_valid_time: 3600
+
+- name: install yarn
+  community.general.npm:
+    name: yarn
+    global: true
