@@ -14,6 +14,9 @@ server {
     server_name {{ http_host }};
 {% endif %}
 
+    access_log /var/log/zds/nginx-https-redirect-access.log;
+    error_log /var/log/zds/nginx-https-redirect-error.log;
+
     root /var/www/html;
 
     location /.well-known {
