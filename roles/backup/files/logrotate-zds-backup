@@ -1,0 +1,8 @@
+/var/log/zds/backups*.log {
+        rotate 52
+        compress
+	size 2M
+        missingok
+        notifempty
+	delaycompress
+}

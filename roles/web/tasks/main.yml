@@ -64,3 +64,9 @@
     state: link
   notify: reload nginx
   when: env == "prod"
+
+- name: copy logrotate config files
+  ansible.builtin.copy:
+    src: "logrotate/zds-nginx"
+    dest: "/etc/logrotate.d/zds-nginx"
+    mode: u=rw,g=r,o=r
