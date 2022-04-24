@@ -1,11 +1,11 @@
-/var/log/zds/nginx*.log {
+{{ logdir }}/nginx*.log {
         daily
         missingok
-	maxage 365
+        maxage 365
         compress
         notifempty
         create 640 nginx adm
-	delaycompress
+        delaycompress
         sharedscripts
         postrotate
                 if [ -f /var/run/nginx.pid ]; then
