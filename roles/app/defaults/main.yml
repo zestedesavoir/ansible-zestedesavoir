@@ -1,4 +1,3 @@
-appuser: zds
 apprepo: "https://github.com/zestedesavoir/zds-site.git"
 env: dev
 secrets: []

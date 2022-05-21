@@ -6,9 +6,11 @@
       - texlive-lang-french
       - texlive-latex-extra
       - texlive-fonts-extra
+      - texlive-science
       - python-pygments
       - xzdec
       - wget
+      - librsvg2-bin  # to convert license icons from SVG to PDF
     cache_valid_time: 3600
   tags:
     - bootstrap
@@ -25,6 +27,8 @@
     - bootstrap
 
 - name: clone the template  # noqa git-latest
+  become: true
+  become_user: "{{ appuser }}"
   ansible.builtin.git:
     repo: "https://github.com/zestedesavoir/latex-template/"
     dest: /opt/zds/texmf/tex/generic/latex-template
