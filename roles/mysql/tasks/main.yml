@@ -40,6 +40,8 @@
   community.mysql.mysql_db:
     name: "{{ mysql.name }}"
     state: present
+    encoding: "utf8mb4"
+    collation: "utf8mb4_unicode_ci"
 
 - name: create mysql user
   community.mysql.mysql_user:
