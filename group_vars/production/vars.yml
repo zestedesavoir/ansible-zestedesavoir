@@ -1,4 +1,4 @@
-appversion: v30.1f-artemis
+appversion: v30.2-eon
 env: prod
 public: true
 http_host: zestedesavoir.com
