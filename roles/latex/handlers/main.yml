@@ -1,6 +1,6 @@
 - name: run texhash
   become: true
-  become_user: zds
+  become_user: "{{ appuser }}"
   ansible.builtin.shell: texhash $HOME/texmf
 
 - name: refresh font-config cache

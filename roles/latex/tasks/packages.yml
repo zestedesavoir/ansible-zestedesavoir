@@ -1,6 +1,6 @@
 - name: create tlmgr usertree
   become: true
-  become_user: zds
+  become_user: "{{ appuser }}"
   ansible.builtin.command: tlmgr init-usertree
   args:
     creates: $HOME/texmf
@@ -21,7 +21,7 @@
 
 - name: install packages  # noqa risky-shell-pipe
   become: true
-  become_user: zds
+  become_user: "{{ appuser }}"
   ansible.builtin.shell: >
     # we make sure that tlmgr repository correspond to texlive annual release
     texlive_year=$(tlmgr --version) &&
@@ -38,14 +38,18 @@
     - bootstrap
 
 - name: create tabu directory
+  become: true
+  become_user: "{{ appuser }}"
   ansible.builtin.file:
     path: /opt/zds/texmf/tex/latex/tabu/
     state: directory
-    mode: u=rw,g=r,o=r
+    mode: u=rwx,g=r,o=r
   tags:
     - bootstrap
 
 - name: install tabu package
+  become: true
+  become_user: "{{ appuser }}"
   ansible.builtin.get_url:
     url: https://raw.githubusercontent.com/tabu-issues-for-future-maintainer/tabu/master/tabu.sty
     dest: /opt/zds/texmf/tex/latex/tabu/tabu.sty

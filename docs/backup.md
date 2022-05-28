@@ -52,19 +52,6 @@ réalise les sauvegardes du serveur de production.
 15  3 * * * /root/backups.sh full >> /var/log/zds/backups.log 2>&1
 ```
 
-Les logs générés sont archivés par les instructions `logrotate` suivantes (dans
-le fichier `/etc/logrotate.d/zds`) :
-```
-/var/log/zds/backups.log {
-	rotate 52
-	compress
-	size 2M
-	missingok
-	notifempty
-	delaycompress
-}
-```
-
 #### Base de données
 
 Mariabackup fait une sauvegarde complète chaque jour à 3h15, puis une
@@ -99,19 +86,6 @@ Les sauvegardes de plus de 60 jours sont supprimées par un
 ```cron
 # min hour dom month dow command
 0 5 * * * /opt/sauvegarde/cleaning.sh >> /var/log/zds/backups-cleaning.log 2>&1
-```
-
-Le log généré est archivé par les instructions `logrotate` suivantes (dans
-le fichier `/etc/logrotate.d/zds`) :
-```
-/var/log/zds/backups-cleaning.log {
-	rotate 52
-	compress
-	size 2M
-	missingok
-	notifempty
-	delaycompress
-}
 ```
 
 ### Surveillance
@@ -201,6 +175,12 @@ Initialiser le dépôt Borg, depuis le serveur de prod, en root :
 ```sh
 borg init -e none beta-backup:/opt/sauvegarde/db-borg
 ```
+
+## Rotation des logs
+
+Les logs des sauvegardes sont dans le dossier `/var/log/zds/`.  Ils sont
+archivés par les instructions `logrotate` du fichier
+[`/etc/logrotate.d/zds-backup`](../roles/backup/files/logrotate-zds-backup).
 
 
 ## Perdre des données, cela n'arrive pas qu'aux autres !

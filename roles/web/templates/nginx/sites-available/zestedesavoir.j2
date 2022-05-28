@@ -5,6 +5,11 @@ upstream zdsappserver {
     server unix:{{ rundir }}/gunicorn.sock fail_timeout=0;
 }
 
+map $http_user_agent $loggable {
+    ~^HetrixTools 0;
+    default 1;
+}
+
 server {
     listen 80 default_server;
     listen [::]:80 default_server;
@@ -13,6 +18,9 @@ server {
 {% if http_host %}
     server_name {{ http_host }};
 {% endif %}
+
+    access_log {{ logdir }}/nginx-https-redirect-access.log combined if=$loggable;
+    error_log {{ logdir }}/nginx-https-redirect-error.log;
 
     root /var/www/html;
 
@@ -46,7 +54,7 @@ server {
     include snippets/ssl.conf;
 {% endif %}
 
-    access_log {{ logdir }}/nginx-access.log;
+    access_log {{ logdir }}/nginx-access.log combined if=$loggable;
     error_log {{ logdir }}/nginx-error.log;
 
     # Rewrite de l'ancienne page de teasing

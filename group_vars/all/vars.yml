@@ -5,3 +5,4 @@ datadir: "{{ workdir }}/data"
 webroot: "{{ workdir }}/webroot"
 virtualenv: "{{ workdir }}/virtualenv"
 logdir: /var/log/zds
+appuser: zds
