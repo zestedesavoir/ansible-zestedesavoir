@@ -40,14 +40,11 @@
   when: item.state == 'file'
   notify: reload nginx
 
-- name: generate config files
+- name: generate zds config file
   ansible.builtin.template:
-    src: "{{ item }}.j2"
-    dest: "/etc/{{ item }}"
+    src: "nginx/sites-available/zestedesavoir.j2"
+    dest: "/etc/nginx/sites-available/zestedesavoir"
     mode: u=rw,g=r,o=r
-  with_items:
-    - nginx/sites-available/zestedesavoir
-    - nginx/sites-available/prod-redirect
   notify: reload nginx
 
 - name: enable zds site
@@ -56,6 +53,14 @@
     dest: "/etc/nginx/sites-enabled/zestedesavoir"
     state: link
   notify: reload nginx
+
+- name: generate prod redirect config file
+  ansible.builtin.template:
+    src: "nginx/sites-available/prod-redirect.j2"
+    dest: "/etc/nginx/sites-available/prod-redirect"
+    mode: u=rw,g=r,o=r
+  notify: reload nginx
+  when: env == "prod"
 
 - name: enable prod redirect site
   ansible.builtin.file:
