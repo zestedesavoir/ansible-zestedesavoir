@@ -148,12 +148,28 @@
   with_items:
     - src: "{{ appdir }}/errors"
       dest: "errors"
-    - src: "{{ appdir }}/robots.txt"
-      dest: "robots.txt"
     - src: "{{ datadir }}/media"
       dest: "media"
     - src: "{{ datadir }}/static"
       dest: "static"
+  tags:
+    - bootstrap
+
+- name: create robots.txt in webroot for prod
+  ansible.builtin.file:
+    src: "{{ appdir }}/robots.txt"
+    dest: "{{ webroot }}/robots.txt"
+    state: link
+  when: env == "prod"
+  tags:
+    - bootstrap
+
+- name: create robots.txt in webroot for beta
+  ansible.builtin.copy:
+    src: "robots-deny.txt"
+    dest: "{{ webroot }}/robots.txt"
+    mode: u=rw,g=r,o=r
+  when: env == "beta"
   tags:
     - bootstrap
 
