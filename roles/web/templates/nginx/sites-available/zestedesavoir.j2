@@ -40,6 +40,11 @@ server {
 
 {% if http_host %}
     server_name {{ http_host }};
+
+    ## Deny unexpected Host headers (otherwise Django raises "Invalid HTTP_HOST header" exceptions)
+    if ($host !~* ^({{ http_host }})$ ) {
+        return 444;
+    }
 {% endif %}
 
     root {{ webroot }};
