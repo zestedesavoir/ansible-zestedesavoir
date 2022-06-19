@@ -3,14 +3,15 @@
 set -eu
 
 BACKUP_DATE=`date '+%Y%m%d-%H%M'`
+DATA_SAVED_DIR=/opt/zds/data
+DB_SAVED_DIR=/var/backups/mysql
 
 db_local_backup()
 {
-	WD=/var/backups/mysql
-	LATEST=$WD/latest
+	LATEST=$DB_SAVED_DIR/latest
 
 	PREVIOUS=`readlink -f $LATEST`
-	NEXT=$WD/$BACKUP_DATE
+	NEXT=$DB_SAVED_DIR/$BACKUP_DATE
 
 
 	if [ -d "$NEXT" ]; then
@@ -40,11 +41,8 @@ db_local_backup()
 	ln -s $NEXT/mariabackup.log $LATEST.log
 }
 
-
-data_borg_backup()
+backup2beta()
 {
-	echo "** Content backups with borg..."
-
 	echo "Backup data to the beta server..."
 	borg create                                        \
 	    --verbose                                      \
@@ -55,15 +53,7 @@ data_borg_backup()
 	    --compression lz4                              \
 	    --exclude-caches                               \
 	    beta-backup:/opt/sauvegarde/data::$BACKUP_DATE \
-	    /opt/zds/data
-
-	# ... sauvegardes vers les dépôts externes ...
-}
-
-
-db_borg_backup()
-{
-	echo "** Database backups with borg..."
+	    $DATA_SAVED_DIR
 
 	echo "Backup database to the beta server..."
 	borg create                                           \
@@ -76,18 +66,15 @@ db_borg_backup()
 	    --exclude-caches                                  \
 	    --info                                            \
 	    beta-backup:/opt/sauvegarde/db-borg::$BACKUP_DATE \
-	    /var/backups/mysql
-
-	# ... sauvegardes vers les dépôts externes ...
+	    $DB_SAVED_DIR
 }
 
 
 db_clean()
 {
 	echo "** Removing old local backups of the database..."
-	WD=/var/backups/mysql
 
-	BACKUPS="`echo $WD/*-*/ | tr ' ' '\n' | sort -nr`"
+	BACKUPS="`echo $DB_SAVED_DIR/*-*/ | tr ' ' '\n' | sort -nr`"
 
 	TO_DELETE="`
 		echo "$BACKUPS" | awk '
@@ -114,9 +101,8 @@ else
 	db_local_backup
 fi
 
-data_borg_backup
-
-db_borg_backup
+backup2beta
+# Créer des fonctions comme backup2beta et les appeler ici pour les dépôts externes
 
 if [ "$(date '+%H')" -eq "04" ]; then
 	db_clean
