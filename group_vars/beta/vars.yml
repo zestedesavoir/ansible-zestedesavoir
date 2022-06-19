@@ -1,3 +1,5 @@
+# For a PR: pull/xxxx/head
+# For a branch or a tag: just its name
 appversion: dev
 env: beta
 http_host: beta.zestedesavoir.com
