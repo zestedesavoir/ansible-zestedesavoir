@@ -176,6 +176,61 @@ Initialiser le dépôt Borg, depuis le serveur de prod, en root :
 borg init -e none beta-backup:/opt/sauvegarde/db-borg
 ```
 
+
+## Sauvegardes externes
+
+Sur la prod, en root :
+```sh
+ssh-keygen -a 100 -t ed25519 -C "zds-prod->ext" # à sauvegarder dans /root/.ssh/ext_ed25519
+```
+Mettre en place la clé publique sur le serveur externe, daans le `authorized_keys` :
+```
+restrict,from="2001:4b98:dc0:41:216:3eff:febc:7e10,92.243.7.44",command="borg serve --append-only --restrict-to-repository /chemin/du/depot/borg --storage-quota 200G" <clé SSH>
+```
+
+Sur la prod, ajouter dans `/root/.ssh/config` :
+```
+Host ext-backup
+	HostName adresse.du.serveur.externe
+	User utilisateur
+	IdentityFile ~/.ssh/ext_ed25519
+```
+
+Initialiser le dépôt, **avec une méthode de chiffrement** :
+```sh
+borg init -e repokey ext-backup:/chemin/du/depot/borg
+```
+Mettre la phrase de passe dans le fichier `/root/borg/ext-depot.passphrase`.
+Exporter la clé :
+```sh
+borg key export ext-backup:/chemin/du/depot/borg /root/borg/ext-depot.key
+```
+S'assurer que ces deux fichiers ont seulement les droits 600.
+
+Ajouter au script de sauvegarde exécuté par la CRON :
+```sh
+backup2extbackup()
+{
+    echo "Backup data to external server..."
+    BORG_PASSCOMMAND='cat /root/borg/ext-depot.passphrase' \
+	borg create                                        \
+	--verbose                                          \
+	--filter AME                                       \
+	--list                                             \
+	--stats                                            \
+	--show-rc                                          \
+	--compression zstd,6                               \
+	--exclude-caches                                   \
+	--info                                             \
+	ext-backup:/chemin/du/depot/borg::$BACKUP_DATE     \
+	/dossier/à/sauvegarder/
+    # Dupliquer les commandes pour le dépôt de la BDD
+}
+
+# Appeler la fonction après l'appel à backup2beta
+```
+
+
 ## Rotation des logs
 
 Les logs des sauvegardes sont dans le dossier `/var/log/zds/`.  Ils sont
