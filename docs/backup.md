@@ -183,7 +183,7 @@ Sur la prod, en root :
 ```sh
 ssh-keygen -a 100 -t ed25519 -C "zds-prod->ext" # à sauvegarder dans /root/.ssh/ext_ed25519
 ```
-Mettre en place la clé publique sur le serveur externe, daans le `authorized_keys` :
+Mettre en place la clé publique sur le serveur externe, dans le `authorized_keys` :
 ```
 restrict,from="2001:4b98:dc0:41:216:3eff:febc:7e10,92.243.7.44",command="borg serve --append-only --restrict-to-repository /chemin/du/depot/borg --storage-quota 200G" <clé SSH>
 ```
