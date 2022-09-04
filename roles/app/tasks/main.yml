@@ -373,6 +373,11 @@
     - bootstrap
     - upgrade
 
+- include_tasks: fixtures.yml
+  when: load_fixtures
+  tags:
+    - bootstrap
+
 # End of maintenance, if needed
 
 - name: remove maintenance symlink

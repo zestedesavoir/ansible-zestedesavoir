@@ -65,6 +65,13 @@ server {
     # Rewrite de l'ancienne page de teasing
     rewrite ^/teasing/$ / permanent;
 
+    # Désactivation temporaire de l'inscription en cas de spam
+#    location /membres/inscription/ {
+#        rewrite ^(.*)$ /inscription.html break;
+#    }
+
+    include snippets/ban.conf;
+
 {% if not public %}
     add_header X-Robots-Tag "none" always;
 {% endif %}

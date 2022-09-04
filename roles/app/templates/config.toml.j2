@@ -26,9 +26,11 @@ votes_id_limit = 131319
 VOTES_ID_LIMIT = 131319 # Temporary fix
 
 publications_being_written_forum_id = 23
+{% if not load_fixtures %}
 member_bot_username = "Clem"
 member_external_username = "Auteur externe"
 member_anonymous_username = "anonyme"
+{% endif %}
 
 association_subscribe_link = "https://www.helloasso.com/associations/zeste-de-savoir/adhesions/adhesion-2022-2023"
 
