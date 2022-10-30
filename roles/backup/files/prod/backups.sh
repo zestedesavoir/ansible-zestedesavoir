@@ -89,6 +89,8 @@ db_clean()
 }
 
 
+# Big separator in log between executions of the script:
+echo "#######################################################################################################################"
 echo "Starting script ($(date))"
 
 full=0
@@ -116,3 +118,5 @@ fi
 echo # to make a newline after the "OK" written by curl
 
 echo "End of script ($(date))"
+# Big separator in log between executions of the script:
+echo "#######################################################################################################################"
