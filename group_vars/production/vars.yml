@@ -1,4 +1,4 @@
-appversion: v30.4-cecrops
+appversion: v30.4a-cecrops
 env: prod
 public: true
 http_host: zestedesavoir.com
