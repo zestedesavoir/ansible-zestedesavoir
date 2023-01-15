@@ -1,5 +1,4 @@
 ![Github Actions status](https://github.com/zestedesavoir/ansible-zestedesavoir/actions/workflows/ansible-playbook.yml/badge.svg)
-[![Python requirements Status](https://requires.io/github/zestedesavoir/ansible-zestedesavoir/requirements.svg?branch=main)](https://requires.io/github/zestedesavoir/ansible-zestedesavoir/requirements/?branch=main)
 
 # Zeste de Savoir sur un serveur de production
 
