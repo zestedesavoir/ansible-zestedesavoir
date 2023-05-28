@@ -10,5 +10,5 @@ very_top_banner:
   background_color: '#800'
   border_color: '#450000'
   color: 'white'
-  message: 'Version bêta (PR « Passage à zmarkdown 11.2.0 »)'
+  message: 'Version bêta (PR « Passage à zmarkdown 11.2.3 »)'
   slug: 'version-beta'
