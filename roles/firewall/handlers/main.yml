@@ -2,3 +2,4 @@
   ansible.builtin.systemd:
     name: rsyslog
     state: restarted
+  when: ansible_facts.services['rsyslog.service'] is defined

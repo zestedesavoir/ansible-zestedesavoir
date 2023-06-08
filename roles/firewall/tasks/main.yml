@@ -21,6 +21,9 @@
   community.general.ufw:
     state: enabled
 
+- name: Populate service facts
+  ansible.builtin.service_facts:
+
 - name: Log firewall only in /var/log/ufw.log
   # otherwise /var/log/{kern.log,messages,syslog} get full of [UFW BLOCK] messages
   lineinfile:
