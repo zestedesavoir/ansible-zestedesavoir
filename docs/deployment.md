@@ -45,6 +45,8 @@ Commande | Explication
 
 ### Charger les données initiales
 
+**Les données initiales sont maintenant chargées automatiquement avec Ansible lorsque Vagrant est utilisé.**
+
 Si vous souhaitez charger les données initiales (utilisateurs, tutoriels, billets, sujets du forum, etc. factices), alors il faut se connecter au serveur avec `vagrant ssh` puis lancer ces commandes :
 
 ```bash
