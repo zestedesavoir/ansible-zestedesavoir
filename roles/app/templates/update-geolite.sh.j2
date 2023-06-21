@@ -1,0 +1,17 @@
+#!/bin/bash
+
+cd {{ appdir }}/geodata/
+mkdir -p downloaded
+cd downloaded
+
+wget -O geolite.tar.gz "https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-City&license_key={{ secrets.geolite.license_key }}&suffix=tar.gz"
+if [ $? -ne 0 ]
+then
+    exit
+fi
+
+tar -xf geolite.tar.gz
+cd ..
+chown {{ appuser }}:{{ appuser }} downloaded/GeoLite2-City_20*/GeoLite2-City.mmdb
+mv downloaded/GeoLite2-City_20*/GeoLite2-City.mmdb .
+rm -rf downloaded

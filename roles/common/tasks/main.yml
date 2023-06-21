@@ -4,6 +4,7 @@
       - locales
       - vim
       - git
+      - htop
       - zsh
       - logrotate
       - tmux

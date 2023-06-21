@@ -378,6 +378,11 @@
   tags:
     - bootstrap
 
+- include_tasks: geodata.yml
+  when: secrets.geolite.license_key is defined
+  tags:
+    - bootstrap
+
 # End of maintenance, if needed
 
 - name: remove maintenance symlink

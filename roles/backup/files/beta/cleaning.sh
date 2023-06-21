@@ -10,7 +10,7 @@ sudo -u zds-prod /usr/local/bin/borg prune $DATA_DB_RULES --list --stats /opt/sa
 echo "** db ** ($(date))"
 sudo -u zds-prod /usr/local/bin/borg prune $DATA_DB_RULES --list --stats /opt/sauvegarde/db-borg/
 echo "** matomo ** ($(date))"
-sudo -u zds-matomo /usr/local/bin/borg prune -m 2 --keep-within 10d --list --stats /opt/sauvegarde/matomo/
+sudo -u zds-matomo /usr/local/bin/borg prune -m 1 --keep-within 9d --list --stats /opt/sauvegarde/matomo/
 
 curl -s -m 10 --retry 5 $(cat /root/healthchecks-backup-cleaning-url)
 echo # to make a newline after the "OK" written by curl
