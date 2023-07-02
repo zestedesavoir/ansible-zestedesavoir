@@ -1,4 +1,4 @@
-appversion: v30.4a-cecrops
+appversion: v30.5-kresnik
 env: prod
 public: true
 http_host: zestedesavoir.com
