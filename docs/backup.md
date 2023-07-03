@@ -176,6 +176,17 @@ Initialiser le dépôt Borg, depuis le serveur de prod, en root :
 borg init -e none beta-backup:/opt/sauvegarde/db-borg
 ```
 
+> Attention, il peut être nécessaire de forcer l'utilisation de l'IPv4. Dans ce
+> cas, il faut rajouter `AddressFamily inet` au fichier `.ssh/config` et
+> utiliser une IPv4 dans le fichier `authorized_keys` (on ne peut pas utiliser
+> de nom de domaine, à moins de passer `UseDNS` à `true` dans
+> `/etc/ssh/sshd_config`). En pratique, on en a besoin pour les sauvegardes du
+> seveur hébergeant Matomo vers le serveur de bêta, car Scaleway [ne fournit
+> pas d'IPv6 fixe pour les
+> serveurs](https://feature-request.scaleway.com/posts/209/truly-static-ipv6),
+> ni de [moyen de définir un enregistrement DNS
+> inverse](https://feature-request.scaleway.com/posts/73/reverse-name-support-for-public-ipv6).
+
 
 ## Sauvegardes externes
 
