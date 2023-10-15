@@ -14,5 +14,6 @@
       /opt/zds/wrapper loaddata {{ appdir }}/fixtures/*.yaml &&
       /opt/zds/wrapper load_factory_data {{ appdir }}/fixtures/advanced/aide_tuto_media.yaml &&
       /opt/zds/wrapper load_fixtures --size=low --all &&
-      touch {{ appdir }}/.loaded_fixtures; \
+      touch {{ appdir }}/.loaded_fixtures &&
+      /opt/zds/wrapper es_manager index_all; \
     fi
