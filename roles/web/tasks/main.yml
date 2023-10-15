@@ -1,15 +1,3 @@
-- name: add nginx repository key
-  ansible.builtin.apt_key:
-    id: 573BFD6B3D8FBC641079A6ABABF5BD827BD9BF62
-    keyserver: "hkp://keyserver.ubuntu.com:80"
-
-- name: add nginx repository
-  ansible.builtin.apt_repository:
-    filename: nginx
-    repo: "deb https://nginx.org/packages/debian/ {{ ansible_distribution_release }} nginx"
-    state: present
-  register: repo
-
 - name: install nginx
   ansible.builtin.apt:
     pkg: nginx
@@ -36,6 +24,14 @@
     - snippets/
     - sites-available/
     - sites-enabled/
+
+- name: remove default configuration shipped with nginx package
+  ansible.builtin.file:
+    path: "/etc/nginx/{{ item }}/default"
+    state: absent
+  with_items:
+    - sites-available
+    - sites-enabled
 
 - name: copy config files
   ansible.builtin.copy:

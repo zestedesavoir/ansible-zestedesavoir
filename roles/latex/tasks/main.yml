@@ -7,18 +7,11 @@
       - texlive-latex-extra
       - texlive-fonts-extra
       - texlive-science
-      - python-pygments
+      - python3-pygments
       - xzdec
       - wget
       - librsvg2-bin  # to convert license icons from SVG to PDF
     cache_valid_time: 3600
-  tags:
-    - bootstrap
-
-- name: install pygments
-  ansible.builtin.pip:
-    name: Pygments
-    executable: pip3
   tags:
     - bootstrap
 

@@ -5,7 +5,6 @@
     pkg:
       - python3-dev
       - python3-venv
-      - python-setuptools
       - build-essential
       - libffi-dev
       - libssl-dev
@@ -207,6 +206,27 @@
     requirements: "{{ appdir }}/requirements-prod.txt"
     virtualenv: "{{ virtualenv }}"
     virtualenv_command: /usr/bin/python3 -m venv
+  tags:
+    - bootstrap
+    - upgrade
+
+- name: patch elasticsearch-dsl for Python 3.11
+  become: true
+  become_user: "{{ appuser }}"
+  ansible.builtin.lineinfile:
+    path: "{{ virtualenv }}/lib/python3.11/site-packages/elasticsearch_dsl/{{ item }}"
+    regexp: "^import collections$"
+    line: "import collections.abc as collections"
+    firstmatch: true
+  with_items:
+    - search.py
+    - utils.py
+    - mapping.py
+    - field.py
+    - aggs.py
+    - document.py
+    - function.py
+    - query.py
   tags:
     - bootstrap
     - upgrade
