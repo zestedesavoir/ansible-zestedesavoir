@@ -15,6 +15,12 @@
     pkg: nginx
     cache_valid_time: 3600
 
+- name: install certbot
+  ansible.builtin.apt:
+    pkg: cerbot
+    cache_valid_time: 3600
+  when: certificate is defined
+
 - name: check if tls certificate is present
   ansible.builtin.stat:
     path: "{{ certificate.cert }}"
