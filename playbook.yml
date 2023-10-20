@@ -1,4 +1,5 @@
-- hosts: app
+- name: deploy zds-site
+  hosts: app
   become: true
   roles:
     - role: common

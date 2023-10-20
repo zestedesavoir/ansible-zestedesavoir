@@ -26,7 +26,7 @@
 
 - name: Log firewall only in /var/log/ufw.log
   # otherwise /var/log/{kern.log,messages,syslog} get full of [UFW BLOCK] messages
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: /etc/rsyslog.d/20-ufw.conf
     search_string: "#& stop"
     line: "& stop"

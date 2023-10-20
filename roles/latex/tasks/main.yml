@@ -16,17 +16,18 @@
     - bootstrap
 
 - name: install pygments
-  pip:
+  ansible.builtin.pip:
     name: Pygments
     executable: pip3
   tags:
     - bootstrap
 
-- include_tasks: packages.yml
+- name: install latex packages
+  ansible.builtin.include_tasks: packages.yml
   tags:
     - bootstrap
 
-- name: clone the template  # noqa git-latest
+- name: clone the template  # noqa latest[git]
   become: true
   become_user: "{{ appuser }}"
   ansible.builtin.git:
@@ -52,6 +53,7 @@
   ansible.builtin.get_url:
     url: "{{ item[0].url }}/{{ item[1].ext | upper }}/{{ item[0].name }}-{{ item[2] }}.{{ item[1].ext }}"
     dest: /usr/local/share/fonts/{{ item[1].path }}/{{ item[0].slug }}/{{ item[0].name }}-{{ item[2] }}.{{ item[1].ext }}
+    mode: u=rw,g=r,o=r
   with_nested:
     - "{{ fonts }}"
     - "{{ fonttypes }}"

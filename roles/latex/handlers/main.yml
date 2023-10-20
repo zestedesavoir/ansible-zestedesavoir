@@ -1,7 +1,7 @@
-- name: run texhash
+- name: run texhash # noqa no-changed-when
   become: true
   become_user: "{{ appuser }}"
   ansible.builtin.shell: texhash $HOME/texmf
 
-- name: refresh font-config cache
+- name: refresh font-config cache # noqa no-changed-when
   ansible.builtin.command: fc-cache -f

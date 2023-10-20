@@ -30,7 +30,7 @@
 
 # User, directories, files and symlink creation
 
-- name: should have a {{ appuser }} user
+- name: should have a user named {{ appuser }}
   ansible.builtin.user:
     name: "{{ appuser }}"
     shell: /bin/false
@@ -60,6 +60,7 @@
     - bootstrap
 
 - name: checkout the application
+  become: true
   become_user: "{{ appuser }}"
   vars:
     refspec: "{{ '+refs/pull/*:refs/pull/*' if 'pull/' in appversion else '+refs/heads/*:refs/remotes/origin/*' }}"
@@ -176,6 +177,7 @@
 # Installation of backend, frontend and zmd dependencies
 
 - name: update pip in virtualenv  # some dependencies (like rust ones) require a recent pip
+  become: true
   become_user: "{{ appuser }}"
   ansible.builtin.pip:
     name:
@@ -187,6 +189,7 @@
     - bootstrap
 
 - name: install wheel and sqlparse in virtualenv
+  become: true
   become_user: "{{ appuser }}"
   ansible.builtin.pip:
     name:
@@ -198,6 +201,7 @@
     - bootstrap
 
 - name: install requirements in virtualenv
+  become: true
   become_user: "{{ appuser }}"
   ansible.builtin.pip:
     requirements: "{{ appdir }}/requirements-prod.txt"
@@ -208,13 +212,14 @@
     - upgrade
 
 - name: include nodejs installation
-  include_role:
+  ansible.builtin.include_role:
     name: common
     tasks_from: nodejs
   tags:
     - bootstrap
 
 - name: install frontend  # noqa no-changed-when
+  become: true
   become_user: "{{ appuser }}"
   ansible.builtin.command: yarn install --frozen-lockfile
   args:
@@ -224,6 +229,7 @@
     - upgrade
 
 - name: install zmarkdown
+  become: true
   become_user: "{{ appuser }}"
   community.general.npm:
     path: "{{ zmarkdown_dir }}"
@@ -235,6 +241,7 @@
 # Frontend building
 
 - name: build frontend  # noqa no-changed-when
+  become: true
   become_user: "{{ appuser }}"
   ansible.builtin.command: npm run build
   args:
@@ -244,6 +251,7 @@
     - upgrade
 
 - name: collect static files
+  become: true
   become_user: "{{ appuser }}"
   environment:
     DJANGO_SETTINGS_MODULE: "zds.settings.{{ env }}"
@@ -260,6 +268,7 @@
 # Start of maintenance, if needed
 
 - name: check if database migration is needed
+  become: true
   become_user: "{{ appuser }}"
   environment:
     DJANGO_SETTINGS_MODULE: "zds.settings.{{ env }}"
@@ -284,6 +293,7 @@
     - upgrade
 
 - name: migrate database
+  become: true
   become_user: "{{ appuser }}"
   environment:
     DJANGO_SETTINGS_MODULE: "zds.settings.{{ env }}"
@@ -298,6 +308,7 @@
     - upgrade
 
 - name: clear cache
+  become: true
   become_user: "{{ appuser }}"
   environment:
     DJANGO_SETTINGS_MODULE: "zds.settings.{{ env }}"
@@ -373,12 +384,14 @@
     - bootstrap
     - upgrade
 
-- include_tasks: fixtures.yml
+- name: load fixtures
+  ansible.builtin.include_tasks: fixtures.yml
   when: load_fixtures
   tags:
     - bootstrap
 
-- include_tasks: geodata.yml
+- name: setup geodata
+  ansible.builtin.include_tasks: geodata.yml
   when: secrets.geolite.license_key is defined
   tags:
     - bootstrap

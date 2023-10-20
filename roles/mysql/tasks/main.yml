@@ -32,7 +32,7 @@
     enabled: true
 
 - name: install MySQLdb-python
-  pip:
+  ansible.builtin.pip:
     name: mysqlclient
     executable: pip3
 

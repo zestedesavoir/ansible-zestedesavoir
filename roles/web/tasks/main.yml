@@ -36,7 +36,7 @@
     src: "{{ item.src }}"
     dest: "/etc/nginx/{{ item.path }}"
     mode: u=rw,g=r,o=r
-  with_filetree: nginx/
+  with_community.general.filetree: nginx/
   when: item.state == 'file'
   notify: reload nginx
 

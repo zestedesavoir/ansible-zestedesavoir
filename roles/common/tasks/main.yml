@@ -30,7 +30,7 @@
     src: "{{ item.src }}"
     dest: "/etc/zsh/{{ item.path }}"
     mode: u=rw,g=r,o=r
-  with_filetree: zsh/
+  with_community.general.filetree: zsh/
   when: item.state == 'file'
 
 - name: ensure the system can use the HTTPS transport for APT

@@ -1,4 +1,5 @@
 - name: install requirements in virtualenv to load fixtures
+  become: true
   become_user: "{{ appuser }}"
   ansible.builtin.pip:
     requirements: "{{ appdir }}/requirements-dev.txt"
