@@ -1,14 +1,28 @@
+- name: ensure the system can use the HTTPS transport for APT
+  ansible.builtin.stat:
+    path: /usr/lib/apt/methods/https
+  register: apt_https_transport
+
+- name: install HTTPS transport for APT
+  ansible.builtin.apt:
+    pkg: apt-transport-https
+    state: present
+  when: not apt_https_transport.stat.exists
+
 - name: should have some base packages
   ansible.builtin.apt:
     pkg:
-      - locales
-      - vim
+      - acl  # Allow Ansible to use 'become' command (see https://docs.ansible.com/ansible/latest/user_guide/become.html#risks-and-limitations-of-become)
       - git
       - htop
-      - zsh
+      - locales
       - logrotate
+      - python3
+      - python3-pip
+      - sudo
       - tmux
-      - acl  # Allow Ansible to use 'become' command (see https://docs.ansible.com/ansible/latest/user_guide/become.html#risks-and-limitations-of-become)
+      - vim
+      - zsh
     state: present
     cache_valid_time: 3600
 
@@ -33,20 +47,5 @@
   with_community.general.filetree: zsh/
   when: item.state == 'file'
 
-- name: ensure the system can use the HTTPS transport for APT
-  ansible.builtin.stat:
-    path: /usr/lib/apt/methods/https
-  register: apt_https_transport
 
-- name: install HTTPS transport for APT
-  ansible.builtin.apt:
-    pkg: apt-transport-https
-    state: present
-  when: not apt_https_transport.stat.exists
 
-- name: install basic Python packages
-  ansible.builtin.apt:
-    pkg:
-      - python3
-      - python3-pip
-    state: present
