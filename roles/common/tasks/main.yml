@@ -51,3 +51,10 @@
   ansible.builtin.include_tasks: sshd.yml
 
 
+- name: create /bin folder for root
+  ansible.builtin.file:
+    path: /root/bin
+    state: directory
+    owner: root
+    group: root
+    mode: u=rwx,g=,o=
