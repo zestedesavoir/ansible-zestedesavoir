@@ -4,7 +4,7 @@ set -e
 
 echo "Starting script ($(date))"
 
-DATA_DB_RULES="--keep-within 30d -w 8 -m 3"
+DATA_DB_RULES="--keep-within 30d -w 6 -m 3"
 echo "** data ** ($(date))"
 sudo -u zds-prod /usr/local/bin/borg prune $DATA_DB_RULES --list --stats /opt/sauvegarde/data/
 echo "** db ** ($(date))"
@@ -12,7 +12,7 @@ sudo -u zds-prod /usr/local/bin/borg prune $DATA_DB_RULES --list --stats /opt/sa
 echo "** matomo ** ($(date))"
 sudo -u zds-matomo /usr/local/bin/borg prune -m 1 --keep-within 9d --list --stats /opt/sauvegarde/matomo/
 
-curl -s -m 10 --retry 5 $(cat /root/healthchecks-backup-cleaning-url)
+curl -s -m 10 --retry 5 {{ secrets.healthcheck_urls.backup_cleaning }}
 echo # to make a newline after the "OK" written by curl
 
 echo "End of script ($(date))"
