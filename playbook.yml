@@ -4,6 +4,8 @@
   roles:
     - role: common
       tags: bootstrap
+    - role: backup
+      tags: bootstrap
     - role: elasticsearch
       tags: bootstrap
     - role: mysql

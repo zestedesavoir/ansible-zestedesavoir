@@ -1,0 +1,60 @@
+- name: install borg
+  ansible.builtin.get_url:
+    url: https://github.com/borgbackup/borg/releases/download/1.1.17/borg-linux64
+    dest: /usr/local/bin/borg
+    mode: u=rwx,g=rx,o=rx
+
+- name: generate logrotate config file for backup logs
+  ansible.builtin.template:
+    src: "logrotate_zds-backup.j2"
+    dest: "/etc/logrotate.d/zds-backup"
+    mode: u=rw,g=r,o=r
+
+# On beta server:
+- name: create backup users on beta server
+  ansible.builtin.user:
+    name: "{{ item }}"
+    home: "/home/{{ item }}"
+    password: '!' # will do --disabled-password of adduser
+  with_items:
+    - zds-prod
+    - zds-matomo
+  when: env == "beta"
+
+- name: create .ssh folders for backup users on beta server
+  ansible.builtin.file:
+    path: "/home/{{ item }}/.ssh"
+    state: directory
+    owner: "{{ item }}"
+    group: "{{ item }}"
+    mode: u=rwx,g=,o=
+  with_items:
+    - zds-prod
+    - zds-matomo
+  when: env == "beta"
+
+- name: create .ssh/authorized_keys files for backup users on beta server
+  ansible.builtin.file:
+    path: "/home/{{ item }}/.ssh/authorized_keys"
+    state: touch
+    owner: "{{ item }}"
+    group: "{{ item }}"
+    mode: u=rw,g=,o=
+  with_items:
+    - zds-prod
+    - zds-matomo
+  when: env == "beta"
+
+- name: create backup cleaning script on beta server
+  ansible.builtin.template:
+    src: beta/cleaning.sh.j2
+    dest: /root/bin/backup_cleaning.sh
+    mode: u=rwx,g=r,o=
+  when: env == "beta"
+
+- name: create script to restore backup on beta server
+  ansible.builtin.template:
+    src: beta/restore-from-prod.sh.j2
+    dest: /root/bin/restore-from-prod.sh
+    mode: u=rwx,g=r,o=
+  when: env == "beta"

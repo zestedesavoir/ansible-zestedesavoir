@@ -246,7 +246,7 @@ backup2extbackup()
 
 Les logs des sauvegardes sont dans le dossier `/var/log/zds/`.  Ils sont
 archivés par les instructions `logrotate` du fichier
-[`/etc/logrotate.d/zds-backup`](../roles/backup/files/logrotate-zds-backup).
+[`/etc/logrotate.d/zds-backup`](../roles/backup/templates/logrotate_zds-backup.j2).
 
 
 ## Perdre des données, cela n'arrive pas qu'aux autres !
