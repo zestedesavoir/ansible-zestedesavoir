@@ -425,3 +425,11 @@
   tags:
     - bootstrap
     - upgrade
+
+- name: create /root/bin/service-zds.sh
+  ansible.builtin.copy:
+    src: "service-zds.sh"
+    dest: "/root/bin/service-zds.sh"
+    mode: u=rwx,g=,o=
+  tags:
+    - bootstrap
