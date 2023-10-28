@@ -50,7 +50,6 @@
 - name: include sshd configuration
   ansible.builtin.include_tasks: sshd.yml
 
-
 - name: create /bin folder for root
   ansible.builtin.file:
     path: /root/bin
