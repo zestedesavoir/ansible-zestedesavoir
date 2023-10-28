@@ -112,14 +112,15 @@ do
 	shift
 done
 
-readonly BACKUP_ROOT=/opt/sauvegarde
+readonly BACKUP_ROOT={{ backupdir }}
 readonly BORG_DB=$BACKUP_ROOT/db-borg
 readonly BORG_DATA=$BACKUP_ROOT/data
 readonly ZDS_ROOT={{ workdir }}
 readonly ZDS_WRAPPER=$ZDS_ROOT/wrapper
 readonly HETRIX_URL="{{ secrets.hetrix_urls.maintenance }}"
-readonly BACKUP_DB_TMP=/root/db-tmp # rather work on / than /opt/sauvegarde: there is more free space
-readonly BACKUP_DB_TMP_FULL=$BACKUP_DB_TMP/var/backups/mysql # rather work on / than /opt/sauvegarde: there is more free space
+readonly BACKUP_DB_TMP=/root/db-tmp # rather work on / than /opt/sauvegarde (legacy from older server with more space on /)
+readonly BACKUP_DB_TMP_FULL=$BACKUP_DB_TMP/var/backups/mysql # rather work on / than /opt/sauvegarde
+readonly BORG=/usr/local/bin/borg1.2.6
 
 
 # Step 1: prepare database backups
@@ -132,8 +133,8 @@ then
 		mkdir $BACKUP_DB_TMP
 		cd $BACKUP_DB_TMP
 		print_info "Extracting last database backup with borg..."
-		borg list --last 1 $BORG_DB
-		borg extract --verbose --progress $BORG_DB::$(borg list --last 1 --format '{archive}{NL}' $BORG_DB)
+		$BORG list --last 1 $BORG_DB
+		$BORG extract --verbose --progress $BORG_DB::$($BORG list --last 1 --format '{archive}{NL}' $BORG_DB)
         fi
 
 	cd $BACKUP_DB_TMP_FULL
@@ -255,10 +256,10 @@ then
 		echo "rm -rI $ZDS_ROOT/data..."
 		rm -rI $ZDS_ROOT/data # Rather move it, if we have enough space
 	fi
-	cd / # mandatory for the following borg command
+	cd / # mandatory for the following $BORG command
 	print_info "Restore backup with borg..."
-	borg list --last 1 $BORG_DATA
-	borg extract --verbose --progress $BORG_DATA::$(borg list --last 1 --format '{archive}{NL}' $BORG_DATA) ${ZDS_ROOT:1}/data
+	$BORG list --last 1 $BORG_DATA
+	$BORG extract --verbose --progress $BORG_DATA::$($BORG list --last 1 --format '{archive}{NL}' $BORG_DATA) ${ZDS_ROOT:1}/data
 fi
 
 if [ $update_zds -eq 1 ]

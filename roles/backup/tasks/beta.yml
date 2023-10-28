@@ -1,0 +1,53 @@
+- name: create backup folder on beta server
+  ansible.builtin.file:
+    path: "{{ backupdir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: u=rwx,g=rx,o=rx
+  with_items:
+    - zds-prod
+    - zds-matomo
+
+- name: create backup users on beta server
+  ansible.builtin.user:
+    name: "{{ item }}"
+    home: "/home/{{ item }}"
+    password: '!' # will do --disabled-password of adduser
+  with_items:
+    - zds-prod
+    - zds-matomo
+
+- name: create .ssh folders for backup users on beta server
+  ansible.builtin.file:
+    path: "/home/{{ item }}/.ssh"
+    state: directory
+    owner: "{{ item }}"
+    group: "{{ item }}"
+    mode: u=rwx,g=,o=
+  with_items:
+    - zds-prod
+    - zds-matomo
+
+- name: create .ssh/authorized_keys files for backup users on beta server
+  ansible.builtin.file:
+    path: "/home/{{ item }}/.ssh/authorized_keys"
+    state: touch
+    owner: "{{ item }}"
+    group: "{{ item }}"
+    mode: u=rw,g=,o=
+  with_items:
+    - zds-prod
+    - zds-matomo
+
+- name: create backup cleaning script on beta server
+  ansible.builtin.template:
+    src: beta/cleaning.sh.j2
+    dest: /root/bin/backup_cleaning.sh
+    mode: u=rwx,g=r,o=
+
+- name: create script to restore backup on beta server
+  ansible.builtin.template:
+    src: beta/restore-from-prod.sh.j2
+    dest: /root/bin/restore-from-prod.sh
+    mode: u=rwx,g=r,o=
