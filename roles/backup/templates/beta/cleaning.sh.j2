@@ -12,7 +12,7 @@ echo "** data ** ($(date))"
 sudo -u zds-prod $BORG $DATA_DB_RULES {{ backupdir }}/data/
 
 echo "** db ** ($(date))"
-sudo -u zds-prod $BORG $DATA_DB_RULES {{ backupdir }}/db-borg/
+sudo -u zds-prod $BORG $DATA_DB_RULES {{ backupdir }}/db/
 
 echo "** matomo ** ($(date))"
 sudo -u zds-matomo $BORG -m 1 --keep-within 9d {{ backupdir }}/matomo/

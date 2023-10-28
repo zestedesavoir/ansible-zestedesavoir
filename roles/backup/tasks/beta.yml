@@ -40,6 +40,25 @@
     - zds-prod
     - zds-matomo
 
+- name: create folder for borg data and database
+  ansible.builtin.file:
+    path: "{{ backupdir }}/{{ item }}"
+    state: directory
+    owner: zds-prod
+    group: zds-prod
+    mode: u=rwx,g=,o=
+  with_items:
+    - db
+    - data
+
+- name: create folder for borg matomo
+  ansible.builtin.file:
+    path: "{{ backupdir }}/matomo"
+    state: directory
+    owner: zds-matomo
+    group: zds-matomo
+    mode: u=rwx,g=,o=
+
 - name: create backup cleaning script on beta server
   ansible.builtin.template:
     src: beta/cleaning.sh.j2
