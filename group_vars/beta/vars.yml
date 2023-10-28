@@ -3,6 +3,7 @@
 appversion: dev
 env: beta
 http_host: beta.zestedesavoir.com
+backupdir: /opt/sauvegarde
 certificate:
   cert: /etc/letsencrypt/live/beta.zestedesavoir.com/fullchain.pem
   key: /etc/letsencrypt/live/beta.zestedesavoir.com/privkey.pem
