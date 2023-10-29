@@ -34,6 +34,10 @@
     - fr_FR.UTF-8
     - en_US.UTF-8
 
+- name: set timezone
+  community.general.timezone:
+    name: Europe/Paris
+
 - name: set default shell to zsh for root
   ansible.builtin.user:
     user: root
