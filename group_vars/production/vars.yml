@@ -2,6 +2,7 @@ appversion: v30.5-kresnik
 env: prod
 public: true
 http_host: zestedesavoir.com
+enable_https: true
 certificate:
   cert: /etc/letsencrypt/live/www.zestedesavoir.com/fullchain.pem
   key: /etc/letsencrypt/live/www.zestedesavoir.com/privkey.pem

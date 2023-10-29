@@ -14,7 +14,7 @@ server {
     listen 80 default_server;
     listen [::]:80 default_server;
 
-{% if certificate is defined and cert.stat.exists %}
+{% if enable_https %}
 {% if http_host %}
     server_name {{ http_host }};
 {% endif %}
@@ -53,7 +53,7 @@ server {
     server_tokens off;
     client_max_body_size 100M;
 
-{% if certificate is defined and cert.stat.exists %}
+{% if enable_https and certificate is defined %}
     ssl_certificate {{ certificate.cert }};
     ssl_certificate_key {{ certificate.key }};
     include snippets/ssl.conf;
