@@ -16,3 +16,6 @@
       tags: bootstrap
     - app
     - latex
+    - role: zdsantispam
+      tags: bootstrap
+      when: env == "beta"
