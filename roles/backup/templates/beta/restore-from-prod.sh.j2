@@ -169,7 +169,7 @@ then
 		echo "Error: the backup ${full_backup} doesn't seem valid"
 		exit
         fi
-	mkdir ${full_backup}/extracted
+	mkdir -p ${full_backup}/extracted
 	gunzip -c ${full_backup}/backup.stream.gz | mbstream -x -C ${full_backup}/extracted/
 	for b in ${incremental_backups[@]}
 	do
@@ -178,7 +178,7 @@ then
 			echo "Error: the backup ${b} doesn't seem valid"
 			exit
 		fi
-		mkdir ${b}/extracted
+		mkdir -p ${b}/extracted
 		gunzip -c ${b}/backup.stream.gz | mbstream -x -C ${b}/extracted/
 	done
 
@@ -205,7 +205,7 @@ then
 
 	cd $ZDS_ROOT/webroot
 	print_info "Enable maintenance page..."
-	ln -s errors/maintenance.html
+	ln -sf errors/maintenance.html
 	print_info "Stop services..."
 	systemctl stop zds
 	systemctl stop zds-watchdog
@@ -237,13 +237,15 @@ then
 	print_info "start-mysql" --bold
 	systemctl start mysql
 	systemctl status mysql --no-pager
+	mysql_upgrade -u debian-sys-maint
+	systemctl status mysql --no-pager
 fi
 
 # Update zds' MySQL password:
 if [ $update_mysql -eq 1 ]
 then
 	print_info "update-mysql" --bold
-	echo "ALTER USER 'zds'@'localhost' IDENTIFIED BY '$(sed -n '/databases.default/,/^password =/{p;/^password =/q}' $ZDS_ROOT/config.toml | tail -n 1 | sed -e 's/.*"\(.*\)"/\1/')'" | mysql
+	echo "ALTER USER 'zds'@'localhost' IDENTIFIED BY '$(sed -n '/databases.default/,/^password =/{p;/^password =/q}' $ZDS_ROOT/config.toml | tail -n 1 | sed -e 's/.*"\(.*\)"/\1/')'" | mysql -u debian-sys-maint
 fi
 
 # Restore the website data:

@@ -6,6 +6,14 @@
       - python3-mysqldb
     cache_valid_time: 3600
 
+- name: create /var/log/mysql folder  # seems to be required for mysql_upgrade after restoring backup from prod
+  ansible.builtin.file:
+    path: /var/log/mysql
+    state: directory
+    owner: mysql
+    group: mysql
+    mode: u=rwx,g=rx,o=rx
+
 - name: copy mariadb config files
   ansible.builtin.copy:
     src: 99-zds.cnf
