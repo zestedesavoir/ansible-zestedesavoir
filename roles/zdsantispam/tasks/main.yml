@@ -1,0 +1,22 @@
+- name: create /opt/zds-antispam folder with correct permissions
+  ansible.builtin.file:
+    path: "{{ zds_antispam_dir }}"
+    state: directory
+    owner: "{{ appuser }}"
+    group: "{{ appuser }}"
+    mode: u=rwx,g=rx,o=rx
+
+- name: checkout zds-antispam application  # noqa latest[git]
+  become: true
+  become_user: "{{ appuser }}"
+  ansible.builtin.git:
+    repo: "https://github.com/zestedesavoir/zds-antispam.git"
+    dest: "{{ zds_antispam_dir }}"
+
+- name: install Python dependencies  # this also creates the venv
+  become: true
+  become_user: "{{ appuser }}"
+  ansible.builtin.pip:
+    requirements: "{{ zds_antispam_dir }}/requirements.txt"
+    virtualenv: "{{ zds_antispam_dir }}/venv"
+    virtualenv_command: /usr/bin/python3 -m venv
