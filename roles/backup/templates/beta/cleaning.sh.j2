@@ -5,7 +5,7 @@ set -e
 echo "Starting script ($(date))"
 
 readonly DATA_DB_RULES="--keep-within 30d -w 6 -m 3"
-readonly BORG="/usr/local/bin/borg1.2.6 prune --list -stats"
+readonly BORG="/usr/local/bin/borg1.2.6 prune --list --stats"
 
 
 echo "** data ** ($(date))"
