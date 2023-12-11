@@ -1,0 +1,58 @@
+[wget_page]
+timeout 31
+env.names url1 url2{% if http_host %} url3 url4 url5 url6 url7{% endif %}
+
+env.timeout 20
+env.error_value 10
+env.max 20
+#
+env.url_url1 http{% if enable_https %}s{% endif %}://{% if http_host %}{{ http_host }}{% else %}127.0.0.1{% endif %}/
+env.label_url1 Accueil
+env.timeout_url1 10
+env.warning_url1 5
+env.critical_url1 8
+env.wget_opts_url1 -4
+#
+env.url_url2 http{% if enable_https %}s{% endif %}://{% if http_host %}{{ http_host }}{% else %}127.0.0.1{% endif %}/forums/
+env.label_url2 Accueil des forums
+env.timeout_url2 10
+env.warning_url2 5
+env.critical_url2 8
+env.wget_opts_url2 -4
+{% if http_host %}
+#
+env.url_url3 https://{{ http_host }}/forums/communaute/bug-suggestions/
+env.label_url3 Categorie de forums
+env.timeout_url3 10
+env.warning_url3 5
+env.critical_url3 8
+env.wget_opts_url3 -4
+#
+env.url_url4 https://{{ http_host }}/forums/sujet/273/les-petits-pixels/?page=3
+env.label_url4 Un topic
+env.timeout_url4 10
+env.warning_url4 5
+env.critical_url4 8
+env.wget_opts_url4 -4
+#
+env.url_url5 https://{{ http_host }}/tutoriels/656/debuter-sur-adobe-photoshop/
+env.label_url5 Un big-tuto
+env.timeout_url5 10
+env.warning_url5 5
+env.critical_url5 8
+env.wget_opts_url5 -4
+#
+env.url_url6 https://{{ http_host }}/tutoriels/251/la-3d-pour-le-jeu-video-avec-blender/
+env.label_url6 Un mini-tuto
+env.timeout_url6 10
+env.warning_url6 5
+env.critical_url6 8
+env.wget_opts_url6 -4
+#
+env.url_url7 https://{{ http_host }}/articles/20/ouverture-officielle-de-zeste-de-savoir/
+env.label_url7 Un article
+env.timeout_url7 10
+env.warning_url7 5
+env.critical_url7 8
+env.wget_opts_url7 -4
+{% endif %}

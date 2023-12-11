@@ -1,0 +1,3 @@
+[elasticsearch_*]
+env.host localhost
+env.port 9200

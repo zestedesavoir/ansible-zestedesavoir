@@ -1,0 +1,128 @@
+- name: install munin packages
+  ansible.builtin.apt:
+    pkg:
+      - munin
+      - munin-node
+      - libcache-cache-perl  # for mysql munin plugin
+      - libdbd-mysql-perl  # for mysql munin plugin
+      - liblwp-protocol-https-perl  # for nginx munin plugin
+      - time  # for wget_page munin plugin
+      - net-tools  # for netstat, used by a munin plugin
+    state: present
+    cache_valid_time: 3600
+
+- name: copy configuration file of munin
+  ansible.builtin.template:
+    src: munin.conf.j2
+    dest: /etc/munin/munin.conf
+    mode: u=rw,g=r,o=r
+  when: http_host is not false
+
+- name: create a munin-node override directory
+  ansible.builtin.file:
+    owner: root
+    group: root
+    mode: "0755"
+    path: /etc/systemd/system/munin-node.service.d
+    state: directory
+
+- name: override munin-node service to wait for other services to start
+  ansible.builtin.copy:
+    src: systemd/munin-node-override.conf
+    dest: /etc/systemd/system/munin-node.service.d/override.conf
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: get elasticsearch munin plugins
+  ansible.builtin.get_url:
+    url: https://raw.githubusercontent.com/y-ken/munin-plugin-elasticsearch/master/elasticsearch_{{ item }}
+    dest: "{{ munin_available_plugins_dir }}/elasticsearch_{{ item }}"
+    mode: u=rwx,g=rx,o=rx
+  with_items:
+    - cache
+    - cluster_shards
+    - docs
+    - gc_time
+    - index_size
+    - index_total
+    - jvm_memory
+    - jvm_pools_size
+    - jvm_threads
+    - open_files
+
+- name: get memcached_multi munin plugin
+  ansible.builtin.get_url:
+    url: https://raw.githubusercontent.com/mhwest13/Memcached-Munin-Plugin/master/memcached_multi_
+    dest: "{{ munin_available_plugins_dir }}/memcached_multi_"
+    mode: u=rwx,g=rx,o=rx
+
+- name: get wget_page munin plugin
+  ansible.builtin.get_url:
+    url: https://raw.githubusercontent.com/munin-monitoring/contrib/master/plugins/http/wget_page
+    dest: "{{ munin_available_plugins_dir }}/wget_page"
+    mode: u=rwx,g=rx,o=rx
+
+- name: copy django.py munin plugin # to be copied from zds-site tree when merged in it
+  ansible.builtin.copy:
+    src: plugins/django.py
+    dest: "{{ munin_available_plugins_dir }}/django.py"
+    mode: u=rwx,g=rx,o=rx
+
+- name: copy zmd munin plugin
+  ansible.builtin.copy:
+    remote_src: true
+    src: "{{ zmarkdown_dir }}/node_modules/zmarkdown/munin/zmd.sh"
+    dest: "{{ munin_available_plugins_dir }}/zmd"
+    mode: u=rwx,g=rx,o=rx
+
+- name: create symlinks for munin plugins
+  ansible.builtin.file:
+    src: "{{ munin_available_plugins_dir }}/{{ item.src }}"
+    dest: /etc/munin/plugins/{{ item.dest }}
+    state: link
+  with_items: "{{ munin_enabled_plugins }}"
+
+- name: check if postfix is installed
+  ansible.builtin.package:
+    name: postfix
+    state: present
+  check_mode: true
+  register: installed_postfix_check
+
+- name: create symlinks for postfix munin plugins
+  ansible.builtin.file:
+    src: "{{ munin_available_plugins_dir }}/{{ item.src }}"
+    dest: /etc/munin/plugins/{{ item.dest }}
+    state: link
+  with_items:
+    - { src: postfix_mailqueue, dest: postfix_mailqueue }
+    - { src: postfix_mailstats, dest: postfix_mailstats }
+    - { src: postfix_mailvolume, dest: postfix_mailvolume }
+  when: installed_postfix_check is succeeded
+
+- name: copy configuration file of ElasticSearch munin plugin
+  ansible.builtin.copy:
+    src: plugin-conf.d/elasticsearch
+    dest: /etc/munin/plugin-conf.d/elasticsearch
+    mode: u=rw,g=r,o=r
+
+- name: copy configuration file of wget_page munin plugin
+  ansible.builtin.template:
+    src: plugin-conf.d/wget_page.j2
+    dest: /etc/munin/plugin-conf.d/wget_page
+    mode: u=rw,g=r,o=r
+
+- name: use correct MySQL user for Munin plugin
+  ansible.builtin.lineinfile:
+    path: /etc/munin/plugin-conf.d/munin-node
+    regexp: '^env.mysqluser root'
+    line: 'env.mysqluser root'
+  when: env == "beta"
+
+- name: create table for django-munin  # should be created with a Django migration, but it is missing...
+  community.mysql.mysql_query:
+    login_user: "{{ mysql.user }}"
+    login_password: "{{ mysql.password }}"
+    login_db: "{{ mysql.name }}"
+    query: "CREATE TABLE IF NOT EXISTS munin_test (id integer NOT NULL PRIMARY KEY AUTO_INCREMENT, name varchar(256) NOT NULL);"

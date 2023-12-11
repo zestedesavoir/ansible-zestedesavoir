@@ -6,3 +6,6 @@ enable_https: true
 certificate:
   cert: /etc/letsencrypt/live/www.zestedesavoir.com/fullchain.pem
   key: /etc/letsencrypt/live/www.zestedesavoir.com/privkey.pem
+munin_certificate:
+  cert: /etc/letsencrypt/live/munin.zestedesavoir.com/fullchain.pem
+  key: /etc/letsencrypt/live/munin.zestedesavoir.com/privkey.pem

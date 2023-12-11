@@ -19,3 +19,5 @@
     - role: zdsantispam
       tags: bootstrap
       when: env == "beta"
+    - role: munin
+      tags: bootstrap

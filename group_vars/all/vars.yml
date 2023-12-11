@@ -4,6 +4,7 @@ appdir: "{{ workdir }}/app"
 datadir: "{{ workdir }}/data"
 webroot: "{{ workdir }}/webroot"
 virtualenv: "{{ workdir }}/virtualenv"
+zmarkdown_dir: "{{ appdir }}/zmd"
 zds_antispam_dir: /opt/zds-antispam
 logdir: /var/log/zds
 appuser: zds

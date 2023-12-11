@@ -8,6 +8,9 @@ enable_https: true
 certificate:
   cert: /etc/letsencrypt/live/beta.zestedesavoir.com/fullchain.pem
   key: /etc/letsencrypt/live/beta.zestedesavoir.com/privkey.pem
+munin_certificate:
+  cert: /etc/letsencrypt/live/munin.beta.zestedesavoir.com/fullchain.pem
+  key: /etc/letsencrypt/live/munin.beta.zestedesavoir.com/privkey.pem
 very_top_banner:
   background_color: '#800'
   border_color: '#450000'

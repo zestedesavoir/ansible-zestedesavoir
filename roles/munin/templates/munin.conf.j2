@@ -1,0 +1,32 @@
+# (Exactly one) directory to include all files from.
+includedir /etc/munin/munin-conf.d
+
+# The maximum time the munin-update may take to get updates from all nodes,
+# this might be interesting when using munin-async in case of large transactions and/or backlog.
+# When using the munin protocol to connect to a node, then this value shouldn't be set higher than 240.
+# In case it's higher, gaps might be seen in the graphs.
+timeout_fetch_all_nodes 240
+
+# The maximum amount of time in seconds we may work on 1 node.
+# The value will be limited with timeout_fetch_all_nodes.
+timeout_fetch_one_node 180
+
+[zds-site;zds-prod]
+{% if http_host == "beta.zestedesavoir.com" %}
+    address zestedesavoir.com
+{% else %}
+    address 127.0.0.1
+{% endif %}
+    use_node_name yes
+
+[zds-site;zds-beta]
+{% if http_host == "zestedesavoir.com" %}
+    address beta.zestedesavoir.com
+{% else %}
+    address 127.0.0.1
+{% endif %}
+    use_node_name yes
+
+[zds-matomo]
+    address matomo.zestedesavoir.com
+    use_node_name yes

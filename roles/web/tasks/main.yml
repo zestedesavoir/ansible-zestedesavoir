@@ -68,6 +68,30 @@
   notify: reload nginx
   when: env == "prod"
 
+- name: generate munin config file
+  ansible.builtin.template:
+    src: "nginx/sites-available/munin.j2"
+    dest: "/etc/nginx/sites-available/munin"
+    mode: u=rw,g=r,o=r
+  notify: reload nginx
+  when: http_host is not false
+
+- name: enable munin site
+  ansible.builtin.file:
+    src: "/etc/nginx/sites-available/munin"
+    dest: "/etc/nginx/sites-enabled/munin"
+    state: link
+  notify: reload nginx
+  when: http_host is not false
+
+- name: enable status
+  ansible.builtin.file:
+    src: "/etc/nginx/sites-available/status"
+    dest: "/etc/nginx/sites-enabled/status"
+    state: link
+  notify: reload nginx
+  when: http_host is not false
+
 - name: generate logrotate config file
   ansible.builtin.template:
     src: "logrotate/zds-nginx.j2"

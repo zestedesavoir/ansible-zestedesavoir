@@ -1,5 +1,6 @@
 appversion: dev
 env: prod
+http_host: false
 sentry_dsn: ""
 mysql:
   user: test

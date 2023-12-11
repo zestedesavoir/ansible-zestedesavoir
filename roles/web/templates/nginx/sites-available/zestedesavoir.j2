@@ -45,6 +45,24 @@ server {
     if ($host !~* ^({{ http_host }})$ ) {
         return 444;
     }
+{% else %}
+    # On Vagrant installations, we don't have server name, so serve Munin content as a subfolder
+    # (not 'munin' because it's a route used by Django)
+    location /munin-web/ {
+        alias /var/cache/munin/www/;
+        access_log off;
+        log_not_found off;
+    }
+
+    # On Vagrant installations, 127.0.0.1 is already use to serve the website, so
+    # we put here the /nginx_status end-point, instead of creating a 127.0.0.1 vhost.
+    location /nginx_status {
+        stub_status on;
+        access_log   off;
+        allow 127.0.0.1;
+        allow ::1;
+        deny all;
+    }
 {% endif %}
 
     root {{ webroot }};
@@ -123,5 +141,8 @@ server {
     error_page 503 @maintenance;
 
     include snippets/headers.conf;
+{% if http_host %}
+    {# antispam bans Perl user agent, which is used by Munin; in non-Vagrant setup, nginx status is in its own vhost which doesn't include antispam.conf #}
     include snippets/antispam.conf;
+{% endif %}
 }

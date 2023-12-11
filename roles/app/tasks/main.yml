@@ -259,6 +259,16 @@
     - bootstrap
     - upgrade
 
+- name: apply a patch to the Munin plugin of zmarkdown  # to be removed when the corresponding PRs will merged and released
+  become: true
+  become_user: "{{ appuser }}"
+  ansible.posix.patch:
+    src: zmd-munin.patch
+    dest: "{{ zmarkdown_dir }}/node_modules/zmarkdown/server/controllers/munin.js"
+  tags:
+    - bootstrap
+    - upgrade
+
 # Frontend building
 
 - name: build frontend  # noqa no-changed-when
