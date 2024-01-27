@@ -135,7 +135,11 @@ n'est pas souhaitable sur la bêta car l'espace disque y est assez restreint. Il
 a donc été désactivé en suivant les instructions de la documentation
 ([Frequently asked questions > The borg cache eats way too much disk space,
 what can I
-do?](https://borgbackup.readthedocs.io/en/stable/faq.html#the-borg-cache-eats-way-too-much-disk-space-what-can-i-do)).
+do?](https://borgbackup.readthedocs.io/en/stable/faq.html#the-borg-cache-eats-way-too-much-disk-space-what-can-i-do)) :
+> ```sh
+> cd ~/.cache/borg/$(borg config /path/to/repo id)
+> rm -rf chunks.archive.d ; touch chunks.archive.d
+> ```
 
 
 ### Mise en en place des dépôts Borg
