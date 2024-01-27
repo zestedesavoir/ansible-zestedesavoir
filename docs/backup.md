@@ -242,6 +242,22 @@ backup2extbackup()
 ```
 
 
+## Purger les dépôts Borg
+
+Exemples de commandes pour supprimer les anciennes sauvegardes (compléter en
+s'inspirant de comment Borg est appelé dans le script `backups.sh`) :
+```sh
+borg list beta-backup:/chemin | less
+
+# Garder toutes les sauvegardes qui ont moins de 3 mois et garde une sauvegarde
+# mensuelle des 6 derniers mois.
+# `-n` pour simuler la suppression et voir les sauvegardes qui vont être
+# supprimées.
+borg prune --keep-within 3m -m 6 --list --stats -n beta-backup:/chemin
+mote:./borg-data
+```
+
+
 ## Rotation des logs
 
 Les logs des sauvegardes sont dans le dossier `/var/log/zds/`.  Ils sont
