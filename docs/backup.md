@@ -258,7 +258,6 @@ borg list beta-backup:/chemin | less
 # `-n` pour simuler la suppression et voir les sauvegardes qui vont être
 # supprimées.
 borg prune --keep-within 3m -m 6 --list --stats -n beta-backup:/chemin
-mote:./borg-data
 ```
 
 
