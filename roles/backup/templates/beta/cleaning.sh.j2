@@ -5,21 +5,23 @@ set -e
 echo "Starting script ($(date))"
 
 readonly DATA_DB_RULES="--keep-within 30d -w 6 -m 3"
-readonly BORG="/usr/local/bin/borg1.2.6 prune --list --stats"
-
+readonly BORG_BINARY=/usr/local/bin/borg1.2.6
+readonly BORG_PRUNE="$BORG_BINARY prune --list --stats"
+readonly BORG_COMPACT="$BORG_BINARY compact --verbose"
 
 echo "** data ** ($(date))"
-sudo -u zds-prod $BORG $DATA_DB_RULES {{ backupdir }}/data/
+sudo -u zds-prod $BORG_PRUNE $DATA_DB_RULES /opt/sauvegarde/data/
+sudo -u zds-prod $BORG_COMPACT /opt/sauvegarde/data/
 
 echo "** db ** ($(date))"
-sudo -u zds-prod $BORG $DATA_DB_RULES {{ backupdir }}/db/
+sudo -u zds-prod $BORG_PRUNE $DATA_DB_RULES /opt/sauvegarde/db/
+sudo -u zds-prod $BORG_COMPACT /opt/sauvegarde/db/
 
 echo "** matomo ** ($(date))"
-sudo -u zds-matomo $BORG -m 1 --keep-within 9d {{ backupdir }}/matomo/
-
+sudo -u zds-matomo $BORG_PRUNE -m 1 --keep-within 9d /opt/sauvegarde/matomo/
+sudo -u zds-matomo $BORG_COMPACT /opt/sauvegarde/matomo/
 
 curl -s -m 10 --retry 5 {{ secrets.healthcheck_urls.backup_cleaning }}
 echo # to make a newline after the "OK" written by curl
-
 
 echo "End of script ($(date))"
