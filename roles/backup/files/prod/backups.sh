@@ -41,22 +41,22 @@ db_local_backup()
 	ln -s $NEXT/mariabackup.log $LATEST.log
 }
 
-backup2beta()
+backup2beta2023()
 {
-	echo "Backup data to the beta server..."
-	borg create                                        \
-	    --verbose                                      \
-	    --filter AME                                   \
-	    --list                                         \
-	    --stats                                        \
-	    --show-rc                                      \
-	    --compression lz4                              \
-	    --exclude-caches                               \
-	    beta-backup:/opt/sauvegarde/data::$BACKUP_DATE \
+	echo "Backup data to the 2023 beta server..."
+	borg1.2.6 create                                        \
+	    --verbose                                           \
+	    --filter AME                                        \
+	    --list                                              \
+	    --stats                                             \
+	    --show-rc                                           \
+	    --compression zstd,6                                \
+	    --exclude-caches                                    \
+	    beta-backup-2023:/opt/sauvegarde/data::$BACKUP_DATE \
 	    $DATA_SAVED_DIR
 
-	echo "Backup database to the beta server..."
-	borg create                                           \
+	echo "Backup database to the 2023 beta server..."
+	borg1.2.6 create                                      \
 	    --verbose                                         \
 	    --filter AME                                      \
 	    --list                                            \
@@ -65,7 +65,7 @@ backup2beta()
 	    --compression zstd,6                              \
 	    --exclude-caches                                  \
 	    --info                                            \
-	    beta-backup:/opt/sauvegarde/db-borg::$BACKUP_DATE \
+	    beta-backup-2023:/opt/sauvegarde/db::$BACKUP_DATE \
 	    $DB_SAVED_DIR
 }
 
@@ -103,7 +103,7 @@ else
 	db_local_backup
 fi
 
-backup2beta
+backup2beta2023
 # Créer des fonctions comme backup2beta et les appeler ici pour les dépôts externes
 
 if [ "$(date '+%H')" -eq "04" ]; then
