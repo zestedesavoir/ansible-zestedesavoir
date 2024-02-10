@@ -74,18 +74,19 @@ serveur de bêta (fonction `data_borg_backup` du script `backups.sh`).
 
 ### Serveur de bêta
 
-Un volume de 50 Go dédié aux sauvegardes est monté sur `/opt/sauvegarde` sur le
-serveur de bêta et contient :
+Le dossier `/opt/sauvegarde` sur le serveur de bêta contient :
 - le dépôt pour les sauvegardes de la base de données dans
   `/opt/sauvegarde/db-borg` ;
 - le dépôt pour les sauvegardes des contenus du site dans
-  `/opt/sauvegarde/data`.
+  `/opt/sauvegarde/data` ;
+- le dépôt pour les sauvegardes du serveur Matomo dans
+  `/opt/sauvegarde/matomo` ;
 
-Les sauvegardes de plus de 60 jours sont supprimées par un
-[script](../roles/backup/beta/cleaning.sh) exécuté quotidiennement :
+Les anciennes sauvegardes sont supprimées par un
+[script](../roles/backup/templates/beta/cleaning.sh.j2) exécuté quotidiennement :
 ```cron
 # min hour dom month dow command
-0 5 * * * /opt/sauvegarde/cleaning.sh >> /var/log/zds/backups-cleaning.log 2>&1
+0 5 * * * /root/bin/backup_cleaning.sh >> /var/log/zds/backups-cleaning.log 2>&1
 ```
 
 ### Surveillance
@@ -99,7 +100,7 @@ l'adresse technique pour indiquer qu'il n'a pas reçu une notification.
 ## Restauration des sauvegardes (synchronisation de la bêta avec la prod)
 
 Le script
-[`restore-from-prod.sh`](../roles/backup/files/beta/restore-from-prod.sh)
+[`restore-from-prod.sh`](../roles/backup/templates/beta/restore-from-prod.sh.j2)
 permet de restaurer la bêta à partir des sauvegardes de la prod. Il faut
 l'exécuter en root et préciser ce qu'il doit faire :
 ```sh
@@ -122,10 +123,6 @@ mv borg-linux64 /usr/local/bin/borg
 chown root:root /usr/local/bin/borg
 chmod 755 /usr/local/bin/borg
 ```
-On reste actuellement sur la branche 1.1.*, car comme dit la
-[documentation](https://borgbackup.readthedocs.io/en/stable/changes.html#version-1-2-0-2022-02-22-22-02-22) :
-*do you already want to upgrade? 1.1.x also will get fixes for a while*.
-
 Par défaut, borg n'est pas très verbeux donc il ne faut pas hésiter à lui
 demander une barre de progression avec `-p` ou un peu plus de verbosité avec
 `-v` !
