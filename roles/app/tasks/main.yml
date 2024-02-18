@@ -16,6 +16,7 @@
       - optipng  # for easy-thumbnails Python package
       - jpegoptim  # for easy-thumbnails Python package
       - memcached  # for cache storage in prod configuration
+      - pkg-config  # for mysqlclient since version 2.2.0
     state: present
     cache_valid_time: 3600
   tags:
