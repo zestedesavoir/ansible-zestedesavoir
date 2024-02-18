@@ -11,16 +11,15 @@ Ces deux serveurs doivent être identiques autant que possible pour pouvoir repr
 
 | Paramètre                                                    | Valeur               |
 | ------------------------------------------------------------ | -------------------- |
-| Système d'exploitation                                       | Debian 10 « Buster » |
+| Système d'exploitation                                       | Debian 12 « Bookworm » |
 | Serveur web                                                  | nginx                |
 | Interface WSGI (entre le serveur web et Django)              | Gunicorn             |
 | Base de donnée                                               | MariaDB              |
 | Moteur de recherche                                          | ElasticSearch        |
-| Outil de surveillance du système d'exploitation et des requêtes de Zeste de Savoir * | Munin                |
-| Outil de surveillance des erreurs de Zeste de Savoir *       | Sentry               |
+| Outil de surveillance du système d'exploitation et des requêtes de Zeste de Savoir | Munin                |
+| Outil de surveillance des erreurs de Zeste de Savoir         | Sentry               |
 | Outil pour les certificats TLS                               | Certbot              |
 
-\* Actuellement, les deux outils de surveillance sont installés sur un serveur à part du serveur de production. (Un serveur appartenant à [vhf] pour le Munin et un serveur appartenant à [Sandhose] pour le Sentry.)
 
 ## Arborescence des fichiers
 
@@ -31,8 +30,3 @@ Ces deux serveurs doivent être identiques autant que possible pour pouvoir repr
 | Dossier avec les données importantes à sauvegarder (dépôts Git des contenus et images des galeries) | `/opt/zds/data`                            |
 | Base de données à sauvegarder (et ses sauvegardes régulières) | `/var/lib/mysql` (et `/var/backups/mysql`) |
 | Fichiers de journalisation                                   | `/var/log/zds`                             |
-
-<!-- Liens vers les pseudos -->
-
-[vhf]: https://github.com/vhf
-[Sandhose]: https://github.com/sandhose
