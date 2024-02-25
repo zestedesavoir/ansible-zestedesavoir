@@ -75,9 +75,10 @@
     dest: "{{ munin_available_plugins_dir }}/wget_page"
     mode: u=rwx,g=rx,o=rx
 
-- name: copy django.py munin plugin # to be copied from zds-site tree when merged in it
+- name: copy django.py munin plugin
   ansible.builtin.copy:
-    src: plugins/django.py
+    remote_src: true
+    src: "{{ appdir }}/django_munin/plugins/django.py"
     dest: "{{ munin_available_plugins_dir }}/django.py"
     mode: u=rwx,g=rx,o=rx
 
@@ -131,10 +132,3 @@
     regexp: '^env.mysqluser root'
     line: 'env.mysqluser root'
   when: env == "beta"
-
-- name: create table for django-munin  # should be created with a Django migration, but it is missing...
-  community.mysql.mysql_query:
-    login_user: "{{ mysql.user }}"
-    login_password: "{{ mysql.password }}"
-    login_db: "{{ mysql.name }}"
-    query: "CREATE TABLE IF NOT EXISTS munin_test (id integer NOT NULL PRIMARY KEY AUTO_INCREMENT, name varchar(256) NOT NULL);"
