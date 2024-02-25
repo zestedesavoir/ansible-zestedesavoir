@@ -16,7 +16,19 @@
     src: munin.conf.j2
     dest: /etc/munin/munin.conf
     mode: u=rw,g=r,o=r
-  when: http_host is not false
+  when: http_host is not false  # when we are not in Vagrant
+
+- name: makes munin-node listen on IPv4 in Vagrant
+  # otherwise there is a bug in Munin preventing munin-node to start, probably
+  # because there is no IPv6 in the Vagrant box
+  ansible.builtin.copy:
+    src: etc/munin-node.conf
+    dest: /etc/munin/munin-node.conf
+    owner: root
+    group: root
+    mode: "0644"
+  notify: restart munin-node
+  when: http_host is false  # when we are in Vagrant
 
 - name: create a munin-node override directory
   ansible.builtin.file:
