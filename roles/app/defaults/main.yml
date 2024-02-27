@@ -1,10 +1,5 @@
 apprepo: "https://github.com/zestedesavoir/zds-site.git"
 env: dev
 secrets: []
-google_analytics_api:
-  type: "service_account"
-  auth_uri: "https://accounts.google.com/o/oauth2/auth"
-  token_uri: "https://accounts.google.com/o/oauth2/token"
-  auth_provider_x509_cert_url: "https://www.googleapis.com/oauth2/v1/certs"
 zmarkdown_sentry_dsn: ""
 load_fixtures: false

@@ -122,18 +122,6 @@
     - bootstrap
     - upgrade
 
-- name: create Google Analytics API secrets file
-  ansible.builtin.copy:
-    content: "{{ google_analytics_api | combine(secrets.google_analytics_api) | to_nice_json }}"
-    dest: "{{ appdir }}/api_analytics_secrets.json"
-    owner: "{{ appuser }}"
-    group: "{{ appuser }}"
-    mode: u=rw,g=r,o=r
-  when: secrets.google_analytics_api is defined
-  tags:
-    - bootstrap
-    - upgrade
-
 - name: create webroot
   ansible.builtin.file:
     path: "{{ webroot }}"
