@@ -1,4 +1,5 @@
 - name: install requirements in virtualenv to load fixtures
+  become: true
   become_user: "{{ appuser }}"
   ansible.builtin.pip:
     requirements: "{{ appdir }}/requirements-dev.txt"
@@ -13,5 +14,6 @@
       /opt/zds/wrapper loaddata {{ appdir }}/fixtures/*.yaml &&
       /opt/zds/wrapper load_factory_data {{ appdir }}/fixtures/advanced/aide_tuto_media.yaml &&
       /opt/zds/wrapper load_fixtures --size=low --all &&
-      touch {{ appdir }}/.loaded_fixtures; \
+      touch {{ appdir }}/.loaded_fixtures &&
+      /opt/zds/wrapper es_manager index_all; \
     fi

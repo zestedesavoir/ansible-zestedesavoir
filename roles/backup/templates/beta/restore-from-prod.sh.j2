@@ -112,14 +112,15 @@ do
 	shift
 done
 
-readonly BACKUP_ROOT=/opt/sauvegarde
-readonly BORG_DB=$BACKUP_ROOT/db-borg
+readonly BACKUP_ROOT={{ backupdir }}
+readonly BORG_DB=$BACKUP_ROOT/db
 readonly BORG_DATA=$BACKUP_ROOT/data
-readonly ZDS_ROOT=/opt/zds
+readonly ZDS_ROOT={{ workdir }}
 readonly ZDS_WRAPPER=$ZDS_ROOT/wrapper
-readonly HETRIX_URL_FILE=/root/hetrix-maintenance-url
-readonly BACKUP_DB_TMP=/root/db-tmp # rather work on / than /opt/sauvegarde: there is more free space
-readonly BACKUP_DB_TMP_FULL=$BACKUP_DB_TMP/var/backups/mysql # rather work on / than /opt/sauvegarde: there is more free space
+readonly HETRIX_URL="{{ secrets.hetrix_urls.maintenance }}"
+readonly BACKUP_DB_TMP=/root/db-tmp # rather work on / than /opt/sauvegarde (legacy from older server with more space on /)
+readonly BACKUP_DB_TMP_FULL=$BACKUP_DB_TMP/var/backups/mysql # rather work on / than /opt/sauvegarde
+readonly BORG=/usr/local/bin/borg1.2.6
 
 
 # Step 1: prepare database backups
@@ -132,8 +133,8 @@ then
 		mkdir $BACKUP_DB_TMP
 		cd $BACKUP_DB_TMP
 		print_info "Extracting last database backup with borg..."
-		borg list --last 1 $BORG_DB
-		borg extract --verbose --progress $BORG_DB::$(borg list --last 1 --format '{archive}{NL}' $BORG_DB)
+		$BORG list --last 1 $BORG_DB
+		$BORG extract --verbose --progress $BORG_DB::$($BORG list --last 1 --format '{archive}{NL}' $BORG_DB)
         fi
 
 	cd $BACKUP_DB_TMP_FULL
@@ -168,7 +169,7 @@ then
 		echo "Error: the backup ${full_backup} doesn't seem valid"
 		exit
         fi
-	mkdir ${full_backup}/extracted
+	mkdir -p ${full_backup}/extracted
 	gunzip -c ${full_backup}/backup.stream.gz | mbstream -x -C ${full_backup}/extracted/
 	for b in ${incremental_backups[@]}
 	do
@@ -177,7 +178,7 @@ then
 			echo "Error: the backup ${b} doesn't seem valid"
 			exit
 		fi
-		mkdir ${b}/extracted
+		mkdir -p ${b}/extracted
 		gunzip -c ${b}/backup.stream.gz | mbstream -x -C ${b}/extracted/
 	done
 
@@ -196,16 +197,15 @@ fi
 if [ $stop_website -eq 1 ]
 then
 	print_info "stop-website" --bold
-	if [ -e $HETRIX_URL_FILE ]
-	then
-		print_info "Enable maintenance mode in Hetrix..."
-		# See https://hetrixtools.com/dashboard/api-explorer/ and "v2 Uptime Maintenance Mode":
-		curl $(cat $HETRIX_URL_FILE)3/
-		echo
-	fi
+
+	print_info "Enable maintenance mode in Hetrix..."
+	# See https://hetrixtools.com/dashboard/api-explorer/ and "v2 Uptime Maintenance Mode":
+	curl ${HETRIX_URL}3/
+	echo
+
 	cd $ZDS_ROOT/webroot
 	print_info "Enable maintenance page..."
-	ln -s errors/maintenance.html
+	ln -sf errors/maintenance.html
 	print_info "Stop services..."
 	systemctl stop zds
 	systemctl stop zds-watchdog
@@ -237,13 +237,15 @@ then
 	print_info "start-mysql" --bold
 	systemctl start mysql
 	systemctl status mysql --no-pager
+	mysql_upgrade -u debian-sys-maint
+	systemctl status mysql --no-pager
 fi
 
 # Update zds' MySQL password:
 if [ $update_mysql -eq 1 ]
 then
 	print_info "update-mysql" --bold
-	echo "ALTER USER 'zds'@'localhost' IDENTIFIED BY '$(sed -n '/databases.default/,/^password =/{p;/^password =/q}' /opt/zds/config.toml | tail -n 1 | sed -e 's/.*"\(.*\)"/\1/')'" | mysql
+	echo "ALTER USER 'zds'@'localhost' IDENTIFIED BY '$(sed -n '/databases.default/,/^password =/{p;/^password =/q}' $ZDS_ROOT/config.toml | tail -n 1 | sed -e 's/.*"\(.*\)"/\1/')'" | mysql -u debian-sys-maint
 fi
 
 # Restore the website data:
@@ -256,10 +258,10 @@ then
 		echo "rm -rI $ZDS_ROOT/data..."
 		rm -rI $ZDS_ROOT/data # Rather move it, if we have enough space
 	fi
-	cd / # mandatory for the following borg command
+	cd / # mandatory for the following $BORG command
 	print_info "Restore backup with borg..."
-	borg list --last 1 $BORG_DATA
-	borg extract --verbose --progress $BORG_DATA::$(borg list --last 1 --format '{archive}{NL}' $BORG_DATA) opt/zds/data
+	$BORG list --last 1 $BORG_DATA
+	$BORG extract --verbose --progress $BORG_DATA::$($BORG list --last 1 --format '{archive}{NL}' $BORG_DATA) ${ZDS_ROOT:1}/data
 fi
 
 if [ $update_zds -eq 1 ]
@@ -283,12 +285,10 @@ then
 	systemctl start zds-watchdog
 	print_info "Disable maintenance page..."
 	rm $ZDS_ROOT/webroot/maintenance.html
-	if [ -e $HETRIX_URL_FILE ]
-	then
-		print_info "Disable maintenance mode in Hetrix..."
-		curl $(cat $HETRIX_URL_FILE)1/
-		echo
-	fi
+
+	print_info "Disable maintenance mode in Hetrix..."
+	curl ${HETRIX_URL}1/
+	echo
 fi
 
 

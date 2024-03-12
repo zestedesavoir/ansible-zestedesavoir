@@ -1,7 +1,10 @@
-- hosts: app
+- name: deploy zds-site
+  hosts: app
   become: true
   roles:
     - role: common
+      tags: bootstrap
+    - role: backup
       tags: bootstrap
     - role: elasticsearch
       tags: bootstrap
@@ -13,3 +16,8 @@
       tags: bootstrap
     - app
     - latex
+    - role: zdsantispam
+      tags: bootstrap
+      when: env == "beta"
+    - role: munin
+      tags: bootstrap

@@ -1,38 +1,3 @@
-- name: should have some base packages
-  ansible.builtin.apt:
-    pkg:
-      - locales
-      - vim
-      - git
-      - htop
-      - zsh
-      - logrotate
-      - tmux
-      - acl  # Allow Ansible to use 'become' command (see https://docs.ansible.com/ansible/latest/user_guide/become.html#risks-and-limitations-of-become)
-    state: present
-    cache_valid_time: 3600
-
-- name: should have UTF-8 locales enabled
-  community.general.locale_gen:
-    name: "{{ item }}"
-    state: present
-  with_items:
-    - fr_FR.UTF-8
-    - en_US.UTF-8
-
-- name: set default shell to zsh for root
-  ansible.builtin.user:
-    user: root
-    shell: /usr/bin/zsh
-
-- name: copy zsh config files
-  ansible.builtin.copy:
-    src: "{{ item.src }}"
-    dest: "/etc/zsh/{{ item.path }}"
-    mode: u=rw,g=r,o=r
-  with_filetree: zsh/
-  when: item.state == 'file'
-
 - name: ensure the system can use the HTTPS transport for APT
   ansible.builtin.stat:
     path: /usr/lib/apt/methods/https
@@ -44,9 +9,55 @@
     state: present
   when: not apt_https_transport.stat.exists
 
-- name: install basic Python packages
+- name: should have some base packages
   ansible.builtin.apt:
     pkg:
+      - acl  # Allow Ansible to use 'become' command (see https://docs.ansible.com/ansible/latest/user_guide/become.html#risks-and-limitations-of-become)
+      - git
+      - htop
+      - locales
+      - logrotate
       - python3
       - python3-pip
+      - sudo
+      - tmux
+      - vim
+      - zsh
     state: present
+    cache_valid_time: 3600
+
+- name: should have UTF-8 locales enabled
+  community.general.locale_gen:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - fr_FR.UTF-8
+    - en_US.UTF-8
+
+- name: set timezone
+  community.general.timezone:
+    name: Europe/Paris
+
+- name: set default shell to zsh for root
+  ansible.builtin.user:
+    user: root
+    shell: /usr/bin/zsh
+
+- name: copy zsh config files
+  ansible.builtin.copy:
+    src: "{{ item.src }}"
+    dest: "/etc/zsh/{{ item.path }}"
+    mode: u=rw,g=r,o=r
+  with_community.general.filetree: zsh/
+  when: item.state == 'file'
+
+- name: include sshd configuration
+  ansible.builtin.include_tasks: sshd.yml
+
+- name: create /bin folder for root
+  ansible.builtin.file:
+    path: /root/bin
+    state: directory
+    owner: root
+    group: root
+    mode: u=rwx,g=,o=

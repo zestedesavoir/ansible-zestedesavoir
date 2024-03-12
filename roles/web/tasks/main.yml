@@ -1,25 +1,15 @@
-- name: add nginx repository key
-  ansible.builtin.apt_key:
-    id: 573BFD6B3D8FBC641079A6ABABF5BD827BD9BF62
-    keyserver: "hkp://keyserver.ubuntu.com:80"
-
-- name: add nginx repository
-  ansible.builtin.apt_repository:
-    filename: nginx
-    repo: "deb https://nginx.org/packages/debian/ {{ ansible_distribution_release }} nginx"
-    state: present
-  register: repo
-
 - name: install nginx
   ansible.builtin.apt:
     pkg: nginx
     cache_valid_time: 3600
 
-- name: check if tls certificate is present
-  ansible.builtin.stat:
-    path: "{{ certificate.cert }}"
-  register: cert
-  when: certificate is defined
+- name: install certbot
+  ansible.builtin.apt:
+    pkg:
+      - certbot
+      - python3-certbot-nginx
+    cache_valid_time: 3600
+  when: enable_https
 
 - name: create config dirs
   ansible.builtin.file:
@@ -31,12 +21,20 @@
     - sites-available/
     - sites-enabled/
 
+- name: remove default configuration shipped with nginx package
+  ansible.builtin.file:
+    path: "/etc/nginx/{{ item }}/default"
+    state: absent
+  with_items:
+    - sites-available
+    - sites-enabled
+
 - name: copy config files
   ansible.builtin.copy:
     src: "{{ item.src }}"
     dest: "/etc/nginx/{{ item.path }}"
     mode: u=rw,g=r,o=r
-  with_filetree: nginx/
+  with_community.general.filetree: nginx/
   when: item.state == 'file'
   notify: reload nginx
 
@@ -69,6 +67,30 @@
     state: link
   notify: reload nginx
   when: env == "prod"
+
+- name: generate munin config file
+  ansible.builtin.template:
+    src: "nginx/sites-available/munin.j2"
+    dest: "/etc/nginx/sites-available/munin"
+    mode: u=rw,g=r,o=r
+  notify: reload nginx
+  when: http_host is not false
+
+- name: enable munin site
+  ansible.builtin.file:
+    src: "/etc/nginx/sites-available/munin"
+    dest: "/etc/nginx/sites-enabled/munin"
+    state: link
+  notify: reload nginx
+  when: http_host is not false
+
+- name: enable status
+  ansible.builtin.file:
+    src: "/etc/nginx/sites-available/status"
+    dest: "/etc/nginx/sites-enabled/status"
+    state: link
+  notify: reload nginx
+  when: http_host is not false
 
 - name: generate logrotate config file
   ansible.builtin.template:

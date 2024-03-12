@@ -1,0 +1,4 @@
+- name: restart munin-node
+  ansible.builtin.systemd:
+    name: munin-node
+    state: restarted

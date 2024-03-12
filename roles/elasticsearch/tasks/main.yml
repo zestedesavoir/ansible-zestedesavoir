@@ -9,10 +9,10 @@
     repo: "deb https://artifacts.elastic.co/packages/5.x/apt stable main"
     state: present
 
-- name: install openjdk-11-jre-headless and elasticsearch
+- name: install openjdk-17-jre-headless and elasticsearch
   ansible.builtin.apt:
     pkg:
-      - openjdk-11-jre-headless
+      - openjdk-17-jre-headless
       - elasticsearch
     cache_valid_time: 3600
 

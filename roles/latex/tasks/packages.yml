@@ -16,10 +16,11 @@
     - bootstrap
 
 - name: check ansible state
-  ansible.builtin.slurp: src=/opt/zds/texmf/ansible-state
+  ansible.builtin.slurp:
+    src: /opt/zds/texmf/ansible-state
   register: installed_packages
 
-- name: install packages  # noqa risky-shell-pipe
+- name: install packages  # noqa risky-shell-pipe no-changed-when
   become: true
   become_user: "{{ appuser }}"
   ansible.builtin.shell: >
@@ -53,5 +54,6 @@
   ansible.builtin.get_url:
     url: https://raw.githubusercontent.com/tabu-issues-for-future-maintainer/tabu/master/tabu.sty
     dest: /opt/zds/texmf/tex/latex/tabu/tabu.sty
+    mode: u=rw,g=r,o=r
   tags:
     - bootstrap

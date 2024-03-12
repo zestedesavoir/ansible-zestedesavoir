@@ -75,6 +75,12 @@ bindkey '[4~' end-of-line
 bindkey '[H'  beginning-of-line
 bindkey '[F'  end-of-line
 
+# [Ctrl-RightArrow] - move forward one word
+bindkey '^[[1;5C' forward-word
+# [Ctrl-LeftArrow] - move backward one word
+bindkey '^[[1;5D' backward-word
+
+
 # killall
 zstyle ':completion:*:killall:*' command 'ps -u $USER -o cmd'
 zstyle ':completion:*:sudo killall:*' command 'ps -o cmd'

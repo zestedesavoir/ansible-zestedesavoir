@@ -74,18 +74,19 @@ serveur de bêta (fonction `data_borg_backup` du script `backups.sh`).
 
 ### Serveur de bêta
 
-Un volume de 50 Go dédié aux sauvegardes est monté sur `/opt/sauvegarde` sur le
-serveur de bêta et contient :
+Le dossier `/opt/sauvegarde` sur le serveur de bêta contient :
 - le dépôt pour les sauvegardes de la base de données dans
   `/opt/sauvegarde/db-borg` ;
 - le dépôt pour les sauvegardes des contenus du site dans
-  `/opt/sauvegarde/data`.
+  `/opt/sauvegarde/data` ;
+- le dépôt pour les sauvegardes du serveur Matomo dans
+  `/opt/sauvegarde/matomo` ;
 
-Les sauvegardes de plus de 60 jours sont supprimées par un
-[script](../roles/backup/beta/cleaning.sh) exécuté quotidiennement :
+Les anciennes sauvegardes sont supprimées par un
+[script](../roles/backup/templates/beta/cleaning.sh.j2) exécuté quotidiennement :
 ```cron
 # min hour dom month dow command
-0 5 * * * /opt/sauvegarde/cleaning.sh >> /var/log/zds/backups-cleaning.log 2>&1
+0 5 * * * /root/bin/backup_cleaning.sh >> /var/log/zds/backups-cleaning.log 2>&1
 ```
 
 ### Surveillance
@@ -99,7 +100,7 @@ l'adresse technique pour indiquer qu'il n'a pas reçu une notification.
 ## Restauration des sauvegardes (synchronisation de la bêta avec la prod)
 
 Le script
-[`restore-from-prod.sh`](../roles/backup/files/beta/restore-from-prod.sh)
+[`restore-from-prod.sh`](../roles/backup/templates/beta/restore-from-prod.sh.j2)
 permet de restaurer la bêta à partir des sauvegardes de la prod. Il faut
 l'exécuter en root et préciser ce qu'il doit faire :
 ```sh
@@ -122,10 +123,6 @@ mv borg-linux64 /usr/local/bin/borg
 chown root:root /usr/local/bin/borg
 chmod 755 /usr/local/bin/borg
 ```
-On reste actuellement sur la branche 1.1.*, car comme dit la
-[documentation](https://borgbackup.readthedocs.io/en/stable/changes.html#version-1-2-0-2022-02-22-22-02-22) :
-*do you already want to upgrade? 1.1.x also will get fixes for a while*.
-
 Par défaut, borg n'est pas très verbeux donc il ne faut pas hésiter à lui
 demander une barre de progression avec `-p` ou un peu plus de verbosité avec
 `-v` !
@@ -135,7 +132,11 @@ n'est pas souhaitable sur la bêta car l'espace disque y est assez restreint. Il
 a donc été désactivé en suivant les instructions de la documentation
 ([Frequently asked questions > The borg cache eats way too much disk space,
 what can I
-do?](https://borgbackup.readthedocs.io/en/stable/faq.html#the-borg-cache-eats-way-too-much-disk-space-what-can-i-do)).
+do?](https://borgbackup.readthedocs.io/en/stable/faq.html#the-borg-cache-eats-way-too-much-disk-space-what-can-i-do)) :
+> ```sh
+> cd ~/.cache/borg/$(borg config /path/to/repo id)
+> rm -rf chunks.archive.d ; touch chunks.archive.d
+> ```
 
 
 ### Mise en en place des dépôts Borg
@@ -175,6 +176,17 @@ Initialiser le dépôt Borg, depuis le serveur de prod, en root :
 ```sh
 borg init -e none beta-backup:/opt/sauvegarde/db-borg
 ```
+
+> Attention, il peut être nécessaire de forcer l'utilisation de l'IPv4. Dans ce
+> cas, il faut rajouter `AddressFamily inet` au fichier `.ssh/config` et
+> utiliser une IPv4 dans le fichier `authorized_keys` (on ne peut pas utiliser
+> de nom de domaine, à moins de passer `UseDNS` à `true` dans
+> `/etc/ssh/sshd_config`). En pratique, on en a besoin pour les sauvegardes du
+> seveur hébergeant Matomo vers le serveur de bêta, car Scaleway [ne fournit
+> pas d'IPv6 fixe pour les
+> serveurs](https://feature-request.scaleway.com/posts/209/truly-static-ipv6),
+> ni de [moyen de définir un enregistrement DNS
+> inverse](https://feature-request.scaleway.com/posts/73/reverse-name-support-for-public-ipv6).
 
 
 ## Sauvegardes externes
@@ -231,11 +243,26 @@ backup2extbackup()
 ```
 
 
+## Purger les dépôts Borg
+
+Exemples de commandes pour supprimer les anciennes sauvegardes (compléter en
+s'inspirant de comment Borg est appelé dans le script `backups.sh`) :
+```sh
+borg list beta-backup:/chemin | less
+
+# Garder toutes les sauvegardes qui ont moins de 3 mois et garde une sauvegarde
+# mensuelle des 6 derniers mois.
+# `-n` pour simuler la suppression et voir les sauvegardes qui vont être
+# supprimées.
+borg prune --keep-within 3m -m 6 --list --stats -n beta-backup:/chemin
+```
+
+
 ## Rotation des logs
 
 Les logs des sauvegardes sont dans le dossier `/var/log/zds/`.  Ils sont
 archivés par les instructions `logrotate` du fichier
-[`/etc/logrotate.d/zds-backup`](../roles/backup/files/logrotate-zds-backup).
+[`/etc/logrotate.d/zds-backup`](../roles/backup/templates/logrotate_zds-backup.j2).
 
 
 ## Perdre des données, cela n'arrive pas qu'aux autres !
