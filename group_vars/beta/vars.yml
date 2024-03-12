@@ -1,6 +1,6 @@
 # For a PR: pull/xxxx/head
 # For a branch or a tag: just its name
-appversion: dev
+appversion: release_v30.6
 env: beta
 http_host: beta.zestedesavoir.com
 backupdir: /opt/sauvegarde
@@ -15,5 +15,5 @@ very_top_banner:
   background_color: '#800'
   border_color: '#450000'
   color: 'white'
-  message: 'Version bêta'
+  message: 'Version bêta (Préparation version 30.6)'
   slug: 'version-beta'
