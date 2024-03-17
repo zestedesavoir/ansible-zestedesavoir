@@ -1,4 +1,4 @@
-appversion: v30.5-kresnik
+appversion: v30.6-ostara
 env: prod
 public: true
 http_host: zestedesavoir.com
