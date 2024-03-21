@@ -25,7 +25,7 @@
   become_user: "{{ appuser }}"
   ansible.builtin.git:
     repo: "https://github.com/zestedesavoir/latex-template/"
-    dest: /opt/zds/texmf/tex/generic/latex-template
+    dest: "{{ workdir }}/texmf/tex/generic/latex-template"
   notify: run texhash
   tags:
     - bootstrap

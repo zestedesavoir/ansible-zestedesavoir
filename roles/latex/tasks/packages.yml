@@ -3,13 +3,13 @@
   become_user: "{{ appuser }}"
   ansible.builtin.command: tlmgr init-usertree
   args:
-    creates: $HOME/texmf
+    creates: "{{ workdir }}/texmf"
   tags:
     - bootstrap
 
 - name: create ansible state if non-existant
   ansible.builtin.file:
-    path: /opt/zds/texmf/ansible-state
+    path: "{{ workdir }}/texmf/ansible-state"
     state: touch
     mode: u=rw,g=r,o=r
   tags:
@@ -17,7 +17,7 @@
 
 - name: check ansible state
   ansible.builtin.slurp:
-    src: /opt/zds/texmf/ansible-state
+    src: "{{ workdir }}/texmf/ansible-state"
   register: installed_packages
 
 - name: install packages  # noqa risky-shell-pipe no-changed-when
@@ -33,7 +33,7 @@
     # we update and install
     tlmgr update --list &&
     tlmgr install {{ ' '.join(latex_packages) }} &&
-    echo {{ ' '.join(latex_packages) }} > $HOME/texmf/ansible-state
+    echo {{ ' '.join(latex_packages) }} > {{ workdir }}/texmf/ansible-state
   when: installed_packages.content|b64decode|trim != latex_packages|join(" ")
   tags:
     - bootstrap
@@ -42,7 +42,7 @@
   become: true
   become_user: "{{ appuser }}"
   ansible.builtin.file:
-    path: /opt/zds/texmf/tex/latex/tabu/
+    path: "{{ workdir }}/texmf/tex/latex/tabu/"
     state: directory
     mode: u=rwx,g=r,o=r
   tags:
@@ -53,7 +53,7 @@
   become_user: "{{ appuser }}"
   ansible.builtin.get_url:
     url: https://raw.githubusercontent.com/tabu-issues-for-future-maintainer/tabu/master/tabu.sty
-    dest: /opt/zds/texmf/tex/latex/tabu/tabu.sty
+    dest: "{{ workdir }}/texmf/tex/latex/tabu/tabu.sty"
     mode: u=rw,g=r,o=r
   tags:
     - bootstrap
