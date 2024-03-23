@@ -74,7 +74,7 @@
     dest: "/etc/nginx/sites-available/munin"
     mode: u=rw,g=r,o=r
   notify: reload nginx
-  when: http_host is not false
+  when: env != "vagrant"
 
 - name: enable munin site
   ansible.builtin.file:
@@ -82,7 +82,7 @@
     dest: "/etc/nginx/sites-enabled/munin"
     state: link
   notify: reload nginx
-  when: http_host is not false
+  when: env != "vagrant"
 
 - name: enable status
   ansible.builtin.file:
@@ -90,7 +90,7 @@
     dest: "/etc/nginx/sites-enabled/status"
     state: link
   notify: reload nginx
-  when: http_host is not false
+  when: env != "vagrant"
 
 - name: generate logrotate config file
   ansible.builtin.template:

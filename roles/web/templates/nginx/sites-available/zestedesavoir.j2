@@ -38,7 +38,7 @@ server {
     listen [::]:443 ssl http2 default_server;
 {% endif %}
 
-{% if http_host %}
+{% if env != "vagrant" %}
     server_name {{ http_host }};
 
     ## Deny unexpected Host headers (otherwise Django raises "Invalid HTTP_HOST header" exceptions)
@@ -141,7 +141,7 @@ server {
     error_page 503 @maintenance;
 
     include snippets/headers.conf;
-{% if http_host %}
+{% if env != "vagrant" %}
     {# antispam bans Perl user agent, which is used by Munin; in non-Vagrant setup, nginx status is in its own vhost which doesn't include antispam.conf #}
     include snippets/antispam.conf;
 {% endif %}
