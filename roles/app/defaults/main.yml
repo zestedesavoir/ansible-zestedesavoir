@@ -1,4 +1,5 @@
-apprepo: "https://github.com/zestedesavoir/zds-site.git"
+---
+apprepo: https://github.com/zestedesavoir/zds-site.git
 env: dev
 secrets: []
 zmarkdown_sentry_dsn: ""

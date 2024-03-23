@@ -1,3 +1,4 @@
+---
 - name: install requirements in virtualenv to load fixtures
   become: true
   become_user: "{{ appuser }}"
@@ -6,7 +7,7 @@
     virtualenv: "{{ virtualenv }}"
     virtualenv_command: /usr/bin/python3 -m venv
 
-- name: load fixtures  # noqa no-changed-when
+- name: load fixtures # noqa no-changed-when
   become: true
   become_user: "{{ appuser }}"
   ansible.builtin.shell: >

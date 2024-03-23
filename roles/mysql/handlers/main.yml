@@ -1,3 +1,4 @@
+---
 - name: restart mariadb
   ansible.builtin.systemd:
     name: mariadb

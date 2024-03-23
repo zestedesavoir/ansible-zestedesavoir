@@ -1,3 +1,4 @@
+---
 - name: restart elasticsearch
   ansible.builtin.systemd:
     name: elasticsearch.service

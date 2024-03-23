@@ -1,3 +1,4 @@
+---
 - name: Create Geodata folder
   ansible.builtin.file:
     path: "{{ appdir }}/geodata"
@@ -18,14 +19,14 @@
   tags:
     - bootstrap
 
-- name: Initial download of GeoLite data  # noqa command-instead-of-shell no-changed-when
+- name: Initial download of GeoLite data # noqa command-instead-of-shell no-changed-when
   ansible.builtin.shell: "{{ workdir }}/update-geolite.sh"
   tags:
     - bootstrap
 
 - name: Setup cron to daily update GeoLite data
   ansible.builtin.cron:
-    name: "Update GeoLite data"
+    name: Update GeoLite data
     special_time: daily
     job: "{{ workdir }}/update-geolite.sh"
   tags:

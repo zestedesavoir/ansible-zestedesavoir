@@ -1,3 +1,4 @@
+---
 - name: deploy zds-site
   hosts: app
   become: true

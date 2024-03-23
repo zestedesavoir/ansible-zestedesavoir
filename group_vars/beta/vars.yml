@@ -1,3 +1,4 @@
+---
 # For a PR: pull/xxxx/head
 # For a branch or a tag: just its name
 appversion: dev
@@ -12,8 +13,8 @@ munin_certificate:
   cert: /etc/letsencrypt/live/munin.beta.zestedesavoir.com/fullchain.pem
   key: /etc/letsencrypt/live/munin.beta.zestedesavoir.com/privkey.pem
 very_top_banner:
-  background_color: '#800'
-  border_color: '#450000'
-  color: 'white'
-  message: 'Version bêta'
-  slug: 'version-beta'
+  background_color: "#800"
+  border_color: "#450000"
+  color: white
+  message: Version bêta
+  slug: version-beta

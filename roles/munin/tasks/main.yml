@@ -1,13 +1,14 @@
+---
 - name: install munin packages
   ansible.builtin.apt:
     pkg:
       - munin
       - munin-node
-      - libcache-cache-perl  # for mysql munin plugin
-      - libdbd-mysql-perl  # for mysql munin plugin
-      - liblwp-protocol-https-perl  # for nginx munin plugin
-      - time  # for wget_page munin plugin
-      - net-tools  # for netstat, used by a munin plugin
+      - libcache-cache-perl # for mysql munin plugin
+      - libdbd-mysql-perl # for mysql munin plugin
+      - liblwp-protocol-https-perl # for nginx munin plugin
+      - time # for wget_page munin plugin
+      - net-tools # for netstat, used by a munin plugin
     state: present
     cache_valid_time: 3600
 
@@ -129,6 +130,6 @@
 - name: use correct MySQL user for Munin plugin
   ansible.builtin.lineinfile:
     path: /etc/munin/plugin-conf.d/munin-node
-    regexp: '^env.mysqluser root'
-    line: 'env.mysqluser root'
+    regexp: ^env.mysqluser root
+    line: env.mysqluser root
   when: env == "beta"

@@ -1,3 +1,4 @@
+---
 - name: create tlmgr usertree
   become: true
   become_user: "{{ appuser }}"
@@ -20,7 +21,7 @@
     src: "{{ workdir }}/texmf/ansible-state"
   register: installed_packages
 
-- name: install packages  # noqa risky-shell-pipe no-changed-when
+- name: install packages # noqa risky-shell-pipe no-changed-when
   become: true
   become_user: "{{ appuser }}"
   ansible.builtin.shell: >

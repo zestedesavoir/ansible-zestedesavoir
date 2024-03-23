@@ -1,3 +1,4 @@
+---
 # Basic dependencies installation
 
 - name: install app dependencies
@@ -10,13 +11,13 @@
       - libffi-dev
       - libssl-dev
       - libmariadb-dev
-      - autoconf  # for gulp-imagemin Node.js package
-      - automake  # for gulp-imagemin Node.js package
-      - rustc  # for cryptography Python package
-      - optipng  # for easy-thumbnails Python package
-      - jpegoptim  # for easy-thumbnails Python package
-      - memcached  # for cache storage in prod configuration
-      - pkg-config  # for mysqlclient since version 2.2.0
+      - autoconf # for gulp-imagemin Node.js package
+      - automake # for gulp-imagemin Node.js package
+      - rustc # for cryptography Python package
+      - optipng # for easy-thumbnails Python package
+      - jpegoptim # for easy-thumbnails Python package
+      - memcached # for cache storage in prod configuration
+      - pkg-config # for mysqlclient since version 2.2.0
     state: present
     cache_valid_time: 3600
   tags:
@@ -36,7 +37,7 @@
     name: "{{ appuser }}"
     shell: /bin/false
     home: "{{ workdir }}"
-    comment: "Zeste de Savoir"
+    comment: Zeste de Savoir
   tags:
     - bootstrap
 
@@ -137,11 +138,11 @@
     state: link
   with_items:
     - src: "{{ appdir }}/errors"
-      dest: "errors"
+      dest: errors
     - src: "{{ datadir }}/media"
-      dest: "media"
+      dest: media
     - src: "{{ datadir }}/static"
-      dest: "static"
+      dest: static
   tags:
     - bootstrap
 
@@ -156,7 +157,7 @@
 
 - name: create robots.txt in webroot for beta
   ansible.builtin.copy:
-    src: "robots-deny.txt"
+    src: robots-deny.txt
     dest: "{{ webroot }}/robots.txt"
     mode: u=rw,g=r,o=r
   when: env == "beta"
@@ -174,7 +175,7 @@
 
 # Installation of backend, frontend and zmd dependencies
 
-- name: update pip in virtualenv  # some dependencies (like rust ones) require a recent pip
+- name: update pip in virtualenv # some dependencies (like rust ones) require a recent pip
   become: true
   become_user: "{{ appuser }}"
   ansible.builtin.pip:
@@ -214,8 +215,8 @@
   become_user: "{{ appuser }}"
   ansible.builtin.lineinfile:
     path: "{{ virtualenv }}/lib/python3.11/site-packages/elasticsearch_dsl/{{ item }}"
-    regexp: "^import collections$"
-    line: "import collections.abc as collections"
+    regexp: ^import collections$
+    line: import collections.abc as collections
     firstmatch: true
   with_items:
     - search.py
@@ -237,7 +238,7 @@
   tags:
     - bootstrap
 
-- name: install frontend  # noqa no-changed-when
+- name: install frontend # noqa no-changed-when
   become: true
   become_user: "{{ appuser }}"
   ansible.builtin.command: yarn install --frozen-lockfile
@@ -259,7 +260,7 @@
 
 # Frontend building
 
-- name: build frontend  # noqa no-changed-when
+- name: build frontend # noqa no-changed-when
   become: true
   become_user: "{{ appuser }}"
   ansible.builtin.command: npm run build
@@ -273,7 +274,7 @@
   become: true
   become_user: "{{ appuser }}"
   environment:
-    DJANGO_SETTINGS_MODULE: "zds.settings.{{ env }}"
+    DJANGO_SETTINGS_MODULE: zds.settings.{{ env }}
     ZDS_CONFIG: "{{ workdir }}/config.toml"
   community.general.django_manage:
     app_path: "{{ appdir }}"
@@ -290,7 +291,7 @@
   become: true
   become_user: "{{ appuser }}"
   environment:
-    DJANGO_SETTINGS_MODULE: "zds.settings.{{ env }}"
+    DJANGO_SETTINGS_MODULE: zds.settings.{{ env }}
     ZDS_CONFIG: "{{ workdir }}/config.toml"
   community.general.django_manage:
     app_path: "{{ appdir }}"
@@ -315,7 +316,7 @@
   become: true
   become_user: "{{ appuser }}"
   environment:
-    DJANGO_SETTINGS_MODULE: "zds.settings.{{ env }}"
+    DJANGO_SETTINGS_MODULE: zds.settings.{{ env }}
     ZDS_CONFIG: "{{ workdir }}/config.toml"
   community.general.django_manage:
     app_path: "{{ appdir }}"
@@ -330,7 +331,7 @@
   become: true
   become_user: "{{ appuser }}"
   environment:
-    DJANGO_SETTINGS_MODULE: "zds.settings.{{ env }}"
+    DJANGO_SETTINGS_MODULE: zds.settings.{{ env }}
     ZDS_CONFIG: "{{ workdir }}/config.toml"
   community.general.django_manage:
     app_path: "{{ appdir }}"
@@ -345,7 +346,7 @@
 - name: create services and timers files
   ansible.builtin.template:
     src: templates/{{ item }}.j2
-    dest: "/etc/systemd/system/{{ item }}"
+    dest: /etc/systemd/system/{{ item }}
     mode: u=rw,g=r,o=r
   with_items:
     - zmd.service
@@ -427,8 +428,8 @@
 
 - name: create /root/bin/service-zds.sh
   ansible.builtin.copy:
-    src: "service-zds.sh"
-    dest: "/root/bin/service-zds.sh"
+    src: service-zds.sh
+    dest: /root/bin/service-zds.sh
     mode: u=rwx,g=,o=
   tags:
     - bootstrap

@@ -1,3 +1,4 @@
+---
 - name: install borg1.2.6
   ansible.builtin.get_url:
     url: https://github.com/borgbackup/borg/releases/download/1.2.6/borg-linux64
@@ -6,8 +7,8 @@
 
 - name: generate logrotate config file for backup logs
   ansible.builtin.template:
-    src: "logrotate_zds-backup.j2"
-    dest: "/etc/logrotate.d/zds-backup"
+    src: logrotate_zds-backup.j2
+    dest: /etc/logrotate.d/zds-backup
     mode: u=rw,g=r,o=r
 
 - name: configure backups on beta server

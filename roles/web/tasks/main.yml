@@ -1,3 +1,4 @@
+---
 - name: install nginx
   ansible.builtin.apt:
     pkg: nginx
@@ -13,7 +14,7 @@
 
 - name: create config dirs
   ansible.builtin.file:
-    path: "/etc/nginx/{{ item }}"
+    path: /etc/nginx/{{ item }}
     state: directory
     mode: u=rwx,g=rx,o=rx
   with_items:
@@ -23,7 +24,7 @@
 
 - name: remove default configuration shipped with nginx package
   ansible.builtin.file:
-    path: "/etc/nginx/{{ item }}/default"
+    path: /etc/nginx/{{ item }}/default
     state: absent
   with_items:
     - sites-available
@@ -32,7 +33,7 @@
 - name: copy config files
   ansible.builtin.copy:
     src: "{{ item.src }}"
-    dest: "/etc/nginx/{{ item.path }}"
+    dest: /etc/nginx/{{ item.path }}
     mode: u=rw,g=r,o=r
   with_community.general.filetree: nginx/
   when: item.state == 'file'
@@ -40,60 +41,60 @@
 
 - name: generate zds config file
   ansible.builtin.template:
-    src: "nginx/sites-available/zestedesavoir.j2"
-    dest: "/etc/nginx/sites-available/zestedesavoir"
+    src: nginx/sites-available/zestedesavoir.j2
+    dest: /etc/nginx/sites-available/zestedesavoir
     mode: u=rw,g=r,o=r
   notify: reload nginx
 
 - name: enable zds site
   ansible.builtin.file:
-    src: "/etc/nginx/sites-available/zestedesavoir"
-    dest: "/etc/nginx/sites-enabled/zestedesavoir"
+    src: /etc/nginx/sites-available/zestedesavoir
+    dest: /etc/nginx/sites-enabled/zestedesavoir
     state: link
   notify: reload nginx
 
 - name: generate prod redirect config file
   ansible.builtin.template:
-    src: "nginx/sites-available/prod-redirect.j2"
-    dest: "/etc/nginx/sites-available/prod-redirect"
+    src: nginx/sites-available/prod-redirect.j2
+    dest: /etc/nginx/sites-available/prod-redirect
     mode: u=rw,g=r,o=r
   notify: reload nginx
   when: env == "prod"
 
 - name: enable prod redirect site
   ansible.builtin.file:
-    src: "/etc/nginx/sites-available/prod-redirect"
-    dest: "/etc/nginx/sites-enabled/prod-redirect"
+    src: /etc/nginx/sites-available/prod-redirect
+    dest: /etc/nginx/sites-enabled/prod-redirect
     state: link
   notify: reload nginx
   when: env == "prod"
 
 - name: generate munin config file
   ansible.builtin.template:
-    src: "nginx/sites-available/munin.j2"
-    dest: "/etc/nginx/sites-available/munin"
+    src: nginx/sites-available/munin.j2
+    dest: /etc/nginx/sites-available/munin
     mode: u=rw,g=r,o=r
   notify: reload nginx
   when: env != "vagrant"
 
 - name: enable munin site
   ansible.builtin.file:
-    src: "/etc/nginx/sites-available/munin"
-    dest: "/etc/nginx/sites-enabled/munin"
+    src: /etc/nginx/sites-available/munin
+    dest: /etc/nginx/sites-enabled/munin
     state: link
   notify: reload nginx
   when: env != "vagrant"
 
 - name: enable status
   ansible.builtin.file:
-    src: "/etc/nginx/sites-available/status"
-    dest: "/etc/nginx/sites-enabled/status"
+    src: /etc/nginx/sites-available/status
+    dest: /etc/nginx/sites-enabled/status
     state: link
   notify: reload nginx
   when: env != "vagrant"
 
 - name: generate logrotate config file
   ansible.builtin.template:
-    src: "logrotate/zds-nginx.j2"
-    dest: "/etc/logrotate.d/zds-nginx"
+    src: logrotate/zds-nginx.j2
+    dest: /etc/logrotate.d/zds-nginx
     mode: u=rw,g=r,o=r

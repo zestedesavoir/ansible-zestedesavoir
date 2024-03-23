@@ -1,3 +1,4 @@
+---
 # Load a specific zds configuration to make it work in Vagrant, and it is also
 # what is executed on GitHub Actions
 

@@ -1,3 +1,4 @@
+---
 - name: ensure the system can use the HTTPS transport for APT
   ansible.builtin.stat:
     path: /usr/lib/apt/methods/https
@@ -12,7 +13,7 @@
 - name: should have some base packages
   ansible.builtin.apt:
     pkg:
-      - acl  # Allow Ansible to use 'become' command (see https://docs.ansible.com/ansible/latest/user_guide/become.html#risks-and-limitations-of-become)
+      - acl # Allow Ansible to use 'become' command (see https://docs.ansible.com/ansible/latest/user_guide/become.html#risks-and-limitations-of-become)
       - git
       - htop
       - locales
@@ -46,7 +47,7 @@
 - name: copy zsh config files
   ansible.builtin.copy:
     src: "{{ item.src }}"
-    dest: "/etc/zsh/{{ item.path }}"
+    dest: /etc/zsh/{{ item.path }}
     mode: u=rw,g=r,o=r
   with_community.general.filetree: zsh/
   when: item.state == 'file'

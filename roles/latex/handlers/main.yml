@@ -1,3 +1,4 @@
+---
 - name: run texhash # noqa no-changed-when
   become: true
   become_user: "{{ appuser }}"

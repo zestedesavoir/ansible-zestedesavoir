@@ -1,3 +1,4 @@
+---
 - name: install Node.js and NPM
   ansible.builtin.apt:
     pkg:
