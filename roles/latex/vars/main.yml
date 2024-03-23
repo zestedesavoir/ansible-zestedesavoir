@@ -1,3 +1,4 @@
+---
 latex_packages:
   - adjustbox
   - blindtext
@@ -44,7 +45,7 @@ fonttypes:
 fonts:
   - name: SourceCodePro
     slug: source-code-pro
-    url: "https://raw.githubusercontent.com/adobe-fonts/source-code-pro/release"
+    url: https://raw.githubusercontent.com/adobe-fonts/source-code-pro/release
   - name: SourceSansPro
     slug: source-sans-pro
-    url: "https://raw.githubusercontent.com/adobe-fonts/source-sans-pro/3.006R"
+    url: https://raw.githubusercontent.com/adobe-fonts/source-sans-pro/3.006R

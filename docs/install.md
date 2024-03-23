@@ -35,5 +35,5 @@ bundle install
 
 Pour lancer les tests:
 ```shell
-bundle exec kitchen test
+LANG=C.UTF-8 bundle exec kitchen test
 ```

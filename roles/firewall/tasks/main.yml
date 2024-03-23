@@ -1,3 +1,4 @@
+---
 - name: Install firewall (ufw)
   ansible.builtin.apt:
     pkg: ufw
@@ -9,13 +10,13 @@
     proto: tcp
     port: "{{ item }}"
   loop:
-    - "80"  # HTTP
-    - "443"  # HTTPS
-    - "22"  # SSH
-    - "4949"  # Munin
-    - "25"  # SMTP
-    - "465"  # SMTP
-    - "587"  # SMTP
+    - "80" # HTTP
+    - "443" # HTTPS
+    - "22" # SSH
+    - "4949" # Munin
+    - "25" # SMTP
+    - "465" # SMTP
+    - "587" # SMTP
 
 - name: Enable firewall (ufw)
   community.general.ufw:

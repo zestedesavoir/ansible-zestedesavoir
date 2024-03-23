@@ -1,25 +1,25 @@
 [wget_page]
 timeout 31
-env.names url1 url2{% if http_host %} url3 url4 url5 url6 url7{% endif %}
+env.names url1 url2{% if env != "vagrant" %} url3 url4 url5 url6 url7{% endif %}
 
 env.timeout 20
 env.error_value 10
 env.max 20
 #
-env.url_url1 http{% if enable_https %}s{% endif %}://{% if http_host %}{{ http_host }}{% else %}127.0.0.1{% endif %}/
+env.url_url1 http{% if enable_https %}s{% endif %}://{% if env != "vagrant" %}{{ http_host }}{% else %}127.0.0.1{% endif %}/
 env.label_url1 Accueil
 env.timeout_url1 10
 env.warning_url1 5
 env.critical_url1 8
 env.wget_opts_url1 -4
 #
-env.url_url2 http{% if enable_https %}s{% endif %}://{% if http_host %}{{ http_host }}{% else %}127.0.0.1{% endif %}/forums/
+env.url_url2 http{% if enable_https %}s{% endif %}://{% if env != "vagrant" %}{{ http_host }}{% else %}127.0.0.1{% endif %}/forums/
 env.label_url2 Accueil des forums
 env.timeout_url2 10
 env.warning_url2 5
 env.critical_url2 8
 env.wget_opts_url2 -4
-{% if http_host %}
+{% if env != "vagrant" %}
 #
 env.url_url3 https://{{ http_host }}/forums/communaute/bug-suggestions/
 env.label_url3 Categorie de forums

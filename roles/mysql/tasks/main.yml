@@ -1,3 +1,4 @@
+---
 - name: install mariadb-server and mariadb-backup
   ansible.builtin.apt:
     pkg:
@@ -6,7 +7,7 @@
       - python3-mysqldb
     cache_valid_time: 3600
 
-- name: create /var/log/mysql folder  # seems to be required for mysql_upgrade after restoring backup from prod
+- name: create /var/log/mysql folder # seems to be required for mysql_upgrade after restoring backup from prod
   ansible.builtin.file:
     path: /var/log/mysql
     state: directory
@@ -31,8 +32,8 @@
   community.mysql.mysql_db:
     name: "{{ mysql.name }}"
     state: present
-    encoding: "utf8mb4"
-    collation: "utf8mb4_unicode_ci"
+    encoding: utf8mb4
+    collation: utf8mb4_unicode_ci
 
 - name: create mysql user
   community.mysql.mysql_user:
