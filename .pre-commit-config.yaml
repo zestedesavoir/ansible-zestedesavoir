@@ -1,6 +1,6 @@
 repos:
   - repo: https://github.com/ansible-community/ansible-lint.git
-    rev: v6.21.1
+    rev: v24.2.1  # doit aussi être mis à jour dans requirements.txt
     hooks:
       - id: ansible-lint
         files: \.(yaml|yml)$
