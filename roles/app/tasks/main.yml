@@ -163,6 +163,15 @@
   tags:
     - bootstrap
 
+- name: install Vagrant settings
+  ansible.builtin.copy:
+    src: vagrant.py
+    dest: "{{ appdir }}/zds/settings/vagrant.py"
+    mode: u=rw,g=r,o=r
+  when: env == "vagrant"
+  tags:
+    - bootstrap
+
 # Installation of backend, frontend and zmd dependencies
 
 - name: update pip in virtualenv  # some dependencies (like rust ones) require a recent pip
