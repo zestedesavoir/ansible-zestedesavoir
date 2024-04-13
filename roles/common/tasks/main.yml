@@ -27,6 +27,11 @@
     state: present
     cache_valid_time: 3600
 
+- name: remove unattended-upgrades
+  ansible.builtin.apt:
+    pkg: unattended-upgrades
+    state: absent
+
 - name: should have UTF-8 locales enabled
   community.general.locale_gen:
     name: "{{ item }}"
