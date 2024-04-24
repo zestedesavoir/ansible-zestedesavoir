@@ -9,3 +9,4 @@ zmarkdown_dir: "{{ appdir }}/zmd"
 zds_antispam_dir: /opt/zds-antispam
 logdir: /var/log/zds
 appuser: zds
+latex_template_version: c285c1c1a60807b732472b036ecb204ac2cb48f3
