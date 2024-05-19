@@ -210,27 +210,6 @@
     - bootstrap
     - upgrade
 
-- name: patch elasticsearch-dsl for Python 3.11
-  become: true
-  become_user: "{{ appuser }}"
-  ansible.builtin.lineinfile:
-    path: "{{ virtualenv }}/lib/python3.11/site-packages/elasticsearch_dsl/{{ item }}"
-    regexp: ^import collections$
-    line: import collections.abc as collections
-    firstmatch: true
-  with_items:
-    - search.py
-    - utils.py
-    - mapping.py
-    - field.py
-    - aggs.py
-    - document.py
-    - function.py
-    - query.py
-  tags:
-    - bootstrap
-    - upgrade
-
 - name: include nodejs installation
   ansible.builtin.include_role:
     name: common
@@ -352,8 +331,8 @@
     - zmd.service
     - zds.service
     - zds.socket
-    - zds-es-index.service
-    - zds-es-index.timer
+    - zds-search-engine-index.service
+    - zds-search-engine-index.timer
     - zds-watchdog.service
   tags:
     - bootstrap
@@ -368,7 +347,7 @@
     - zmd.service
     - zds.service
     - zds.socket
-    - zds-es-index.timer
+    - zds-search-engine-index.timer
     - zds-watchdog.service
   tags:
     - bootstrap

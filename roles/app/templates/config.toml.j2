@@ -60,8 +60,8 @@ dsn = "{{ sentry_dsn }}"
 environment = "{{ env }}"
 {% endif %}
 
-[elasticsearch]
-shards = 3
+[typesense]
+api_key = "{{ typesense_file['content'] | b64decode | regex_findall('api-key = (.+)') | first }}"
 
 {% if recaptcha is defined %}
 [recaptcha]

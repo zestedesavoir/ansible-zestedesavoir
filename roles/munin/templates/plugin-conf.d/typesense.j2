@@ -1,0 +1,2 @@
+[typesense]
+env.api_key {{ typesense_file['content'] | b64decode | regex_findall('api-key = (.+)') | first }}
