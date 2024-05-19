@@ -1,0 +1,27 @@
+---
+- name: install Typesense
+  ansible.builtin.apt:
+    deb: https://dl.typesense.org/releases/26.0/typesense-server-26.0-amd64.deb
+
+- name: fix permissions for Typesense configuration file
+  ansible.builtin.file:
+    path: /etc/typesense/typesense-server.ini
+    mode: '640'
+
+- name: make Typesense listen only on localhost
+  ansible.builtin.lineinfile:
+    path: /etc/typesense/typesense-server.ini
+    search_string: "api-address = 0.0.0.0"
+    line: "api-address = 127.0.0.1"
+
+- name: generate logrotate config file
+  ansible.builtin.template:
+    src: logrotate/typesense.j2
+    dest: /etc/logrotate.d/typesense
+    mode: u=rw,g=r,o=r
+
+- name: start Typesense
+  ansible.builtin.systemd:
+    name: typesense-server.service
+    state: started
+    enabled: true

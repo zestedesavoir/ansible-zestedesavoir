@@ -1,0 +1,124 @@
+#!/usr/bin/env python3
+import json
+import os
+import sys
+import urllib.request
+
+address = os.environ.get("address", "127.0.0.1")
+port = os.environ.get("port", "8108")
+api_key = os.environ.get("api_key", "")
+
+show_config = (len(sys.argv) == 2 and sys.argv[1] == "config")
+
+headers = {
+    "X-TYPESENSE-API-KEY": api_key,
+}
+url = f"http://{address}:{port}"
+
+# https://typesense.org/docs/26.0/api/cluster-operations.html#cluster-metrics
+req_metrics = urllib.request.Request(f"{url}/metrics.json", headers=headers)
+with urllib.request.urlopen(req_metrics) as f:
+    metrics = json.loads(f.read().decode("utf-8"))
+# Keep only metrics about Typesense, other metrics are collected through other Munin plugins:
+metrics  = {k: v for k, v in metrics.items() if k.startswith("typesense")}
+
+# https://typesense.org/docs/26.0/api/cluster-operations.html#api-stats
+req_stats = urllib.request.Request(f"{url}/stats.json", headers=headers)
+with urllib.request.urlopen(req_stats) as f:
+    stats = json.loads(f.read().decode("utf-8"))
+
+
+req_collections = urllib.request.Request(f"{url}/collections", headers=headers)
+with urllib.request.urlopen(req_collections) as f:
+    collections = json.loads(f.read().decode("utf-8"))
+
+
+print("multigraph typesense_memory_bytes")
+if show_config:
+    print("graph_title Memory")
+    print("graph_args --base 1000")
+    print("graph_vlabel Memory (MB)")
+    print("graph_category typesense")
+    print("graph_scale no")
+    print()
+for k, v in metrics.items():
+    if k.startswith("typesense_memory") and k.endswith("bytes"):
+        name = k[len("typensense_memory"):-len("_bytes")]
+        if show_config:
+            print(f"{name}.label {name}")
+            print(f"{name}.min 0")
+        print(f"{name}.value {int(v)/1024/1024}")
+
+print()
+
+print("multigraph typesense_memory_fragmentation_ratio")
+if show_config:
+    print("graph_title Memory fragmentation")
+    print("graph_vlabel Ratio")
+    print("graph_category typesense")
+    print("graph_scale no")
+    print()
+    print(f"fragmentation.label Memory fragmentation ratio")
+    print(f"fragmentation.min 0")
+print(f"fragmentation.value {metrics['typesense_memory_fragmentation_ratio']}")
+
+print()
+
+print("multigraph typesense_latency")
+if show_config:
+    print("graph_title Latency")
+    print("graph_args --base 1000")
+    print("graph_vlabel Latency (ms)")
+    print("graph_category typesense")
+    print()
+for k, v in stats.items():
+    if k.endswith("_latency_ms"):
+        name = k[:-len("_latency_ms")]
+        if show_config:
+            print(f"{name}.label {name}")
+            print(f"{name}.min 0")
+        print(f"{name}.value {v}")
+
+print()
+
+print("multigraph typesense_throughput")
+if show_config:
+    print("graph_title Throughput")
+    print("graph_args --base 1000")
+    print("graph_vlabel Requests per second")
+    print("graph_category typesense")
+    print()
+for k, v in stats.items():
+    if k.endswith("_requests_per_second"):
+        name = k[:-len("_requests_per_second")]
+        if show_config:
+            print(f"{name}.label {name}")
+            print(f"{name}.min 0")
+        print(f"{name}.value {v}")
+
+print()
+
+print("multigraph typesense_pending_write_batches")
+if show_config:
+    print("graph_title Pending write batches")
+    print("graph_vlabel Number of pending write batches")
+    print("graph_category typesense")
+    print()
+    print(f"pending_write_batches.label Pending write batches")
+    print(f"pending_write_batches.min 0")
+print(f"pending_write_batches.value {stats['pending_write_batches']}")
+
+print()
+
+if len(collections) > 0:
+    print("multigraph typesense_collections")
+    if show_config:
+        print("graph_title Number of documents in collections")
+        print("graph_vlabel Number of documents")
+        print("graph_category typesense")
+        print()
+    for collection in collections:
+        if show_config:
+            print(f"{collection['name']}.label {collection['name']}")
+            print(f"{collection['name']}.min 0")
+        print(f"{collection['name']}.value {collection['num_documents']}")

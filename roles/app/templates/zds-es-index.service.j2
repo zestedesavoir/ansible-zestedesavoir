@@ -1,8 +1,0 @@
-[Unit]
-Description=Reindex ES Service
-
-[Service]
-Type=oneshot
-User={{ appuser }}
-Group={{ appuser }}
-ExecStart={{ workdir }}/wrapper es_manager index_flagged
