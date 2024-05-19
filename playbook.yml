@@ -22,3 +22,6 @@
       when: env == "beta"
     - role: munin
       tags: bootstrap
+    # - role: vaultwarden  # not used in practice
+      # tags: bootstrap
+      # when: (env == "prod") or (env == "vagrant")

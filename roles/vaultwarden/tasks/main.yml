@@ -1,0 +1,37 @@
+---
+- name: should have a user named {{ pass_manager_user }}
+  ansible.builtin.user:
+    name: "{{ pass_manager_user }}"
+    shell: /bin/false
+    home: "{{ pass_manager_dir }}"
+    comment: Vaultwarden
+
+- name: create the needed directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ pass_manager_user }}"
+    group: "{{ pass_manager_user }}"
+    mode: "0750"
+  with_items:
+    - "{{ pass_manager_dir }}"
+    - "{{ pass_manager_dir }}/data"
+
+- name: create environment file
+  ansible.builtin.template:
+    src: templates/vaultwarden.env.j2
+    dest: "{{ pass_manager_dir }}/vaultwarden.env"
+    mode: "0640"
+
+- name: create service file
+  ansible.builtin.template:
+    src: templates/vaultwarden.service.j2
+    dest: /etc/systemd/system/vaultwarden.service
+    mode: u=rw,g=r,o=r
+
+- name: start service
+  ansible.builtin.systemd:
+    state: started
+    name: vaultwarden.service
+    enabled: true
+    daemon_reload: true
