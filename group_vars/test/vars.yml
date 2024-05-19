@@ -2,7 +2,7 @@
 # Load a specific zds configuration to make it work in Vagrant, and it is also
 # what is executed on GitHub Actions
 
-appversion: dev
+appversion: pull/6475/head
 env: vagrant
 http_host: false
 sentry_dsn: ""
