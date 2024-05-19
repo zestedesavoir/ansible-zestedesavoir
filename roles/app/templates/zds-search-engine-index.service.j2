@@ -1,0 +1,8 @@
+[Unit]
+Description=Reindex new and updated content
+
+[Service]
+Type=oneshot
+User={{ appuser }}
+Group={{ appuser }}
+ExecStart={{ workdir }}/wrapper search_engine_manager index_flagged

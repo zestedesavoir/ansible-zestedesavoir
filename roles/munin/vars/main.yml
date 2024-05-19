@@ -8,16 +8,6 @@ munin_enabled_plugins:
   - { src: df, dest: df }
   - { src: df_inode, dest: df_inode }
   - { src: diskstats, dest: diskstats }
-  - { src: elasticsearch_cache, dest: elasticsearch_cache }
-  - { src: elasticsearch_cluster_shards, dest: elasticsearch_cluster_shards }
-  - { src: elasticsearch_docs, dest: elasticsearch_docs }
-  - { src: elasticsearch_gc_time, dest: elasticsearch_gc_time }
-  - { src: elasticsearch_index_size, dest: elasticsearch_index_size }
-  - { src: elasticsearch_index_total, dest: elasticsearch_index_total }
-  - { src: elasticsearch_jvm_memory, dest: elasticsearch_jvm_memory }
-  - { src: elasticsearch_jvm_pools_size, dest: elasticsearch_jvm_pools_size }
-  - { src: elasticsearch_jvm_threads, dest: elasticsearch_jvm_threads }
-  - { src: elasticsearch_open_files, dest: elasticsearch_open_files }
   - { src: entropy, dest: entropy }
   - { src: forks, dest: forks }
   - { src: fw_conntrack, dest: fw_conntrack }
@@ -88,3 +78,4 @@ munin_enabled_plugins:
   - { src: zmd, dest: zmd_event_loop_lag }
   - { src: zmd, dest: zmd_memory }
   - { src: zmd, dest: zmd_status }
+  - { src: typesense, dest: typesense }

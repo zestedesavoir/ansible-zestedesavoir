@@ -16,5 +16,5 @@
       {{ workdir }}/wrapper load_factory_data {{ appdir }}/fixtures/advanced/aide_tuto_media.yaml &&
       {{ workdir }}/wrapper load_fixtures --size=low --all &&
       touch {{ appdir }}/.loaded_fixtures &&
-      {{ workdir }}/wrapper es_manager index_all; \
+      {{ workdir }}/wrapper search_engine_manager index_all; \
     fi

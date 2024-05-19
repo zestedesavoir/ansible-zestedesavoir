@@ -112,6 +112,14 @@
   tags:
     - bootstrap
 
+- name: get Typesense config file
+  ansible.builtin.slurp:
+    src: /etc/typesense/typesense-server.ini
+  register: typesense_file
+  tags:
+    - bootstrap
+    - upgrade
+
 - name: create app config file
   ansible.builtin.template:
     src: templates/config.toml.j2
@@ -206,27 +214,6 @@
     requirements: "{{ appdir }}/requirements-prod.txt"
     virtualenv: "{{ virtualenv }}"
     virtualenv_command: /usr/bin/python3 -m venv
-  tags:
-    - bootstrap
-    - upgrade
-
-- name: patch elasticsearch-dsl for Python 3.11
-  become: true
-  become_user: "{{ appuser }}"
-  ansible.builtin.lineinfile:
-    path: "{{ virtualenv }}/lib/python3.11/site-packages/elasticsearch_dsl/{{ item }}"
-    regexp: ^import collections$
-    line: import collections.abc as collections
-    firstmatch: true
-  with_items:
-    - search.py
-    - utils.py
-    - mapping.py
-    - field.py
-    - aggs.py
-    - document.py
-    - function.py
-    - query.py
   tags:
     - bootstrap
     - upgrade
@@ -352,8 +339,8 @@
     - zmd.service
     - zds.service
     - zds.socket
-    - zds-es-index.service
-    - zds-es-index.timer
+    - zds-search-engine-index.service
+    - zds-search-engine-index.timer
     - zds-watchdog.service
   tags:
     - bootstrap
@@ -368,7 +355,7 @@
     - zmd.service
     - zds.service
     - zds.socket
-    - zds-es-index.timer
+    - zds-search-engine-index.timer
     - zds-watchdog.service
   tags:
     - bootstrap

@@ -47,23 +47,6 @@
     group: root
     mode: "0644"
 
-- name: get elasticsearch munin plugins
-  ansible.builtin.get_url:
-    url: https://raw.githubusercontent.com/y-ken/munin-plugin-elasticsearch/master/elasticsearch_{{ item }}
-    dest: "{{ munin_available_plugins_dir }}/elasticsearch_{{ item }}"
-    mode: u=rwx,g=rx,o=rx
-  with_items:
-    - cache
-    - cluster_shards
-    - docs
-    - gc_time
-    - index_size
-    - index_total
-    - jvm_memory
-    - jvm_pools_size
-    - jvm_threads
-    - open_files
-
 - name: get memcached_multi munin plugin
   ansible.builtin.get_url:
     url: https://raw.githubusercontent.com/mhwest13/Memcached-Munin-Plugin/master/memcached_multi_
@@ -88,6 +71,12 @@
     remote_src: true
     src: "{{ zmarkdown_dir }}/node_modules/zmarkdown/munin/zmd.sh"
     dest: "{{ munin_available_plugins_dir }}/zmd"
+    mode: u=rwx,g=rx,o=rx
+
+- name: copy typesense munin plugin
+  ansible.builtin.copy:
+    src: plugins/typesense
+    dest: "{{ munin_available_plugins_dir }}/typesense"
     mode: u=rwx,g=rx,o=rx
 
 - name: create symlinks for munin plugins
@@ -115,17 +104,17 @@
     - { src: postfix_mailvolume, dest: postfix_mailvolume }
   when: installed_postfix_check is succeeded
 
-- name: copy configuration file of ElasticSearch munin plugin
-  ansible.builtin.copy:
-    src: plugin-conf.d/elasticsearch
-    dest: /etc/munin/plugin-conf.d/elasticsearch
-    mode: u=rw,g=r,o=r
-
 - name: copy configuration file of wget_page munin plugin
   ansible.builtin.template:
     src: plugin-conf.d/wget_page.j2
     dest: /etc/munin/plugin-conf.d/wget_page
     mode: u=rw,g=r,o=r
+
+- name: copy configuration file of typesense munin plugin
+  ansible.builtin.template:
+    src: plugin-conf.d/typesense.j2
+    dest: /etc/munin/plugin-conf.d/typesense
+    mode: '640'  # the file contains the Typesense API key
 
 - name: use correct MySQL user for Munin plugin
   ansible.builtin.lineinfile:
