@@ -54,7 +54,7 @@ server {
         log_not_found off;
     }
 
-    # On Vagrant installations, 127.0.0.1 is already use to serve the website, so
+    # On Vagrant installations, 127.0.0.1 is already used to serve the website, so
     # we put here the /nginx_status end-point, instead of creating a 127.0.0.1 vhost.
     location /nginx_status {
         stub_status on;
