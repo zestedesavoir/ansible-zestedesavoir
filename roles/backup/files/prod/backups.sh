@@ -2,6 +2,8 @@
 
 set -eu
 
+readonly BORG126=/usr/local/bin/borg1.2.6
+readonly BORG1117=/usr/local/bin/borg
 BACKUP_DATE=`date '+%Y%m%d-%H%M'`
 DATA_SAVED_DIR=/opt/zds/data
 DB_SAVED_DIR=/var/backups/mysql
@@ -44,7 +46,7 @@ db_local_backup()
 backup2beta2023()
 {
 	echo "Backup data to the 2023 beta server..."
-	borg1.2.6 create                                        \
+	$BORG126 create                                         \
 	    --verbose                                           \
 	    --filter AME                                        \
 	    --list                                              \
@@ -56,7 +58,7 @@ backup2beta2023()
 	    $DATA_SAVED_DIR
 
 	echo "Backup database to the 2023 beta server..."
-	borg1.2.6 create                                      \
+	$BORG126 create                                       \
 	    --verbose                                         \
 	    --filter AME                                      \
 	    --list                                            \
@@ -103,19 +105,29 @@ else
 	db_local_backup
 fi
 
-backup2beta2023
-# Créer des fonctions comme backup2beta et les appeler ici pour les dépôts externes
+# Exception handling: if the first backup fails, we don't want it to stop the others.
+set +e
+backup2beta2023; err1=$?
+# Ajouter ici les autres appels aux fonctions de sauvegarde
+# backup2toto; err2=?
+err=$((err1+err2))
+set -e
 
 if [ "$(date '+%H')" -eq "04" ]; then
 	db_clean
 fi
 
-if [ $full -eq 1 ]; then
-	curl -s -m 10 --retry 5 $(cat /root/healthchecks/prod-sauvegarde-complete.txt)
+if [ $err -gt 0 ]; then
+	echo "At least one backup failed!"
 else
-	curl -s -m 10 --retry 5 $(cat /root/healthchecks/prod-sauvegarde-incrementale.txt)
+	echo "All backups completed successfully."
+	if [ $full -eq 1 ]; then
+		curl -s -m 10 --retry 5 $(cat /root/healthchecks/prod-sauvegarde-complete.txt)
+	else
+		curl -s -m 10 --retry 5 $(cat /root/healthchecks/prod-sauvegarde-incrementale.txt)
+	fi
+	echo # to make a newline after the "OK" written by curl
 fi
-echo # to make a newline after the "OK" written by curl
 
 echo "End of script ($(date))"
 # Big separator in log between executions of the script:

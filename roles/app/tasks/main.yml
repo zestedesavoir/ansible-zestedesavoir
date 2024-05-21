@@ -118,7 +118,7 @@
     dest: "{{ workdir }}/config.toml"
     owner: "{{ appuser }}"
     group: "{{ appuser }}"
-    mode: u=rw,g=r,o=r
+    mode: u=rw,g=r,o=
   tags:
     - bootstrap
     - upgrade
