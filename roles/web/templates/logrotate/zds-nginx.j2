@@ -1,10 +1,12 @@
 {{ logdir }}/nginx*.log {
+        # pas de suppression avant que maxage ne soit atteint
+        rotate -1
         daily
         missingok
         maxage 365
         compress
         notifempty
-        create 640 nginx adm
+        create 640 www-data adm
         delaycompress
         sharedscripts
         postrotate
