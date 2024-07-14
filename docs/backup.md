@@ -254,7 +254,7 @@ borg list beta-backup:/chemin | less
 # mensuelle des 6 derniers mois.
 # `-n` pour simuler la suppression et voir les sauvegardes qui vont être
 # supprimées.
-borg prune --keep-within 3m -m 6 --list --stats -n beta-backup:/chemin
+borg prune --keep-within 3m -m 6 --list --stats --progress -n beta-backup:/chemin
 # Enlever l'éventuel --append-only dans .ssh/authorized_keys
 borg compact --progress beta-backup:/chemin # pour vraiment libérer l'espace
 # Remettre l'éventuel --append-only dans .ssh/authorized_keys

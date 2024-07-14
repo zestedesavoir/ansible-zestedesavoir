@@ -4,9 +4,10 @@ set -eu
 
 readonly BORG126=/usr/local/bin/borg1.2.6
 readonly BORG1117=/usr/local/bin/borg
-BACKUP_DATE=`date '+%Y%m%d-%H%M'`
-DATA_SAVED_DIR=/opt/zds/data
-DB_SAVED_DIR=/var/backups/mysql
+readonly BORG_OPTIONS="--list --verbose --filter AME --show-rc --compression zstd,6 --exclude-caches --info" # --stats
+readonly BACKUP_DATE=`date '+%Y%m%d-%H%M'`
+readonly DATA_SAVED_DIR=/opt/zds/data
+readonly DB_SAVED_DIR=/var/backups/mysql
 
 db_local_backup()
 {
@@ -46,29 +47,22 @@ db_local_backup()
 backup2beta2023()
 {
 	echo "Backup data to the 2023 beta server..."
-	$BORG126 create                                         \
-	    --verbose                                           \
-	    --filter AME                                        \
-	    --list                                              \
-	    --stats                                             \
-	    --show-rc                                           \
-	    --compression zstd,6                                \
-	    --exclude-caches                                    \
+	date
+	$BORG126 create $BORG_OPTIONS                           \
 	    beta-backup-2023:/opt/sauvegarde/data::$BACKUP_DATE \
 	    $DATA_SAVED_DIR
+	rc_data=$?
+	date
 
 	echo "Backup database to the 2023 beta server..."
-	$BORG126 create                                       \
-	    --verbose                                         \
-	    --filter AME                                      \
-	    --list                                            \
-	    --stats                                           \
-	    --show-rc                                         \
-	    --compression zstd,6                              \
-	    --exclude-caches                                  \
-	    --info                                            \
+	date
+	$BORG126 create $BORG_OPTIONS                         \
 	    beta-backup-2023:/opt/sauvegarde/db::$BACKUP_DATE \
 	    $DB_SAVED_DIR
+	rc_db=$?
+	date
+
+	return $((rc_data+rc_db))
 }
 
 
@@ -132,3 +126,6 @@ fi
 echo "End of script ($(date))"
 # Big separator in log between executions of the script:
 echo "#######################################################################################################################"
+echo
+echo
+echo
