@@ -2,7 +2,7 @@ GEM
   remote: https://rubygems.org/
   specs:
     bcrypt_pbkdf (1.1.0)
-    bigdecimal (3.1.7)
+    bigdecimal (3.1.8)
     builder (3.2.4)
     chef-utils (18.4.12)
       concurrent-ruby
@@ -40,14 +40,15 @@ GEM
     multi_json (1.15.0)
     net-scp (4.0.0)
       net-ssh (>= 2.6.5, < 8.0.0)
-    net-ssh (7.2.1)
+    net-ssh (7.2.3)
     net-ssh-gateway (2.0.0)
       net-ssh (>= 4.0.0)
     nori (2.7.0)
       bigdecimal
     pastel (0.8.0)
       tty-color (~> 0.5)
-    rexml (3.2.6)
+    rexml (3.2.8)
+      strscan (>= 3.0.9)
     rubyntlm (0.6.3)
     rubyzip (2.3.2)
     strings (0.2.1)
@@ -55,6 +56,7 @@ GEM
       unicode-display_width (>= 1.5, < 3.0)
       unicode_utils (~> 1.4)
     strings-ansi (0.2.0)
+    strscan (3.1.0)
     test-kitchen (3.6.0)
       bcrypt_pbkdf (~> 1.0)
       chef-utils (>= 16.4.35)

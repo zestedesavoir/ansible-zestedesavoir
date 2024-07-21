@@ -10,6 +10,14 @@ map $http_user_agent $loggable {
     default 1;
 }
 
+{% if env == "vagrant" %}
+upstream vaultwarden-default {
+  zone vaultwarden-default 64k;
+  server 127.0.0.1:{{ pass_manager_port }};
+  keepalive 2;
+}
+{% endif %}
+
 server {
     listen 80 default_server;
     listen [::]:80 default_server;
@@ -54,7 +62,7 @@ server {
         log_not_found off;
     }
 
-    # On Vagrant installations, 127.0.0.1 is already use to serve the website, so
+    # On Vagrant installations, 127.0.0.1 is already used to serve the website, so
     # we put here the /nginx_status end-point, instead of creating a 127.0.0.1 vhost.
     location /nginx_status {
         stub_status on;
@@ -62,6 +70,17 @@ server {
         allow 127.0.0.1;
         allow ::1;
         deny all;
+    }
+
+    # Serve also Vaultwarden in subfolder
+    location /vault/ {
+      proxy_http_version 1.1;
+      proxy_set_header Host $host;
+      proxy_set_header X-Real-IP $remote_addr;
+      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+      proxy_set_header X-Forwarded-Proto $scheme;
+
+      proxy_pass http://vaultwarden-default;
     }
 {% endif %}
 

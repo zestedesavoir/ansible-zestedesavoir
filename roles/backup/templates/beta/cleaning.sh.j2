@@ -2,12 +2,15 @@
 
 set -e
 
-echo "Starting script ($(date))"
 
 readonly DATA_DB_RULES="--keep-within 30d -w 6 -m 3"
 readonly BORG_BINARY=/usr/local/bin/borg1.2.6
 readonly BORG_PRUNE="$BORG_BINARY prune --list --stats"
 readonly BORG_COMPACT="$BORG_BINARY compact --verbose"
+
+
+echo "##########################################################################"
+echo "Starting script ($(date))"
 
 echo "** data ** ($(date))"
 sudo -u zds-prod $BORG_PRUNE $DATA_DB_RULES /opt/sauvegarde/data/
@@ -25,3 +28,7 @@ curl -s -m 10 --retry 5 {{ secrets.healthcheck_urls.backup_cleaning }}
 echo # to make a newline after the "OK" written by curl
 
 echo "End of script ($(date))"
+echo "##########################################################################"
+echo
+echo
+echo

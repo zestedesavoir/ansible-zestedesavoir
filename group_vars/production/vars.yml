@@ -10,3 +10,7 @@ certificate:
 munin_certificate:
   cert: /etc/letsencrypt/live/munin.zestedesavoir.com/fullchain.pem
   key: /etc/letsencrypt/live/munin.zestedesavoir.com/privkey.pem
+pass_manager_host: "vault-ro.{{ http_host }}"
+pass_manager_certificate:
+  cert: "/etc/letsencrypt/live/{{ pass_manager_host }}/fullchain.pem"
+  key: "/etc/letsencrypt/live/{{ pass_manager_host }}/privkey.pem"

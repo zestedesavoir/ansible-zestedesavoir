@@ -2,14 +2,14 @@
 
 ## Version simple, rapide et efficace
 
-```shell
+```sh
 make install
 source venv/bin/activate
 ```
 
 ## Version détaillée
 
-```shell
+```sh
 # Création de l'environnement virtuel
 python3 -m venv venv
 # Activation de l'environnement
@@ -24,16 +24,32 @@ pre-commit install
 ```
 
 
-## Pour exécuter localement kitchen
+## Ruby
 
-Pour exécuter localement ce qui est exécuté par GitHub Actions:
-```shell
+Surtout utile pour lancer localement ce qui est exécuté par GitHub Actions.
+
+
+### Installation
+
+```sh
 sudo apt install bundler
 bundle config set --local path 'vendor/bundle'
 bundle install
 ```
 
+
+### Exécuter localement kitchen
+
 Pour lancer les tests:
-```shell
+```sh
 LANG=C.UTF-8 bundle exec kitchen test
 ```
+Il y a un bug qui fait échouer les tests si la langue du système n'est pas l'anglais, d'où la variable d'environnement `LANG`.
+
+
+### Mettre à jour les dépendances
+
+```sh
+bundle update
+```
+Cela modifie le fichier `Gemfile.lock`, qu'il faut committer.

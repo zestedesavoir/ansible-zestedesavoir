@@ -93,6 +93,22 @@
   notify: reload nginx
   when: env != "vagrant"
 
+- name: generate vaultwarden config file
+  ansible.builtin.template:
+    src: nginx/sites-available/vaultwarden.j2
+    dest: /etc/nginx/sites-available/vaultwarden
+    mode: u=rw,g=r,o=r
+  notify: reload nginx
+  when: env == "prod"
+
+- name: enable vaultwarden site
+  ansible.builtin.file:
+    src: /etc/nginx/sites-available/vaultwarden
+    dest: /etc/nginx/sites-enabled/vaultwarden
+    state: link
+  notify: reload nginx
+  when: env == "prod"
+
 - name: generate logrotate config file
   ansible.builtin.template:
     src: logrotate/zds-nginx.j2

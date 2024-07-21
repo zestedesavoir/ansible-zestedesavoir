@@ -1,0 +1,25 @@
+# Adapted from https://github.com/dani-garcia/vaultwarden/wiki/Setup-as-a-systemd-service
+
+[Unit]
+Description=Vaultwarden
+Documentation=https://github.com/dani-garcia/vaultwarden
+
+After=network.target
+
+[Service]
+User={{ pass_manager_user }}
+Group={{ pass_manager_user }}
+EnvironmentFile={{ pass_manager_dir }}/vaultwarden.env
+ExecStart={{ pass_manager_dir }}/vaultwarden
+LimitNOFILE=1048576
+LimitNPROC=64
+PrivateTmp=true
+PrivateDevices=true
+ProtectHome=true
+ProtectSystem=strict
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6 AF_LOCAL AF_NETLINK
+WorkingDirectory={{ pass_manager_dir }}/data
+ReadWritePaths={{ pass_manager_dir }}/data
+
+[Install]
+WantedBy=multi-user.target
