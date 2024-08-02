@@ -48,7 +48,7 @@ GEM
       bigdecimal
     pastel (0.8.0)
       tty-color (~> 0.5)
-    rexml (3.3.2)
+    rexml (3.3.3)
       strscan
     rubyntlm (0.6.5)
       base64
