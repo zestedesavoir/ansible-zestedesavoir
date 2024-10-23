@@ -339,6 +339,10 @@
     - zmd.service
     - zds.service
     - zds.socket
+    - zds-clear-sessions.service
+    - zds-clear-sessions.timer
+    - zds-remove-old-ips.service
+    - zds-remove-old-ips.timer
     - zds-search-engine-index.service
     - zds-search-engine-index.timer
     - zds-watchdog.service
@@ -355,6 +359,8 @@
     - zmd.service
     - zds.service
     - zds.socket
+    - zds-clear-sessions.timer
+    - zds-remove-old-ips.timer
     - zds-search-engine-index.timer
     - zds-watchdog.service
   tags:

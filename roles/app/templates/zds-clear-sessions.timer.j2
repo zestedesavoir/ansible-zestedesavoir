@@ -1,0 +1,10 @@
+[Unit]
+Description=Clear old sessions from database
+
+[Timer]
+# between two database backups at 2:00 and 3:15
+OnCalendar=2:30:00
+Persistent=true
+
+[Install]
+WantedBy=timers.target

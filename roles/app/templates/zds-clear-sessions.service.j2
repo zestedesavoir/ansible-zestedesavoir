@@ -1,0 +1,8 @@
+[Unit]
+Description=Clear old sessions from database
+
+[Service]
+Type=oneshot
+User={{ appuser }}
+Group={{ appuser }}
+ExecStart={{ workdir }}/wrapper clearsessions
