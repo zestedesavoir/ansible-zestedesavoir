@@ -273,6 +273,8 @@ then
 	$ZDS_WRAPPER collectstatic
 	print_info "search_engine_manager index_all..."
 	$ZDS_WRAPPER search_engine_manager index_all
+	print_info "restart memcached..."
+	service memcached restart  # required since sessions are stored in both db and cache, so wipe the cache data from prod server
 fi
 
 
