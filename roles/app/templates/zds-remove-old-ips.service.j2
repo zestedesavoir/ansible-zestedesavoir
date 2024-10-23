@@ -1,5 +1,7 @@
 [Unit]
 Description=Remove IP informations of old messages
+Requires=mariadb.service
+After=mariadb.service
 
 [Service]
 Type=oneshot

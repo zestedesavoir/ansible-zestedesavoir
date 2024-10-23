@@ -1,5 +1,7 @@
 [Unit]
 Description=Clear old sessions from database
+Requires=mariadb.service
+After=mariadb.service
 
 [Service]
 Type=oneshot

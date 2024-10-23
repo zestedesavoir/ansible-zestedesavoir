@@ -1,5 +1,7 @@
 [Unit]
 Description=Reindex new and updated content
+Requires=typesense-server.service mariadb.service
+After=typesense-server.service mariadb.service
 
 [Service]
 Type=oneshot
