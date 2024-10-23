@@ -102,8 +102,10 @@ fi
 # Exception handling: if the first backup fails, we don't want it to stop the others.
 set +e
 backup2beta2023; err1=$?
+echo
 # Ajouter ici les autres appels aux fonctions de sauvegarde
 # backup2toto; err2=?
+# echo
 err=$((err1+err2))
 set -e
 
