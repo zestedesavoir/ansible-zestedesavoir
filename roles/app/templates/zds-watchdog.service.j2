@@ -1,6 +1,7 @@
 [Unit]
 Description=Zeste de Savoir - Watchdog
-After=network.target
+Requires=mariadb.service zmd.service
+After=network.target mariadb.service zmd.service
 
 [Service]
 User={{ appuser }}
