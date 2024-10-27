@@ -1,0 +1,10 @@
+[Unit]
+Description=Reindex new and updated content
+Requires=typesense-server.service mariadb.service
+After=typesense-server.service mariadb.service
+
+[Service]
+Type=oneshot
+User={{ appuser }}
+Group={{ appuser }}
+ExecStart={{ workdir }}/wrapper search_engine_manager index_flagged

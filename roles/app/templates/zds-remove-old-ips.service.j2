@@ -1,0 +1,10 @@
+[Unit]
+Description=Remove IP informations of old messages
+Requires=mariadb.service
+After=mariadb.service
+
+[Service]
+Type=oneshot
+User={{ appuser }}
+Group={{ appuser }}
+ExecStart={{ workdir }}/wrapper remove_one_year_old_ip_addresses

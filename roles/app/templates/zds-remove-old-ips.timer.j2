@@ -1,0 +1,10 @@
+[Unit]
+Description=Remove IP informations of old messages
+
+[Timer]
+# between two database backups at 2:00 and 3:15 and after clearsessions at 2:30
+OnCalendar=3:05:00
+Persistent=true
+
+[Install]
+WantedBy=timers.target

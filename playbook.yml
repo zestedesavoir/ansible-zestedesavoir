@@ -7,7 +7,7 @@
       tags: bootstrap
     - role: backup
       tags: bootstrap
-    - role: elasticsearch
+    - role: typesense
       tags: bootstrap
     - role: mysql
       tags: bootstrap

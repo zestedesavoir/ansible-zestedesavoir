@@ -1,7 +1,7 @@
 [Unit]
 Description=Zeste de Savoir
-Requires=zds.socket
-After=network.target
+Requires=zds.socket mariadb.service zmd.service
+After=network.target mariadb.service zmd.service
 
 [Service]
 PIDFile={{ workdir }}/run/gunicorn.pid
