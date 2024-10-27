@@ -1,5 +1,5 @@
 ---
-appversion: v30.6-ostara
+appversion: v31
 env: prod
 public: true
 http_host: zestedesavoir.com
