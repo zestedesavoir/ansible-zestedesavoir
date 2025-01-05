@@ -1,0 +1,70 @@
+#!/bin/bash
+
+: <<=cut
+
+=head1 NAME
+
+du - Size of directories
+
+=head1 CONFIGURATION
+
+Put this file in "/usr/local/share/munin/plugins/du_". Then, create a symbolic
+link to this file called, for instance, "du_work". "work" will be the name of
+the graph.
+
+The configuration should look like the following:
+
+[du_work]
+    env.directories /path/to/dir1 /path/to/dir2
+    env.prefix /path/to/
+    env.critical 1073741824
+
+- "directories" contains a space-separated list of directories to report size of.
+- "prefix" (optionnal) is the prefix of directories to hide in graph labels.
+- "critical" (optionnal) is the critical size (in bytes) for all directories.
+
+=cut
+
+GRAPH_NAME=${0##*du_}
+DIRECTORIES=${directories:-UNSET}
+CRITICAL=${critical:-UNSET}
+PREFIX=${prefix:-UNSET}
+
+
+case $1 in
+    config)
+        echo "graph_title Directory size $GRAPH_NAME"
+        echo "graph_category disk"
+        echo "graph_args --base 1024 -l 0"
+        echo "graph_vlabel Size"
+        echo "graph_info Graph of size occupied by directories"
+
+        if [ "$DIRECTORIES" != "UNSET" ]; then
+            for d in $DIRECTORIES
+            do
+                slug=$(echo $d | sed 's/\//_/g')
+
+                if [ "$PREFIX" != "UNSET" ]; then
+                    echo "${slug}.label ${d#"$PREFIX"}"
+                else
+                    echo "${slug}.label $d"
+                fi
+                echo "${slug}.type GAUGE"
+                echo "${slug}.draw LINE1"
+
+                if [ "$CRITICAL" != "UNSET" ]; then
+                    echo "${slug}.critical $CRITICAL"
+                fi
+            done
+        fi
+
+        exit 0;;
+esac
+
+if [ "$DIRECTORIES" != "UNSET" ]; then
+    for d in $DIRECTORIES
+    do
+        slug=$(echo $d | sed 's/\//_/g')
+        echo "${slug}.value $(du -sb $d | cut -f 1)"
+    done
+fi

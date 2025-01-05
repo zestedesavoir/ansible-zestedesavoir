@@ -1,0 +1,5 @@
+[du_backup]
+user root
+env.directories {{ backupdir }}/data {{ backupdir }}/db {{ backupdir }}/matomo {{ backupdir }}/vaultwarden
+env.prefix {{ backupdir }}/
+env.critical 161061273600  # 150 Go

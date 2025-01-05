@@ -1,0 +1,12 @@
+[du_mysql-backup]
+user root
+env.directories /var/backups/mysql
+
+[du_zds-data]
+user root
+env.directories {{ datadir }}/contents-private {{ datadir }}/contents-public {{ datadir }}/media {{ datadir }}/static
+env.prefix {{ datadir }}
+
+[du_zds-db]
+user root
+env.directories /var/lib/mysql/prod

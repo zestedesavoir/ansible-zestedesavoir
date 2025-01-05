@@ -73,11 +73,14 @@
     dest: "{{ munin_available_plugins_dir }}/zmd"
     mode: u=rwx,g=rx,o=rx
 
-- name: copy typesense munin plugin
+- name: copy typesense and du_ munin plugin
   ansible.builtin.copy:
-    src: plugins/typesense
-    dest: "{{ munin_available_plugins_dir }}/typesense"
+    src: "plugins/{{ item }}"
+    dest: "{{ munin_available_plugins_dir }}/{{ item }}"
     mode: u=rwx,g=rx,o=rx
+  with_items:
+    - typesense
+    - du_
 
 - name: create symlinks for munin plugins
   ansible.builtin.file:
@@ -104,6 +107,24 @@
     - { src: postfix_mailvolume, dest: postfix_mailvolume }
   when: installed_postfix_check is succeeded
 
+- name: create symlink to du_backup munin plugin for beta server
+  ansible.builtin.file:
+    src: "{{ munin_available_plugins_dir }}/du_"
+    dest: /etc/munin/plugins/du_backup
+    state: link
+  when: env == "beta"
+
+- name: create symlink to du_ munin plugins for prod server
+  ansible.builtin.file:
+    src: "{{ munin_available_plugins_dir }}/du_"
+    dest: "/etc/munin/plugins/du_{{ item }}"
+    state: link
+  with_items:
+    - mysql-backup
+    - zds-data
+    - zds-db
+  when: env == "prod"
+
 - name: copy configuration file of wget_page munin plugin
   ansible.builtin.template:
     src: plugin-conf.d/wget_page.j2
@@ -122,3 +143,17 @@
     regexp: ^env.mysqluser root
     line: env.mysqluser root
   when: env == "beta"
+
+- name: copy configuration file of du_backup munin plugin for beta server
+  ansible.builtin.template:
+    src: plugin-conf.d/du_backup.j2
+    dest: /etc/munin/plugin-conf.d/du_backup
+    mode: u=rw,g=r,o=r
+  when: env == "beta"
+
+- name: copy configuration file of du_munin plugins for prod server
+  ansible.builtin.template:
+    src: plugin-conf.d/du_prod.j2
+    dest: /etc/munin/plugin-conf.d/du
+    mode: u=rw,g=r,o=r
+  when: env == "prod"
