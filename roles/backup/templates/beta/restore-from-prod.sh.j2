@@ -18,20 +18,23 @@ function usage()
 	echo -e "\tupdate-mysql"
 	echo -e "\trestore-data"
 	echo -e "\tupdate-zds"
+	echo -e "\treset-search-index"
 	echo -e "\tstart-website"
-	echo -e "\tall (prepare-db, stop-website, stop-mysql, backup-mysql, restore-mysql, start-mysql, update-mysql, restore-data, update-zds, start-website)"
+	echo -e "\tall (prepare-db, stop-website, stop-mysql, backup-mysql, restore-mysql, start-mysql, update-mysql, restore-data, update-zds, reset-search-index, start-website)"
 	echo -e "\tclean"
 }
 
 function print_info()
 {
     if [[ "$2" == "--bold" ]]; then
-        echo -en "\033[36;1m"
+        echo -en "$(date) -- \033[36;1m"
     else
         echo -en "\033[0;36m"
     fi
+
     echo "$1"
-    echo -en "\033[00m"
+
+    echo -e "\033[00m"
 }
 
 
@@ -51,6 +54,7 @@ start_mysql=0
 update_mysql=0
 restore_data=0
 update_zds=0
+reset_search_index=0
 start_website=0
 clean=0
 
@@ -84,6 +88,9 @@ do
 		update-zds )
 			update_zds=1
 			;;
+		reset-search-index )
+			reset_search_index=1
+			;;
 		start-website )
 			start_website=1
 			;;
@@ -101,6 +108,7 @@ do
 			update_mysql=1
 			restore_data=1
 			update_zds=1
+			reset_search_index=1
 			start_website=1
 			;;
 		* )
@@ -158,7 +166,6 @@ then
 	echo "Incremental backups are: ${incremental_backups[@]}"
 fi
 
-
 if [ $prepare_db -eq 1 ]
 then
 	print_info "prepare-db" --bold
@@ -190,8 +197,6 @@ then
 		mariabackup -V --prepare --target-dir ${full_backup}/extracted/ --incremental-dir ${b}/extracted/
 	done
 fi
-
-
 
 # Step 2: stop the website
 if [ $stop_website -eq 1 ]
@@ -229,6 +234,8 @@ then
 	print_info "restore-mysql" --bold
 	mariabackup -V --copy-back --target-dir $BACKUP_DB_TMP_FULL/${full_backup}/extracted/
 	chown -R mysql:mysql /var/lib/mysql
+
+	date > $ZDS_ROOT/last_sync_with_prod.txt
 fi
 
 # Start MySQL:
@@ -271,12 +278,21 @@ then
 	$ZDS_WRAPPER migrate
 	print_info "collectstatic..."
 	$ZDS_WRAPPER collectstatic
-	print_info "search_engine_manager index_all..."
-	$ZDS_WRAPPER search_engine_manager index_all
 	print_info "restart memcached..."
 	service memcached restart  # required since sessions are stored in both db and cache, so wipe the cache data from prod server
+	print_info "wipe content of session table"  # the data is for the production server, no relevant on beta server
+	echo "DELETE FROM utils_customsession;" | /opt/zds/wrapper dbshell
+	echo "OPTIMIZE TABLE utils_customsession;" | /opt/zds/wrapper dbshell  # to free space on disk
 fi
 
+if [ $reset_search_index -eq 1 ]
+then
+	# Wipe search index and rebuild it
+	# This step is very long (> 1h), so put it in a dedicated step to be able to skip it
+	print_info "reset-search-index" --bold
+	print_info "search_engine_manager index_all..."
+	$ZDS_WRAPPER search_engine_manager index_all
+fi
 
 # Relaunch services:
 if [ $start_website -eq 1 ]
@@ -292,8 +308,6 @@ then
 	curl ${HETRIX_URL}1/
 	echo
 fi
-
-
 
 # Clean everything:
 if [ $clean -eq 1 ]
