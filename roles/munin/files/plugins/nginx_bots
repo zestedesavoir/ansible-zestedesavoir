@@ -1,0 +1,45 @@
+#!/bin/bash
+
+readonly LOG_FILES="${logfiles:-/var/log/nginx/acces.log /var/log/nginx/access.log.1}"
+
+case $1 in
+	config)
+		echo "graph_category nginx"
+		echo "graph_title Number of requests and bots"
+		echo "graph_args --base 1000 -l 0"
+		echo "graph_vlabel Nb requests"
+		echo "graph_scale no"
+		echo "other.label All other requests"
+		echo "other.draw AREASTACK"
+		echo "bot.label Not blocked bot requests"
+		echo "bot.draw AREASTACK"
+		echo "blocked_bot.label Blocked bot requests"
+		echo "blocked_bot.draw AREASTACK"
+		echo "graph_info Number and types of requests for the 5 last minutes"
+		exit 0;;
+esac
+
+
+nb_bots=0
+nb_blocked_bots=0
+nb_total_lines=0
+
+for i in $(seq 5)
+do
+	log_minute=$(grep -E "^.+ - - \[$(LANG=C date --date="now - $i min" "+%d/%b/%Y:%H:%M:")" $LOG_FILES | sed -E 's/^.+" ([0-9]+) [0-9]+ ".+" "(.+)"$/\1 \2/g')
+
+	n=$(echo "$log_minute" | grep -v -E "^444 " | grep -c -i bot)
+	nb_bots=$((nb_bots+n))
+
+	n=$(echo "$log_minute" | grep -E "^444 " | grep -c -i bot)
+	nb_blocked_bots=$((nb_blocked_bots+n))
+
+	n=$(echo "$log_minute" | wc -l)
+	nb_total_lines=$((nb_total_lines+n))
+done
+
+nb_other=$((nb_total_lines-nb_bots-nb_blocked_bots))
+
+echo "bot.value $nb_bots"
+echo "blocked_bot.value $nb_blocked_bots"
+echo "other.value $nb_other"

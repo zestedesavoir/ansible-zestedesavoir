@@ -81,6 +81,7 @@
   with_items:
     - typesense
     - du_
+    - nginx_bots
 
 - name: create symlinks for munin plugins
   ansible.builtin.file:
@@ -125,11 +126,14 @@
     - zds-db
   when: env == "prod"
 
-- name: copy configuration file of wget_page munin plugin
+- name: copy configuration file of several munin plugin
   ansible.builtin.template:
-    src: plugin-conf.d/wget_page.j2
-    dest: /etc/munin/plugin-conf.d/wget_page
+    src: plugin-conf.d/{{ item }}.j2
+    dest: /etc/munin/plugin-conf.d/{{ item }}
     mode: u=rw,g=r,o=r
+  with_items:
+    - wget_page
+    - nginx_bots
 
 - name: copy configuration file of typesense munin plugin
   ansible.builtin.template:

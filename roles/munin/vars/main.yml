@@ -79,3 +79,4 @@ munin_enabled_plugins:
   - { src: zmd, dest: zmd_memory }
   - { src: zmd, dest: zmd_status }
   - { src: typesense, dest: typesense }
+  - { src: nginx_bots, dest: nginx_bots }
