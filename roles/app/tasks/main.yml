@@ -154,16 +154,32 @@
   tags:
     - bootstrap
 
-- name: create robots.txt in webroot for prod
-  ansible.builtin.file:
+- name: get content of zds-site/robots.txt
+  ansible.builtin.slurp:
     src: "{{ appdir }}/robots.txt"
+  register: zds_site_robot_content
+  when: env != "beta"
+
+- name: get content of ai.robots.txt
+  ansible.builtin.uri:
+    url: https://raw.githubusercontent.com/ai-robots-txt/ai.robots.txt/refs/heads/main/robots.txt
+    return_content: true
+  register: ai_robot_content
+  when: env != "beta"
+
+- name: create robots.txt in webroot for prod
+  ansible.builtin.template:
+    src: templates/robots.txt.j2
     dest: "{{ webroot }}/robots.txt"
-    state: link
-  when: env == "prod"
+    owner: "{{ appuser }}"
+    group: "{{ appuser }}"
+    mode: u=rwx,g=rx,o=rx
+  when: env != "beta"
   tags:
     - bootstrap
+    - upgrade
 
-- name: create robots.txt in webroot for beta
+- name: create robots.txt in webroot for beta (deny everything)
   ansible.builtin.copy:
     src: robots-deny.txt
     dest: "{{ webroot }}/robots.txt"
