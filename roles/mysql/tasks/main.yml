@@ -4,7 +4,7 @@
     pkg:
       - mariadb-server
       - mariadb-backup
-      - python3-mysqldb
+      - python3-pymysql  # for Ansible
     cache_valid_time: 3600
 
 - name: create /var/log/mysql folder # seems to be required for mysql_upgrade after restoring backup from prod
@@ -34,6 +34,7 @@
     state: present
     encoding: utf8mb4
     collation: utf8mb4_unicode_ci
+    login_unix_socket: /var/run/mysqld/mysqld.sock
 
 - name: create mysql user
   community.mysql.mysql_user:
@@ -42,3 +43,5 @@
     host: localhost
     priv: "{{ mysql.name }}.*:ALL"
     state: present
+    column_case_sensitive: false
+    login_unix_socket: /var/run/mysqld/mysqld.sock
