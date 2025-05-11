@@ -5,6 +5,6 @@ zds-prod-2016.zestedesavoir.com
 zds-beta-2023.zestedesavoir.com
 
 
-[app:children]
+[zds:children]
 production
 beta

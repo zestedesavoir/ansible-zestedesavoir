@@ -10,8 +10,8 @@ driver:
 provisioner:
   name: ansible_playbook
   hosts: test
-  playbook: playbook.yml
-  ansible_inventory: kitchen-hosts
+  playbook: playbook-matomo.yml
+  ansible_inventory: kitchen-matomo-hosts
   ansible_verbose: true
   requirements_collection_path: requirements.yml
   additional_copy_path: requirements.yml

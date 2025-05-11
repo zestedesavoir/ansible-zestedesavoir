@@ -1,6 +1,6 @@
 ---
 - name: deploy zds-site
-  hosts: app
+  hosts: zds
   become: true
   roles:
     - role: common

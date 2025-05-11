@@ -1,0 +1,10 @@
+---
+- name: deploy matomo for zds
+  hosts: matomo
+  become: true
+  roles:
+    - role: common
+    - role: firewall
+    - role: matomo
+    - role: munin
+    - role: vaultwarden

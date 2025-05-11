@@ -1,0 +1,25 @@
+---
+- name: create matomo dir
+  ansible.builtin.file:
+    path: "{{ matomo_webroot }}"
+    state: directory
+    mode: u=rwx,g=rx,o=rx
+    owner: www-data
+
+- name: download matomo
+  ansible.builtin.get_url:
+    url: "https://builds.matomo.org/matomo-{{ matomo_version }}.tar.gz"
+    dest: "{{ matomo_webroot }}/matomo-{{ matomo_version }}.tar.gz"
+    mode: u=rw,g=r,o=r
+    owner: www-data
+
+- name: extract matomo sources
+  ansible.builtin.unarchive:
+    src: "{{ matomo_webroot }}/matomo-{{ matomo_version }}.tar.gz"
+    remote_src: true
+    dest: "{{ matomo_webroot }}"
+    owner: www-data
+    extra_opts:
+      - --transform
+      - s,^matomo/,,
+  notify: reload nginx

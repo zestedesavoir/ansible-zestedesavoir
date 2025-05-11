@@ -1,0 +1,133 @@
+---
+# Nginx
+- name: install nginx
+  ansible.builtin.apt:
+    pkg: nginx
+    cache_valid_time: 3600
+
+- name: install certbot
+  ansible.builtin.apt:
+    pkg:
+      - certbot
+      - python3-certbot-nginx
+    cache_valid_time: 3600
+  when: enable_https
+
+- name: create config dirs
+  ansible.builtin.file:
+    path: /etc/nginx/{{ item }}
+    state: directory
+    mode: u=rwx,g=rx,o=rx
+  with_items:
+    - snippets/
+    - sites-available/
+    - sites-enabled/
+
+- name: remove default configuration shipped with nginx package
+  ansible.builtin.file:
+    path: /etc/nginx/{{ item }}/default
+    state: absent
+  with_items:
+    - sites-available
+    - sites-enabled
+
+- name: generate nginx matomo config file
+  ansible.builtin.template:
+    src: nginx/sites-available/matomo.j2
+    dest: /etc/nginx/sites-available/matomo
+    mode: u=rw,g=r,o=r
+  notify: reload nginx
+
+- name: enable matomo nginx vhost
+  ansible.builtin.file:
+    src: /etc/nginx/sites-available/matomo
+    dest: /etc/nginx/sites-enabled/matomo
+    state: link
+  notify: reload nginx
+
+- name: copy status vhost
+  ansible.builtin.copy:
+    src: nginx/sites-available/status
+    dest: /etc/nginx/sites-enabled/status
+    state: link
+  notify: reload nginx
+  when: env != "vagrant"
+
+- name: enable status
+  ansible.builtin.file:
+    src: /etc/nginx/sites-available/status
+    dest: /etc/nginx/sites-enabled/status
+    state: link
+  notify: reload nginx
+  when: env != "vagrant"
+
+# MariaDB
+- name: install mariadb-server and mariadb-backup
+  ansible.builtin.apt:
+    pkg:
+      - mariadb-server
+      - mariadb-backup
+      - python3-pymysql  # for Ansible
+    cache_valid_time: 3600
+
+- name: create /var/log/mysql folder # seems to be required for mysql_upgrade after restoring backup from prod
+  ansible.builtin.file:
+    path: /var/log/mysql
+    state: directory
+    owner: mysql
+    group: mysql
+    mode: u=rwx,g=rx,o=rx
+
+- name: ensure mariadb is started
+  ansible.builtin.systemd:
+    name: mariadb
+    state: started
+    enabled: true
+
+- name: create mysql database
+  community.mysql.mysql_db:
+    name: "{{ mysql.name }}"
+    state: present
+    encoding: utf8mb4
+    collation: utf8mb4_unicode_ci
+    login_unix_socket: /var/run/mysqld/mysqld.sock
+  when: env == "vagrant"
+
+- name: create mysql user
+  community.mysql.mysql_user:
+    name: "{{ mysql.user }}"
+    password: "{{ mysql.password }}"
+    host: localhost
+    priv: "{{ mysql.name }}.*:ALL"
+    state: present
+    column_case_sensitive: false
+    login_unix_socket: /var/run/mysqld/mysqld.sock
+  when: env == "vagrant"
+
+# PHP
+- name: install php
+  ansible.builtin.apt:
+    pkg:
+      - php
+      - php-fpm
+      - php-gd
+      - php-mysql
+      - php-xml
+    cache_valid_time: 3600
+
+- name: disable apache service  # apache comes with php
+  ansible.builtin.systemd:
+    name: apache2
+    enabled: false
+
+# Matomo
+- name: test if matomo is already installed
+  ansible.builtin.stat:
+    path: "{{ matomo_webroot }}/matomo.php"
+  register: installed_matomo
+
+- name: download and install matomo
+  ansible.builtin.include_tasks: matomo.yml
+  when:  # and
+    - not installed_matomo.stat.exists
+    - env == "vagrant"
