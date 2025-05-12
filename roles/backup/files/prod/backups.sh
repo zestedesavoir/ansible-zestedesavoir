@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 set -eu
 
@@ -28,7 +28,23 @@ db_local_backup()
 	if [ "$#" -ge 1 ] && [ "$1" = "full" ]; then
 		NEXT=$NEXT-full
 		mkdir $NEXT
-		mariabackup --backup --stream=xbstream --extra-lsndir $NEXT 2> $NEXT/mariabackup.log | gzip > $NEXT/backup.stream.gz
+
+		(
+			set -o pipefail  # get exit code before pipe
+			set +e
+			mariabackup 				\
+				--backup 			\
+				--stream=xbstream 		\
+				--extra-lsndir $NEXT 		\
+				2> $NEXT/mariabackup.log 	\
+				| gzip > $NEXT/backup.stream.gz
+			err=$?
+                        if [ $err -ne 0 ]; then
+                                echo "Full database backup failed, aborting."
+                                exit 1
+                        fi
+                )
+
 	else
 		if ! [ -L "$LATEST" ]; then
 			echo "'$LATEST' does not exists. Consider doing a full backup first."
@@ -36,7 +52,23 @@ db_local_backup()
 		fi
 
 		mkdir $NEXT
-		mariabackup --backup --stream=xbstream --extra-lsndir $NEXT --incremental-basedir $PREVIOUS 2> $NEXT/mariabackup.log | gzip > $NEXT/backup.stream.gz
+
+		(
+			set -o pipefail  # get exit code before pipe
+			set +e
+			mariabackup 				\
+				--backup 			\
+				--stream=xbstream 		\
+				--extra-lsndir $NEXT 		\
+				--incremental-basedir $PREVIOUS \
+				2> $NEXT/mariabackup.log 	\
+				| gzip > $NEXT/backup.stream.gz
+			err=$?
+                        if [ $err -ne 0 ]; then
+                                echo "Incremental database backup failed, aborting."
+                                exit 1
+                        fi
+                )
 	fi
 
 	rm -f $LATEST $LATEST.log
