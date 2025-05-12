@@ -117,29 +117,67 @@ db_clean()
 }
 
 
+do_full_db_backup=0
+parallel_remote_backup=0  # Don't parallelize borg backups by default, since it mixes up log ouput
+while [ $# -gt 0 ]; do
+	case $1 in
+		full ) do_full_db_backup=1
+			;;
+		--parallel-remote-backup ) parallel_remote_backup=1
+			;;
+	esac
+	shift
+done
+
+if [ -e /opt/zds/webroot/maintenance.html ]; then
+	echo "Maintenance is in progress, enabling parallel remote borg backups"
+	parallel_remote_backup=1
+fi
+
+
 # Big separator in log between executions of the script:
 echo "#######################################################################################################################"
 echo "Starting script ($(date))"
 
-full=0
-if [ "$#" -ge 1 ] && [ "$1" = "full" ]; then
-	full=1
+if [ $do_full_db_backup -eq 1 ]; then
 	echo "** Starting a local full backup of the database..."
 	db_local_backup full
 else
 	echo "** Starting a local incremental backup of the database..."
 	db_local_backup
 fi
+echo "done ($(date))."
+
+echo
 
 # Exception handling: if the first backup fails, we don't want it to stop the others.
 set +e
-backup2beta2023; err1=$?
-echo
-# Ajouter ici les autres appels aux fonctions de sauvegarde
-# backup2toto; err2=?
-# echo
+err1=1
+# err2=2
+if [ $parallel_remote_backup -eq 1 ]; then
+	taskset --cpu-list -p 0,1 $$  # use only 2 cores for parallel backup, to leave the third core available for other processes
+
+	backup2beta2023 &
+	pid_beta=$!
+	# Ajouter ici les autres appels aux fonctions de sauvegarde
+	# backup2toto &
+	# pid_toto=$!
+
+	wait $pid_beta
+	err1=$?
+	# wait $pid_toto
+	# err2=$?
+else
+	backup2beta2023; err1=$?
+	echo
+	# Ajouter ici les autres appels aux fonctions de sauvegarde
+	# backup2toto; err2=?
+	# echo
+fi
 err=$((err1+err2))
 set -e
+
+echo
 
 if [ "$(date '+%H')" -eq "04" ]; then
 	db_clean
@@ -149,7 +187,7 @@ if [ $err -gt 0 ]; then
 	echo "At least one backup failed!"
 else
 	echo "All backups completed successfully."
-	if [ $full -eq 1 ]; then
+	if [ $do_full_db_backup -eq 1 ]; then
 		curl -s -m 10 --retry 5 $(cat /root/healthchecks/prod-sauvegarde-complete.txt)
 	else
 		curl -s -m 10 --retry 5 $(cat /root/healthchecks/prod-sauvegarde-incrementale.txt)
