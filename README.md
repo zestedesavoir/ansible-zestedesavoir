@@ -10,6 +10,7 @@ Ce dépôt contient tous les fichiers nécessaires au déploiement d'un serveur 
 - [Foire Aux Questions concernant le déploiement](docs/deployment-faq.md)
 - [Fonctionnement des sauvegardes de Zeste de Savoir](docs/backup.md)
 - [Fonctionnement du pare-feu](docs/firewall.md)
+- [Matomo](docs/matomo.md)
 
 **Liens connexes au projet**
 

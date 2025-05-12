@@ -21,7 +21,12 @@ jobs:
         uses: pre-commit/action@v3.0.1
 
   test:
+    name: Execute playbooks
     runs-on: ubuntu-24.04
+
+    strategy:
+      matrix:
+        playbook: [zds, matomo]
 
     steps:
       - name: Checkout
@@ -30,7 +35,7 @@ jobs:
       - name: Set up Ruby and Ruby gems
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: 3.1
+          ruby-version: 3.3
           bundler-cache: true
 
       - name: Set up Python 3.11
@@ -47,5 +52,7 @@ jobs:
           sudo apparmor_parser -R /etc/apparmor.d/usr.sbin.mysqld;
           sudo aa-status
 
-      - name: Run Kitchen tests
+      - name: Run Kitchen tests for ${{ matrix.playbook }}
         run: bundle exec kitchen test
+        env:
+          KITCHEN_YAML: kitchen-${{ matrix.playbook }}.yml

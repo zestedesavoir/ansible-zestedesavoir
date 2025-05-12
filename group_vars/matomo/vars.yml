@@ -1,0 +1,9 @@
+---
+# Load a specific configuration to make it work in Vagrant, and it is also
+# what is executed on GitHub Actions
+
+install_zds: false
+http_host: matomo.zestedesavoir.com
+enable_https: true
+matomo_webroot: /opt/matomo
+matomo_version: 5.3.2

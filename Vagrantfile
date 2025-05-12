@@ -3,19 +3,33 @@ Vagrant.require_version ">= 1.7.0"
 Vagrant.configure(2) do |config|
   config.vm.box = "generic/debian12"
 
-  config.vm.network "forwarded_port", guest: 80, host: 8080
-  config.vm.network "forwarded_port", guest: 443, host: 8443
+  config.vm.define 'zds-site' do |zds|
+    zds.vm.network "forwarded_port", guest: 80, host: 8080
 
-  config.vm.define 'test'
+    zds.vm.provision "ansible" do |ansible|
+      ansible.compatibility_mode = "2.0"
+      ansible.verbose = "v"
+      ansible.playbook = "playbook-zds.yml"
+      ansible.groups = {
+        "test" => ["zds-site"],
+        "zds:children" => ["test"]
+      }
+      ansible.vault_password_file = "./vault-secret"
+    end
+  end
 
-  config.vm.provision "ansible" do |ansible|
-    ansible.compatibility_mode = "2.0"
-    ansible.verbose = "v"
-    ansible.playbook = "playbook.yml"
-    ansible.groups = {
-      "test" => ["test"],
-      "app:children" => ["test"]
-    }
-    ansible.vault_password_file = "./vault-secret"
+  config.vm.define 'matomo' do |matomo|
+    matomo.vm.network "forwarded_port", guest: 80, host: 8081
+
+    matomo.vm.provision "ansible" do |ansible|
+      ansible.compatibility_mode = "2.0"
+      ansible.verbose = "v"
+      ansible.playbook = "playbook-matomo.yml"
+      ansible.groups = {
+        "test_matomo" => ["matomo"],
+        "matomo:children" => ["test_matomo"]
+      }
+      ansible.vault_password_file = "./vault-secret"
+    end
   end
 end

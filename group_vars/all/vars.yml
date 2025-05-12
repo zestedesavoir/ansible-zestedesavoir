@@ -1,4 +1,5 @@
 ---
+install_zds: true
 workdir: /opt/zds
 rundir: "{{ workdir }}/run"
 appdir: "{{ workdir }}/app"

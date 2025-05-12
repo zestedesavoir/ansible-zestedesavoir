@@ -15,8 +15,8 @@ Depuis une copie de `ansible-zestedesavoir` sur votre ordinateur :
 5. **Attention, un grand pouvoir implique de grandes responsabilités !**
     1. Vérifier votre choix pour `ENV`, `TAG` et `appversion`
     2. Lancer le *playbook* avec cette commande :
-        - (version longue) `ansible-playbook playbook.yml --limit=ENV --tags=TAG --ask-become-pass --vault-password-file=vault-secret`
-        - (version courte) `ansible-playbook playbook.yml -l ENV -t TAG -K --vault-password-file=vault-secret`
+        - (version longue) `ansible-playbook playbook-zds.yml --limit=ENV --tags=TAG --ask-become-pass --vault-password-file=vault-secret`
+        - (version courte) `ansible-playbook playbook-zds.yml -l ENV -t TAG -K --vault-password-file=vault-secret`
 6. Vérifier que le serveur fonctionne bien et siroter un diabolo
 
 ## Déployer dans une machine virtuelle locale
@@ -33,21 +33,21 @@ Voici les principales commandes à connaitre pour utiliser Vagrant :
 Commande | Explication
 ---|---
 `vagrant` | Afficher l'aide
-`vagrant up` | Si la machine virtuelle n'existe pas : construire la machine, la démarrer et lancer le *playbook*. <br> Si la machine virtuelle existe déjà : simplement la démarrer.
-`vagrant provision` | Lancer le *playbook* dans la machine virtuelle (avec la configuration `test`)
-`vagrant ssh` | Ouvrir une connexion SSH avec la machine virtuelle
-`vagrant halt` | Arrêter la machine virtuelle
-`vagrant destroy` | Supprimer la machine virtuelle
+`vagrant up zds` | Si la machine virtuelle n'existe pas : construire la machine, la démarrer et lancer le *playbook*. <br> Si la machine virtuelle existe déjà : simplement la démarrer.
+`vagrant provision zds` | Lancer le *playbook* dans la machine virtuelle (avec la configuration `test`)
+`vagrant ssh zds` | Ouvrir une connexion SSH avec la machine virtuelle
+`vagrant halt zds` | Arrêter la machine virtuelle
+`vagrant destroy zds` | Supprimer la machine virtuelle
 
 ### Première utilisation
 
-À la racine du dépôt, lancez `vagrant up` et attendez une dizaine de minutes. Si la commande se termine sans erreur, alors vous pouvez accéder au site web sur `localhost:8080` (HTTP) ou `localhost:8443` (HTTPS). Si la commande s'est arrêtée avec une belle erreur toute rouge, alors il va falloir trouver le soucis et le corriger. Si tel est le cas, n'hésitez pas à demander de l'aide !
+À la racine du dépôt, lancez `vagrant up zds` et attendez une dizaine de minutes. Si la commande se termine sans erreur, alors vous pouvez accéder au site web sur `localhost:8080` (HTTP) ou `localhost:8443` (HTTPS). Si la commande s'est arrêtée avec une belle erreur toute rouge, alors il va falloir trouver le soucis et le corriger. Si tel est le cas, n'hésitez pas à demander de l'aide !
 
 ### Charger les données initiales
 
 **Les données initiales sont maintenant chargées automatiquement avec Ansible lorsque Vagrant est utilisé.**
 
-Si vous souhaitez charger les données initiales (utilisateurs, tutoriels, billets, sujets du forum, etc. factices), alors il faut se connecter au serveur avec `vagrant ssh` puis lancer ces commandes :
+Si vous souhaitez charger les données initiales (utilisateurs, tutoriels, billets, sujets du forum, etc. factices), alors il faut se connecter au serveur avec `vagrant ssh zds` puis lancer ces commandes :
 
 ```bash
 sudo -u zds bash
