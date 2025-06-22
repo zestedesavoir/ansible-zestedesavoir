@@ -22,6 +22,7 @@
     - snippets/
     - sites-available/
     - sites-enabled/
+    - "{{ logdir }}"
 
 - name: remove default configuration shipped with nginx package
   ansible.builtin.file:
@@ -48,8 +49,8 @@
 - name: copy status vhost
   ansible.builtin.copy:
     src: nginx/sites-available/status
-    dest: /etc/nginx/sites-enabled/status
-    state: link
+    dest: /etc/nginx/sites-available/status
+    mode: u=rw,g=r,o=r
   notify: reload nginx
   when: env != "vagrant"
 

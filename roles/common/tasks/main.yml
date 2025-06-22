@@ -14,6 +14,7 @@
   ansible.builtin.apt:
     pkg:
       - acl # Allow Ansible to use 'become' command (see https://docs.ansible.com/ansible/latest/user_guide/become.html#risks-and-limitations-of-become)
+      - cron
       - git
       - htop
       - locales
@@ -22,6 +23,7 @@
       - python3-pip
       - sudo
       - tmux
+      - tree
       - unzip
       - vim
       - zsh

@@ -1,3 +1,8 @@
+map $http_user_agent $loggable {
+    ~^HetrixTools 0;
+    default 1;
+}
+
 {% if env == "vagrant" %}
 upstream vaultwarden-default {
   zone vaultwarden-default 64k;
