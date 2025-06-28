@@ -35,3 +35,9 @@
     name: vaultwarden.service
     enabled: true
     daemon_reload: true
+
+- name: install sqlite3
+  ansible.builtin.apt:
+    pkg: sqlite3
+    state: present
+    cache_valid_time: 3600

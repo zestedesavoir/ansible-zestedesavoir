@@ -1,0 +1,132 @@
+map $http_user_agent $loggable {
+    ~^HetrixTools 0;
+    default 1;
+}
+
+{% if env == "vagrant" %}
+upstream vaultwarden-default {
+  zone vaultwarden-default 64k;
+  server 127.0.0.1:{{ pass_manager_port }};
+  keepalive 2;
+}
+{% endif %}
+
+server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
+
+{% if enable_https %}
+{% if http_host %}
+    server_name {{ http_host }};
+{% endif %}
+
+    access_log {{ logdir }}/nginx-https-redirect-access.log combined if=$loggable;
+    error_log {{ logdir }}/nginx-https-redirect-error.log;
+
+    root /var/www/html;
+
+    location /.well-known {
+        allow all;
+    }
+
+    location / {
+        return 301 https://$host$request_uri;
+    }
+}
+
+server {
+    listen 443 ssl http2 default_server;
+    listen [::]:443 ssl http2 default_server;
+{% endif %}
+
+{% if env != "vagrant" %}
+    server_name {{ http_host }};
+{% else %}
+    # On Vagrant installations, 127.0.0.1 is already used to serve the website, so
+    # we put here the /nginx_status end-point, instead of creating a 127.0.0.1 vhost.
+    location /nginx_status {
+        stub_status on;
+        access_log   off;
+        allow 127.0.0.1;
+        allow ::1;
+        deny all;
+    }
+
+    # Serve also Vaultwarden in subfolder
+    location /vault/ {
+      proxy_http_version 1.1;
+      proxy_set_header Host $host;
+      proxy_set_header X-Real-IP $remote_addr;
+      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+      proxy_set_header X-Forwarded-Proto $scheme;
+
+      proxy_pass http://vaultwarden-default;
+    }
+{% endif %}
+
+    server_tokens off;
+
+    root {{ matomo_webroot }};
+    index index.php;
+
+{% if enable_https and certificate is defined %}
+    ssl_certificate {{ certificate.cert }};
+    ssl_certificate_key {{ certificate.key }};
+{% endif %}
+
+    access_log /var/log/nginx/matomo.access.log;
+    error_log /var/log/nginx/matomo.error.log;
+
+    add_header Referrer-Policy origin always; # make sure outgoing links don't show the URL to the Matomo instance
+    add_header Strict-Transport-Security "max-age=63072000; includeSubDomains; preload" always;
+    add_header X-XSS-Protection "1; mode=block" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header X-Frame-Options SAMEORIGIN;
+
+    location ~ ^/(index|matomo|piwik|js/index|plugins/HeatmapSessionRecording/configs.php).php {
+        include snippets/fastcgi-php.conf;
+        fastcgi_param HTTP_PROXY ""; # prohibit httpoxy: https://httpoxy.org/
+        fastcgi_pass unix:/var/run/php/php-fpm.sock;
+    }
+
+    location ~* ^.+\.php$ {
+        deny all;
+        return 403;
+    }
+
+    location / {
+        try_files $uri $uri/ =404;
+    }
+
+    location ~ /(config|tmp|core|lang) {
+        deny all;
+        return 404;
+    }
+
+    location ~ /\.ht {
+        deny  all;
+        return 403;
+    }
+
+    location ~ js/container_.*_preview\.js$ {
+        expires off;
+        add_header Cache-Control 'private, no-cache, no-store';
+    }
+
+    location ~ \.(gif|ico|jpg|png|svg|js|css|htm|html|mp3|mp4|wav|ogg|avi|ttf|eot|woff|woff2|json)$ {
+        allow all;
+        expires 1h;
+        add_header Pragma public;
+        add_header Cache-Control "public";
+    }
+
+    location ~ /(libs|vendor|plugins|misc/user) {
+        deny all;
+        return 403;
+    }
+
+    ## properly display textfiles in root directory
+    location ~/(.*\.md|LEGALNOTICE|LICENSE) {
+        default_type text/plain;
+    }
+}

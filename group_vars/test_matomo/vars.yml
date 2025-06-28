@@ -1,0 +1,14 @@
+---
+# Load a specific configuration to make it work in Vagrant, and it is also
+# what is executed on GitHub Actions
+
+install_zds: false
+env: vagrant
+http_host: false
+mysql:
+  user: matomo
+  password: test
+  name: matomo
+enable_https: false
+matomo_webroot: /opt/matomo
+matomo_version: 5.3.2

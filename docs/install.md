@@ -42,7 +42,7 @@ bundle install
 
 Pour lancer les tests:
 ```sh
-LANG=C.UTF-8 bundle exec kitchen test
+LANG=C.UTF-8 KITCHEN_YAML=kitchen-zds.yml bundle exec kitchen test
 ```
 Il y a un bug qui fait échouer les tests si la langue du système n'est pas l'anglais, d'où la variable d'environnement `LANG`.
 

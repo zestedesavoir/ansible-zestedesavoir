@@ -52,12 +52,14 @@
     url: https://raw.githubusercontent.com/mhwest13/Memcached-Munin-Plugin/master/memcached_multi_
     dest: "{{ munin_available_plugins_dir }}/memcached_multi_"
     mode: u=rwx,g=rx,o=rx
+  when: install_zds
 
 - name: get wget_page munin plugin
   ansible.builtin.get_url:
     url: https://raw.githubusercontent.com/munin-monitoring/contrib/master/plugins/http/wget_page
     dest: "{{ munin_available_plugins_dir }}/wget_page"
     mode: u=rwx,g=rx,o=rx
+  when: install_zds
 
 - name: copy django.py munin plugin
   ansible.builtin.copy:
@@ -65,6 +67,7 @@
     src: "{{ appdir }}/django_munin/plugins/django.py"
     dest: "{{ munin_available_plugins_dir }}/django.py"
     mode: u=rwx,g=rx,o=rx
+  when: install_zds
 
 - name: copy zmd munin plugin
   ansible.builtin.copy:
@@ -72,14 +75,21 @@
     src: "{{ zmarkdown_dir }}/node_modules/zmarkdown/munin/zmd.sh"
     dest: "{{ munin_available_plugins_dir }}/zmd"
     mode: u=rwx,g=rx,o=rx
+  when: install_zds
 
-- name: copy typesense and du_ munin plugin
+- name: copy typesense plugin
+  ansible.builtin.copy:
+    src: plugins/typesense
+    dest: "{{ munin_available_plugins_dir }}/typesense"
+    mode: u=rwx,g=rx,o=rx
+  when: install_zds
+
+- name: copy du_ and nginx_bots munin plugin
   ansible.builtin.copy:
     src: "plugins/{{ item }}"
     dest: "{{ munin_available_plugins_dir }}/{{ item }}"
     mode: u=rwx,g=rx,o=rx
   with_items:
-    - typesense
     - du_
     - nginx_bots
 
@@ -89,6 +99,14 @@
     dest: /etc/munin/plugins/{{ item.dest }}
     state: link
   with_items: "{{ munin_enabled_plugins }}"
+
+- name: create symlinks for zds munin plugins
+  ansible.builtin.file:
+    src: "{{ munin_available_plugins_dir }}/{{ item.src }}"
+    dest: /etc/munin/plugins/{{ item.dest }}
+    state: link
+  with_items: "{{ munin_zds_enabled_plugins }}"
+  when: install_zds
 
 - name: check if postfix is installed
   ansible.builtin.package:
@@ -134,12 +152,14 @@
   with_items:
     - wget_page
     - nginx_bots
+  when: install_zds
 
 - name: copy configuration file of typesense munin plugin
   ansible.builtin.template:
     src: plugin-conf.d/typesense.j2
     dest: /etc/munin/plugin-conf.d/typesense
     mode: '640'  # the file contains the Typesense API key
+  when: install_zds
 
 - name: use correct MySQL user for Munin plugin
   ansible.builtin.lineinfile:

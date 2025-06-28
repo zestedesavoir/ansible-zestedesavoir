@@ -18,13 +18,6 @@ munin_enabled_plugins:
   - { src: if_, dest: if_eth0 }
   - { src: interrupts, dest: interrupts }
   - { src: load, dest: load }
-  - { src: memcached_multi_, dest: memcached_multi_bytes }
-  - { src: memcached_multi_, dest: memcached_multi_commands }
-  - { src: memcached_multi_, dest: memcached_multi_conns }
-  - { src: memcached_multi_, dest: memcached_multi_evictions }
-  - { src: memcached_multi_, dest: memcached_multi_items }
-  - { src: memcached_multi_, dest: memcached_multi_memory }
-  - { src: memcached_multi_, dest: memcached_multi_unfetched }
   - { src: memory, dest: memory }
   - { src: munin_stats, dest: munin_stats }
   - { src: mysql_, dest: mysql_bin_relay_log }
@@ -60,6 +53,16 @@ munin_enabled_plugins:
   - { src: uptime, dest: uptime }
   - { src: users, dest: users }
   - { src: vmstat, dest: vmstat }
+  - { src: nginx_bots, dest: nginx_bots }
+
+munin_zds_enabled_plugins:
+  - { src: memcached_multi_, dest: memcached_multi_bytes }
+  - { src: memcached_multi_, dest: memcached_multi_commands }
+  - { src: memcached_multi_, dest: memcached_multi_conns }
+  - { src: memcached_multi_, dest: memcached_multi_evictions }
+  - { src: memcached_multi_, dest: memcached_multi_items }
+  - { src: memcached_multi_, dest: memcached_multi_memory }
+  - { src: memcached_multi_, dest: memcached_multi_unfetched }
   - { src: wget_page, dest: wget_page }
   - { src: django.py, dest: zds_active_sessions }
   - { src: django.py, dest: zds_active_users }
@@ -79,4 +82,3 @@ munin_enabled_plugins:
   - { src: zmd, dest: zmd_memory }
   - { src: zmd, dest: zmd_status }
   - { src: typesense, dest: typesense }
-  - { src: nginx_bots, dest: nginx_bots }
