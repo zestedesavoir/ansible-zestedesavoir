@@ -1,7 +1,7 @@
 ---
 # For a PR: pull/xxxx/head
 # For a branch or a tag: just its name
-appversion: dev
+appversion: pull/6682/head
 env: beta
 http_host: beta.zestedesavoir.com
 backupdir: /opt/sauvegarde
@@ -16,5 +16,5 @@ very_top_banner:
   background_color: "#800"
   border_color: "#450000"
   color: white
-  message: Version bêta
+  message: "Version bêta (PR « Mise à jour de ZMarkdown »)"
   slug: version-beta
