@@ -40,8 +40,8 @@
     state: directory
 
 - name: override munin-node service to wait for other services to start
-  ansible.builtin.copy:
-    src: systemd/munin-node-override.conf
+  ansible.builtin.template:
+    src: systemd/munin-node-override.conf.j2
     dest: /etc/systemd/system/munin-node.service.d/override.conf
     owner: root
     group: root

@@ -1,0 +1,2 @@
+[Unit]
+After=network-online.target mariadb.service{% if install_zds %} typesense-server.service{% endif %}
