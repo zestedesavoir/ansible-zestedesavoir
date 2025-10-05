@@ -1,3 +1,3 @@
-ansible==11.4.0
-ansible-lint==25.2.1  # doit aussi être mis à jour dans .pre-commit-config.yaml
-pre-commit==4.2.0
+ansible==12.0.0
+ansible-lint==25.9.1  # doit aussi être mis à jour dans .pre-commit-config.yaml
+pre-commit==4.3.0
