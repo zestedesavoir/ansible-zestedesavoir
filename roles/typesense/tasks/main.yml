@@ -14,9 +14,9 @@
     search_string: "api-address = 0.0.0.0"
     line: "api-address = 127.0.0.1"
 
-- name: generate logrotate config file
-  ansible.builtin.template:
-    src: logrotate/typesense.j2
+- name: copy logrotate config file
+  ansible.builtin.copy:
+    src: logrotate/typesense
     dest: /etc/logrotate.d/typesense
     mode: u=rw,g=r,o=r
 
