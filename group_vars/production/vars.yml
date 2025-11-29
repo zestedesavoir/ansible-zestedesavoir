@@ -1,5 +1,5 @@
 ---
-appversion: v31
+appversion: v31.1
 env: prod
 public: true
 http_host: zestedesavoir.com

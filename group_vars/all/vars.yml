@@ -10,7 +10,7 @@ zmarkdown_dir: "{{ appdir }}/zmd"
 zds_antispam_dir: /opt/zds-antispam
 logdir: /var/log/zds
 appuser: zds
-latex_template_version: c285c1c1a60807b732472b036ecb204ac2cb48f3
+latex_template_version: 882fb8f154cced15063a1a2371bdc2fb7cdd189b
 pass_manager_user: vaultwarden
 pass_manager_dir: /opt/vaultwarden
 pass_manager_port: 8081
