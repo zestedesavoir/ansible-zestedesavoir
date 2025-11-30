@@ -8,3 +8,4 @@
     - role: matomo
     - role: munin
     - role: vaultwarden
+    - role: backup

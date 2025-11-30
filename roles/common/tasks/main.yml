@@ -23,6 +23,7 @@
       - python3-pip
       - sudo
       - tmux
+      - traceroute
       - tree
       - unzip
       - vim

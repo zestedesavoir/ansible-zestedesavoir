@@ -23,3 +23,9 @@
       - --transform
       - s,^matomo/,,
   notify: reload nginx
+
+- name: copy logrotate config file
+  ansible.builtin.copy:
+    src: logrotate/matomo
+    dest: /etc/logrotate.d/matomo
+    mode: u=rw,g=r,o=r
