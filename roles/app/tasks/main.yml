@@ -159,6 +159,9 @@
     src: "{{ appdir }}/robots.txt"
   register: zds_site_robot_content
   when: env != "beta"
+  tags:
+    - bootstrap
+    - upgrade
 
 - name: get content of ai.robots.txt
   ansible.builtin.uri:
@@ -166,6 +169,9 @@
     return_content: true
   register: ai_robot_content
   when: env != "beta"
+  tags:
+    - bootstrap
+    - upgrade
 
 - name: create robots.txt in webroot for prod
   ansible.builtin.template:
