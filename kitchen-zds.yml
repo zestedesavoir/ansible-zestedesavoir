@@ -2,7 +2,7 @@
 driver:
   name: docker
   privileged: true
-  run_command: /bin/systemd
+  run_command: /sbin/init
   require_chef_omnibus: false
   cap_add:
     - SYS_ADMIN
@@ -17,7 +17,7 @@ provisioner:
   additional_copy_path: requirements.yml
 
 platforms:
-  - name: debian-12
+  - name: debian-13
 
 suites:
   - name: default
