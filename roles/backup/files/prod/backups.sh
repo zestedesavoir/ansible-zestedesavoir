@@ -129,10 +129,6 @@ while [ $# -gt 0 ]; do
 	shift
 done
 
-if [ -e /opt/zds/webroot/maintenance.html ]; then
-	echo "Maintenance is in progress, enabling parallel remote borg backups"
-	parallel_remote_backup=1
-fi
 
 
 # Big separator in log between executions of the script:
@@ -149,6 +145,13 @@ fi
 echo "done ($(date))."
 
 echo
+
+if [ -e /opt/zds/webroot/maintenance.html ]; then
+	# Test it after the database backup, to let time to setup the maintenance
+	echo "Maintenance is in progress, enabling parallel remote borg backups"
+	echo
+	parallel_remote_backup=1
+fi
 
 # Exception handling: if the first backup fails, we don't want it to stop the others.
 set +e
