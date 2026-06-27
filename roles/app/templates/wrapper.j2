@@ -6,7 +6,7 @@ APP=$BASE/app
 TARGET_USER={{ appuser }}
 
 if [ $USER != $TARGET_USER ]; then
-        sudo -u $TARGET_USER $0 $@
+        sudo -u $TARGET_USER $0 "$@"
         exit $?
 fi
 
@@ -17,4 +17,4 @@ export ZDS_CONFIG=$BASE/config.toml
 # See zestedesavoir/zds-site#4867
 cd $APP
 
-$PYTHON $APP/manage.py $@
+$PYTHON $APP/manage.py "$@"
