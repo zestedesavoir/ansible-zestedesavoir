@@ -1,6 +1,6 @@
 #!/bin/bash
 
-readonly LOG_FILES="${logfiles:-/var/log/nginx/acces.log /var/log/nginx/access.log.1}"
+readonly LOG_FILES="${logfiles:-/var/log/nginx/access.log /var/log/nginx/access.log.1}"
 
 case $1 in
 	config)
