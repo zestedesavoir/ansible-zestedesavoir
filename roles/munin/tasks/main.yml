@@ -144,6 +144,16 @@
     - zds-db
   when: env == "prod"
 
+- name: create symlink to du_ munin plugins for matomo server
+  ansible.builtin.file:
+    src: "{{ munin_available_plugins_dir }}/du_"
+    dest: "/etc/munin/plugins/du_{{ item }}"
+    state: link
+  with_items:
+    - mysql
+    - backup
+  when: not install_zds
+
 - name: copy configuration file of several munin plugin
   ansible.builtin.template:
     src: plugin-conf.d/{{ item }}.j2
@@ -153,6 +163,15 @@
     - wget_page
     - nginx_bots
   when: install_zds
+
+- name: copy configuration of munin du_matomo
+  ansible.builtin.copy:
+    src: etc/du_matomo
+    dest: /etc/munin/plugin-conf.d/du_matomo
+    owner: root
+    group: root
+    mode: "0644"
+  when: not install_zds
 
 - name: copy configuration file of typesense munin plugin
   ansible.builtin.template:
