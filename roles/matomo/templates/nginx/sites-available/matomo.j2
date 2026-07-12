@@ -74,7 +74,7 @@ server {
     ssl_certificate_key {{ certificate.key }};
 {% endif %}
 
-    access_log /var/log/nginx/matomo.access.log;
+    access_log /var/log/nginx/matomo.access.log combined if=$loggable;
     error_log /var/log/nginx/matomo.error.log;
 
     add_header Referrer-Policy origin always; # make sure outgoing links don't show the URL to the Matomo instance
