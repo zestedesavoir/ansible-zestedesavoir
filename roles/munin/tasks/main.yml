@@ -1,8 +1,14 @@
 ---
+- name: install munin server
+  ansible.builtin.apt:
+    pkg: munin
+    state: present
+    cache_valid_time: 3600
+  when: install_zds
+
 - name: install munin packages
   ansible.builtin.apt:
     pkg:
-      - munin
       - munin-node
       - libcache-cache-perl # for mysql munin plugin
       - libdbd-mysql-perl # for mysql munin plugin
