@@ -5,6 +5,11 @@
     pkg: nginx
     cache_valid_time: 3600
 
+- name: restart nginx
+  ansible.builtin.systemd:
+    state: restarted
+    name: nginx
+
 - name: install certbot
   ansible.builtin.apt:
     pkg:
@@ -52,7 +57,7 @@
     dest: /etc/nginx/sites-available/status
     mode: u=rw,g=r,o=r
   notify: reload nginx
-  when: env != "vagrant"
+  when: env != "local"
 
 - name: enable status
   ansible.builtin.file:
@@ -60,7 +65,7 @@
     dest: /etc/nginx/sites-enabled/status
     state: link
   notify: reload nginx
-  when: env != "vagrant"
+  when: env != "local"
 
 # MariaDB
 - name: install mariadb-server and mariadb-backup
@@ -92,7 +97,7 @@
     encoding: utf8mb4
     collation: utf8mb4_unicode_ci
     login_unix_socket: /var/run/mysqld/mysqld.sock
-  when: env == "vagrant"
+  when: env == "local"
 
 - name: create mysql user
   community.mysql.mysql_user:
@@ -103,7 +108,7 @@
     state: present
     column_case_sensitive: false
     login_unix_socket: /var/run/mysqld/mysqld.sock
-  when: env == "vagrant"
+  when: env == "local"
 
 # PHP
 - name: install php
@@ -121,6 +126,11 @@
     name: apache2
     enabled: false
 
+- name: restart php
+  ansible.builtin.systemd:
+    state: restarted
+    name: php8.4-fpm
+
 # Matomo
 - name: test if matomo is already installed
   ansible.builtin.stat:
@@ -131,4 +141,4 @@
   ansible.builtin.include_tasks: matomo.yml
   when:  # and
     - not installed_matomo.stat.exists
-    - env == "vagrant"
+    - env == "local"

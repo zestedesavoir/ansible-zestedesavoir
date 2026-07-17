@@ -19,35 +19,51 @@ Depuis une copie de `ansible-zestedesavoir` sur votre ordinateur :
         - (version courte) `ansible-playbook playbook-zds.yml -l ENV -t TAG -K --vault-password-file=vault-secret`
 6. Vérifier que le serveur fonctionne bien et siroter un diabolo
 
-## Déployer dans une machine virtuelle locale
+## Déployer en local
 
-Si vous souhaitez déployer Zeste de Savoir dans une machine virtuelle locale, il vous faut :
+Si vous souhaitez déployer Zeste de Savoir en local, nous utilisons un
+conteneur Docker. Il faut donc [installer
+Docker](https://docs.docker.com/engine/install/debian/). Ensuite, nous
+utilisons l'image
+[`geerlingguy/docker-debian13-ansible`](https://hub.docker.com/r/geerlingguy/docker-debian13-ansible)
+([sources](https://github.com/geerlingguy/docker-debian13-ansible)) qui utilise
+SystemD, nécessaire pour avoir un environnement vraiment ressemblant au serveur
+de production.
 
-1. un logiciel de virtualisation tel que VirtualBox ;
-2. le logiciel Vagrant pour interfacer le logiciel de virtualisation et Ansible.
-
-[Installer Vagrant à partir de leur site web](https://www.vagrantup.com/downloads.html)
-
-Voici les principales commandes à connaitre pour utiliser Vagrant :
-
-Commande | Explication
----|---
-`vagrant` | Afficher l'aide
-`vagrant up zds` | Si la machine virtuelle n'existe pas : construire la machine, la démarrer et lancer le *playbook*. <br> Si la machine virtuelle existe déjà : simplement la démarrer.
-`vagrant provision zds` | Lancer le *playbook* dans la machine virtuelle (avec la configuration `test`)
-`vagrant ssh zds` | Ouvrir une connexion SSH avec la machine virtuelle
-`vagrant halt zds` | Arrêter la machine virtuelle
-`vagrant destroy zds` | Supprimer la machine virtuelle
-
-### Première utilisation
-
-À la racine du dépôt, lancez `vagrant up zds` et attendez une dizaine de minutes. Si la commande se termine sans erreur, alors vous pouvez accéder au site web sur `localhost:8080` (HTTP) ou `localhost:8443` (HTTPS). Si la commande s'est arrêtée avec une belle erreur toute rouge, alors il va falloir trouver le soucis et le corriger. Si tel est le cas, n'hésitez pas à demander de l'aide !
+1. Création et démarrage d'un conteneur `ansible-zds` :
+   ```sh
+   docker run --detach --privileged --name ansible-matomo --volume=/sys/fs/cgroup:/sys/fs/cgroup:rw --cgroupns=host -p 8080:80 geerlingguy/docker-debian13-ansible
+   ```
+2. Lancer le playbook Ansible :
+   ```sh
+   ansible-playbook -i inventory-local-zds.ini playbook-zds.yml
+   ```
+   Le site devrait alors être accessible depuis `localhost:8080`.
+3. Obtenir un shell dans le conteneur :
+   ```sh
+   docker exec -it ansible-zds bash
+   ```
+4. Arrêter le conteneur :
+   ```sh
+   docker stop ansible-zds
+   ```
+5. Redémarrer le conteneur :
+   ```sh
+   docker start ansible-zds
+   ```
+6. Supprimer le conteneur :
+   ```sh
+   docker rm ansible-zds
+   ```
 
 ### Charger les données initiales
 
-**Les données initiales sont maintenant chargées automatiquement avec Ansible lorsque Vagrant est utilisé.**
+**Les données initiales sont maintenant chargées automatiquement avec Ansible
+lors d'un déploiement en local.**
 
-Si vous souhaitez charger les données initiales (utilisateurs, tutoriels, billets, sujets du forum, etc. factices), alors il faut se connecter au serveur avec `vagrant ssh zds` puis lancer ces commandes :
+Si vous souhaitez charger les données initiales (utilisateurs, tutoriels,
+billets, sujets du forum, etc. factices), il faut obtenir un shell dans le
+conteneur (`docker exec -it ansible-zds bash`) puis lancer ces commandes :
 
 ```bash
 sudo -u zds bash
@@ -55,12 +71,4 @@ sudo -u zds bash
 /opt/zds/wrapper loaddata /opt/zds/app/fixtures/*.yaml
 /opt/zds/wrapper load_factory_data fixtures/advanced/aide_tuto_media.yaml
 /opt/zds/wrapper load_fixtures --size=low --all
-```
-
-### Lancer le *playbook* avec un tag
-
-Si vous souhaitez lancer l'équivalent de `ansible-playbook --tags=upgrade`, il est nécessaire d'ajouter cette ligne au bloc `config.vm.provision "ansible" do |ansible|` du fichier `Vagrantfile` :
-
-```ruby
-ansible.tags = "upgrade"
 ```

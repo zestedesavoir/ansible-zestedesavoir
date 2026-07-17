@@ -10,7 +10,7 @@ map $http_user_agent $loggable {
     default 1;
 }
 
-{% if env == "vagrant" %}
+{% if env == "local" %}
 upstream vaultwarden-default {
   zone vaultwarden-default 64k;
   server 127.0.0.1:{{ pass_manager_port }};
@@ -46,7 +46,7 @@ server {
     listen [::]:443 ssl http2 default_server;
 {% endif %}
 
-{% if env != "vagrant" %}
+{% if env != "local" %}
     server_name {{ http_host }};
 
     ## Deny unexpected Host headers (otherwise Django raises "Invalid HTTP_HOST header" exceptions)
@@ -54,7 +54,7 @@ server {
         return 444;
     }
 {% else %}
-    # On Vagrant installations, we don't have server name, so serve Munin content as a subfolder
+    # On local installations, we don't have server name, so serve Munin content as a subfolder
     # (not 'munin' because it's a route used by Django)
     location /munin-web/ {
         alias /var/cache/munin/www/;
@@ -62,7 +62,7 @@ server {
         log_not_found off;
     }
 
-    # On Vagrant installations, 127.0.0.1 is already used to serve the website, so
+    # On local installations, 127.0.0.1 is already used to serve the website, so
     # we put here the /nginx_status end-point, instead of creating a 127.0.0.1 vhost.
     location /nginx_status {
         stub_status on;
@@ -160,8 +160,8 @@ server {
     error_page 503 @maintenance;
 
     include snippets/headers.conf;
-{% if env != "vagrant" %}
-    {# antispam bans Perl user agent, which is used by Munin; in non-Vagrant setup, nginx status is in its own vhost which doesn't include antispam.conf #}
+{% if env != "local" %}
+    {# antispam bans Perl user agent, which is used by Munin; in non-local setup, nginx status is in its own vhost which doesn't include antispam.conf #}
     include snippets/antispam.conf;
 {% endif %}
 }

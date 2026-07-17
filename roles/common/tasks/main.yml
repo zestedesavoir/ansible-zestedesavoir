@@ -32,6 +32,11 @@
     state: present
     cache_valid_time: 3600
 
+- name: start cron service
+  ansible.builtin.systemd:
+    state: started
+    name: cron
+
 - name: remove unattended-upgrades
   ansible.builtin.apt:
     pkg: unattended-upgrades

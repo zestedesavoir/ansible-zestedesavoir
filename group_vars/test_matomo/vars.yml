@@ -1,9 +1,9 @@
 ---
-# Load a specific configuration to make it work in Vagrant, and it is also
+# Load a specific configuration to make it work locally, and it is also
 # what is executed on GitHub Actions
 
 install_zds: false
-env: vagrant
+env: local
 http_host: false
 mysql:
   user: matomo

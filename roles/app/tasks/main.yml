@@ -194,12 +194,12 @@
   tags:
     - bootstrap
 
-- name: install Vagrant settings
+- name: install local settings
   ansible.builtin.copy:
-    src: vagrant.py
-    dest: "{{ appdir }}/zds/settings/vagrant.py"
+    src: local.py
+    dest: "{{ appdir }}/zds/settings/local.py"
     mode: u=rw,g=r,o=r
-  when: env == "vagrant"
+  when: env == "local"
   tags:
     - bootstrap
 

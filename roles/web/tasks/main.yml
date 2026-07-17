@@ -75,7 +75,7 @@
     dest: /etc/nginx/sites-available/munin
     mode: u=rw,g=r,o=r
   notify: reload nginx
-  when: env != "vagrant"
+  when: env != "local"
 
 - name: enable munin site
   ansible.builtin.file:
@@ -83,7 +83,7 @@
     dest: /etc/nginx/sites-enabled/munin
     state: link
   notify: reload nginx
-  when: env != "vagrant"
+  when: env != "local"
 
 - name: enable status
   ansible.builtin.file:
@@ -91,7 +91,7 @@
     dest: /etc/nginx/sites-enabled/status
     state: link
   notify: reload nginx
-  when: env != "vagrant"
+  when: env != "local"
 
 - name: generate vaultwarden config file
   ansible.builtin.template:

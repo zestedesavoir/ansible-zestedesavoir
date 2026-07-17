@@ -1,4 +1,10 @@
 ---
+- name: install SSH server
+  ansible.builtin.apt:
+    pkg: openssh-server
+    state: present
+    cache_valid_time: 3600
+
 - name: Disable SSH root login
   ansible.builtin.lineinfile:
     path: /etc/ssh/sshd_config
