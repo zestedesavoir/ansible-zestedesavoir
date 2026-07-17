@@ -23,11 +23,11 @@
     src: munin.conf.j2
     dest: /etc/munin/munin.conf
     mode: u=rw,g=r,o=r
-  when: env != "vagrant"
+  when: env != "local"
 
-- name: makes munin-node listen on IPv4 in Vagrant
+- name: makes munin-node listen on IPv4 for local deployements
   # otherwise there is a bug in Munin preventing munin-node to start, probably
-  # because there is no IPv6 in the Vagrant box
+  # because there is no IPv6 locally
   ansible.builtin.copy:
     src: etc/munin-node.conf
     dest: /etc/munin/munin-node.conf
@@ -35,7 +35,7 @@
     group: root
     mode: "0644"
   notify: restart munin-node
-  when: env == "vagrant"
+  when: env == "local"
 
 - name: create a munin-node override directory
   ansible.builtin.file:
@@ -202,3 +202,9 @@
     dest: /etc/munin/plugin-conf.d/du
     mode: u=rw,g=r,o=r
   when: env == "prod"
+
+- name: restart munin
+  ansible.builtin.systemd:
+    state: restarted
+    name: munin
+  when: install_zds

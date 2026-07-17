@@ -3,7 +3,7 @@ map $http_user_agent $loggable {
     default 1;
 }
 
-{% if env == "vagrant" %}
+{% if env == "local" %}
 upstream vaultwarden-default {
   zone vaultwarden-default 64k;
   server 127.0.0.1:{{ pass_manager_port }};
@@ -39,10 +39,10 @@ server {
     listen [::]:443 ssl http2 default_server;
 {% endif %}
 
-{% if env != "vagrant" %}
+{% if env != "local" %}
     server_name {{ http_host }};
 {% else %}
-    # On Vagrant installations, 127.0.0.1 is already used to serve the website, so
+    # On local installations, 127.0.0.1 is already used to serve the website, so
     # we put here the /nginx_status end-point, instead of creating a 127.0.0.1 vhost.
     location /nginx_status {
         stub_status on;

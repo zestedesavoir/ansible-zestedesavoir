@@ -1,9 +1,9 @@
 ---
-# Load a specific zds configuration to make it work in Vagrant, and it is also
+# Load a specific zds configuration to make it work locally, and it is also
 # what is executed on GitHub Actions
 
 appversion: dev
-env: vagrant
+env: local
 http_host: false
 sentry_dsn: ""
 mysql:
