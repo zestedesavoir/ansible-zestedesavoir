@@ -114,12 +114,8 @@
   with_items: "{{ munin_zds_enabled_plugins }}"
   when: install_zds
 
-- name: check if postfix is installed
-  ansible.builtin.package:
-    name: postfix
-    state: present
-  check_mode: true
-  register: installed_postfix_check
+- name: gather the package facts
+  ansible.builtin.package_facts:
 
 - name: create symlinks for postfix munin plugins
   ansible.builtin.file:
@@ -130,7 +126,7 @@
     - { src: postfix_mailqueue, dest: postfix_mailqueue }
     - { src: postfix_mailstats, dest: postfix_mailstats }
     - { src: postfix_mailvolume, dest: postfix_mailvolume }
-  when: installed_postfix_check is succeeded
+  when: "'postfix' in ansible_facts.packages"
 
 - name: create symlink to du_backup munin plugin for beta server
   ansible.builtin.file:
