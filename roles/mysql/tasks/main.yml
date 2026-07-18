@@ -29,7 +29,7 @@
     enabled: true
 
 - name: create mysql database
-  community.mysql.mysql_db:
+  ansible.mariadb.mariadb_db:
     name: "{{ mysql.name }}"
     state: present
     encoding: utf8mb4
@@ -37,7 +37,7 @@
     login_unix_socket: /var/run/mysqld/mysqld.sock
 
 - name: create mysql user
-  community.mysql.mysql_user:
+  ansible.mariadb.mariadb_user:
     name: "{{ mysql.user }}"
     password: "{{ mysql.password }}"
     host: localhost

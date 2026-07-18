@@ -91,7 +91,7 @@
     enabled: true
 
 - name: create mysql database
-  community.mysql.mysql_db:
+  ansible.mysql.mysql_db:
     name: "{{ mysql.name }}"
     state: present
     encoding: utf8mb4
@@ -100,7 +100,7 @@
   when: env == "local"
 
 - name: create mysql user
-  community.mysql.mysql_user:
+  ansible.mysql.mysql_user:
     name: "{{ mysql.user }}"
     password: "{{ mysql.password }}"
     host: localhost
