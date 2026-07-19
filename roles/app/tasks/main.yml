@@ -239,6 +239,17 @@
     - bootstrap
     - upgrade
 
+- name: patch easy-thumbnails to support specific GIFs
+  become: true
+  become_user: "{{ appuser }}"
+  ansible.posix.patch:
+    src: easy-thumbnails-pr662.diff
+    basedir: "{{ virtualenv }}/lib/python3.13/site-packages/"
+    strip: 1
+  tags:
+    - bootstrap
+    - upgrade
+
 - name: install Node.js and NPM
   ansible.builtin.apt:
     pkg:
