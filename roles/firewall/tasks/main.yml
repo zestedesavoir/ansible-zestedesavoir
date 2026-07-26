@@ -14,9 +14,7 @@
     - "443" # HTTPS
     - "22" # SSH
     - "4949" # Munin
-    - "25" # SMTP
-    - "465" # SMTP
-    - "587" # SMTP
+    # no need to allow incoming SMTP trafic (25, 465, 587), we don't receive emails
 
 - name: Enable firewall (ufw)
   community.general.ufw:
