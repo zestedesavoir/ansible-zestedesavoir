@@ -4,7 +4,7 @@ set -eu
 
 readonly BORG126=/usr/local/bin/borg1.2.6
 readonly BORG1117=/usr/local/bin/borg
-readonly BORG_OPTIONS="--list --verbose --filter AME --show-rc --compression zstd,6 --exclude-caches --info" # --stats
+readonly BORG_OPTIONS="--list --verbose --filter AME --show-rc --compression zstd,6 --exclude-caches --info --exclude '*/.git/index.lock'" # --stats
 readonly BACKUP_DATE=`date '+%Y%m%d-%H%M'`
 readonly DATA_SAVED_DIR=/opt/zds/data
 readonly DB_SAVED_DIR=/var/backups/mysql
