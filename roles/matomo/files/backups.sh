@@ -138,7 +138,12 @@ db_clean()
 		'
 	`"
 
-	echo "To be removed: $TO_DELETE"
+	echo "All backups:"
+	echo "$BACKUPS"
+	echo
+	echo "To be removed:"
+	echo "$TO_DELETE"
+	echo
 	[ -z "$TO_DELETE" ] || rm -rf $TO_DELETE
 }
 
