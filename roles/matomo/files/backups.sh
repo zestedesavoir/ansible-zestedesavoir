@@ -158,6 +158,12 @@ vaultwarden_clean()
 echo "#######################################################################################################################"
 echo "Starting script ($(date))"
 
+echo "Lowering niceness..."
+renice 19 $$
+ionice -c 3 -p $$
+echo
+
+
 if [ "$#" -ge 1 ] && [ "$1" = "full" ]; then
 	echo "** Starting a local full backup of the database..."
 	db_local_backup full

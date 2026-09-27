@@ -135,6 +135,14 @@ done
 echo "#######################################################################################################################"
 echo "Starting script ($(date))"
 
+if [ ! -e /opt/zds/webroot/maintenance.html ]; then
+	echo "Maintenance not in progress, lowering niceness"
+	echo
+	renice 19 $$
+	ionice -c 3 -p $$
+	echo
+fi
+
 if [ $do_full_db_backup -eq 1 ]; then
 	echo "** Starting a local full backup of the database..."
 	db_local_backup full
