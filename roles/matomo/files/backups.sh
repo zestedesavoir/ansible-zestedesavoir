@@ -179,7 +179,7 @@ else
 	db_local_backup
 fi
 
-# data_local_backup
+data_local_backup
 vaultwarden_local_backup
 
 set +e
