@@ -86,7 +86,7 @@
     enabled: true
 
 - name: create mysql database
-  ansible.mysql.mysql_db:
+  ansible.mariadb.mariadb_db:
     name: "{{ mysql.name }}"
     state: present
     encoding: utf8mb4
@@ -95,7 +95,7 @@
   when: env == "vagrant"
 
 - name: create mysql user
-  ansible.mysql.mysql_user:
+  ansible.mariadb.mariadb_user:
     name: "{{ mysql.user }}"
     password: "{{ mysql.password }}"
     host: localhost
