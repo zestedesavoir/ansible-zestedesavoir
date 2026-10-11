@@ -139,7 +139,7 @@ db_clean()
 	# 1. we have 2 weeks of backups (2 full backups + incremental)
 	# 2. we remove backups for the older week (1 full + incremental)
 	# 3. we create a new full backup
-	# This way, while this script is not running, we always have 3 full backups.
+	# This way, while this script is not running, we always have 2 full backups.
 	#
 	# Sept, 27 2026:
 	# - one full backup is 7.4 GB
