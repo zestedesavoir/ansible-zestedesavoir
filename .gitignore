@@ -4,3 +4,4 @@ vault-secret
 .bundle/
 vendor/
 venv/
+.ansible/
