@@ -66,6 +66,7 @@ munin_zds_enabled_plugins:
   - { src: wget_page, dest: wget_page }
   - { src: django.py, dest: zds_active_sessions }
   - { src: django.py, dest: zds_active_users }
+  - { src: django.py, dest: zds_banned_users }
   - { src: django.py, dest: zds_db_performance }
   - { src: django.py, dest: zds_total_articles }
   - { src: django.py, dest: zds_total_mps }
