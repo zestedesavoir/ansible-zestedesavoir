@@ -32,7 +32,7 @@ de production.
 
 1. Création et démarrage d'un conteneur `ansible-zds` :
    ```sh
-   docker run --detach --privileged --name ansible-matomo --volume=/sys/fs/cgroup:/sys/fs/cgroup:rw --cgroupns=host -p 8080:80 geerlingguy/docker-debian13-ansible
+   docker run --detach --privileged --name ansible-zds --volume=/sys/fs/cgroup:/sys/fs/cgroup:rw --cgroupns=host -p 8080:80 geerlingguy/docker-debian13-ansible
    ```
 2. Lancer le playbook Ansible :
    ```sh
