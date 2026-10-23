@@ -13,6 +13,7 @@ provisioner:
   playbook: playbook-zds.yml
   ansible_inventory: kitchen-zds-hosts
   ansible_verbose: true
+  require_chef_for_busser: false
   requirements_collection_path: requirements.yml
   additional_copy_path: requirements.yml
 
