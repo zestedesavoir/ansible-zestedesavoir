@@ -67,12 +67,12 @@
     mode: u=rwx,g=rx,o=rx
   when: install_zds
 
-- name: copy django.py munin plugin
-  ansible.builtin.copy:
-    remote_src: true
+- name: install django.py munin plugin
+  ansible.builtin.file:
     src: "{{ appdir }}/django_munin/plugins/django.py"
     dest: "{{ munin_available_plugins_dir }}/django.py"
     mode: u=rwx,g=rx,o=rx
+    state: link
   when: install_zds
 
 - name: copy zmd munin plugin
@@ -106,7 +106,7 @@
     state: link
   with_items: "{{ munin_enabled_plugins }}"
 
-- name: create symlinks for zds munin plugins
+- name: create symlinks for munin plugins when zds-site is installed
   ansible.builtin.file:
     src: "{{ munin_available_plugins_dir }}/{{ item.src }}"
     dest: /etc/munin/plugins/{{ item.dest }}
