@@ -1,8 +1,14 @@
 ---
+- name: install munin server
+  ansible.builtin.apt:
+    pkg: munin
+    state: present
+    cache_valid_time: 3600
+  when: install_zds
+
 - name: install munin packages
   ansible.builtin.apt:
     pkg:
-      - munin
       - munin-node
       - libcache-cache-perl # for mysql munin plugin
       - libdbd-mysql-perl # for mysql munin plugin
@@ -17,11 +23,11 @@
     src: munin.conf.j2
     dest: /etc/munin/munin.conf
     mode: u=rw,g=r,o=r
-  when: env != "vagrant"
+  when: env != "local"
 
-- name: makes munin-node listen on IPv4 in Vagrant
+- name: makes munin-node listen on IPv4 for local deployements
   # otherwise there is a bug in Munin preventing munin-node to start, probably
-  # because there is no IPv6 in the Vagrant box
+  # because there is no IPv6 locally
   ansible.builtin.copy:
     src: etc/munin-node.conf
     dest: /etc/munin/munin-node.conf
@@ -29,7 +35,7 @@
     group: root
     mode: "0644"
   notify: restart munin-node
-  when: env == "vagrant"
+  when: env == "local"
 
 - name: create a munin-node override directory
   ansible.builtin.file:
@@ -61,12 +67,12 @@
     mode: u=rwx,g=rx,o=rx
   when: install_zds
 
-- name: copy django.py munin plugin
-  ansible.builtin.copy:
-    remote_src: true
+- name: install django.py munin plugin
+  ansible.builtin.file:
     src: "{{ appdir }}/django_munin/plugins/django.py"
     dest: "{{ munin_available_plugins_dir }}/django.py"
     mode: u=rwx,g=rx,o=rx
+    state: link
   when: install_zds
 
 - name: copy zmd munin plugin
@@ -100,7 +106,7 @@
     state: link
   with_items: "{{ munin_enabled_plugins }}"
 
-- name: create symlinks for zds munin plugins
+- name: create symlinks for munin plugins when zds-site is installed
   ansible.builtin.file:
     src: "{{ munin_available_plugins_dir }}/{{ item.src }}"
     dest: /etc/munin/plugins/{{ item.dest }}
@@ -108,12 +114,8 @@
   with_items: "{{ munin_zds_enabled_plugins }}"
   when: install_zds
 
-- name: check if postfix is installed
-  ansible.builtin.package:
-    name: postfix
-    state: present
-  check_mode: true
-  register: installed_postfix_check
+- name: gather the package facts
+  ansible.builtin.package_facts:
 
 - name: create symlinks for postfix munin plugins
   ansible.builtin.file:
@@ -124,7 +126,7 @@
     - { src: postfix_mailqueue, dest: postfix_mailqueue }
     - { src: postfix_mailstats, dest: postfix_mailstats }
     - { src: postfix_mailvolume, dest: postfix_mailvolume }
-  when: installed_postfix_check is succeeded
+  when: "'postfix' in ansible_facts.packages"
 
 - name: create symlink to du_backup munin plugin for beta server
   ansible.builtin.file:
@@ -144,6 +146,16 @@
     - zds-db
   when: env == "prod"
 
+- name: create symlink to du_ munin plugins for matomo server
+  ansible.builtin.file:
+    src: "{{ munin_available_plugins_dir }}/du_"
+    dest: "/etc/munin/plugins/du_{{ item }}"
+    state: link
+  with_items:
+    - mysql
+    - backup
+  when: not install_zds
+
 - name: copy configuration file of several munin plugin
   ansible.builtin.template:
     src: plugin-conf.d/{{ item }}.j2
@@ -153,6 +165,15 @@
     - wget_page
     - nginx_bots
   when: install_zds
+
+- name: copy configuration of munin du_matomo
+  ansible.builtin.copy:
+    src: etc/du_matomo
+    dest: /etc/munin/plugin-conf.d/du_matomo
+    owner: root
+    group: root
+    mode: "0644"
+  when: not install_zds
 
 - name: copy configuration file of typesense munin plugin
   ansible.builtin.template:
@@ -181,3 +202,9 @@
     dest: /etc/munin/plugin-conf.d/du
     mode: u=rw,g=r,o=r
   when: env == "prod"
+
+- name: restart munin
+  ansible.builtin.systemd:
+    state: restarted
+    name: munin
+  when: install_zds

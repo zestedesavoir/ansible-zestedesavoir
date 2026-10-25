@@ -1,7 +1,7 @@
 .kitchen/
-.vagrant/
 vault-secret
 *.retry
 .bundle/
 vendor/
 venv/
+.ansible/

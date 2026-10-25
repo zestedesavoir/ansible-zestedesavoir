@@ -13,6 +13,8 @@ VAULTWARDEN_DB_BACKUP_DIR=$VAULTWARDEN_DIR/db_backups
 
 db_local_backup()
 {
+	echo "** Starting a local backup of the database..."
+
 	LATEST=$DB_SAVED_DIR/latest
 
 	PREVIOUS=`readlink -f $LATEST`
@@ -28,6 +30,8 @@ db_local_backup()
 	# compressed and incremental backups.
 
 	if [ "$#" -ge 1 ] && [ "$1" = "full" ]; then
+		echo "*** Starting a local full backup of the database..."
+
 		NEXT=$NEXT-full
 		mkdir $NEXT
 
@@ -47,6 +51,7 @@ db_local_backup()
 			fi
 		)
 	else
+		echo "*** Starting a local incremental backup of the database..."
 		if ! [ -L "$LATEST" ]; then
 			echo "'$LATEST' does not exists. Consider doing a full backup first."
 			exit 1
@@ -130,15 +135,30 @@ db_clean()
 
 	BACKUPS="`echo $DB_SAVED_DIR/*-*/ | tr ' ' '\n' | sort -nr`"
 
+	# With this filter and the order "clean, then backup", we get the following:
+	# 1. we have 2 weeks of backups (2 full backups + incremental)
+	# 2. we remove backups for the older week (1 full + incremental)
+	# 3. we create a new full backup
+	# This way, while this script is not running, we always have 2 full backups.
+	#
+	# Sept, 27 2026:
+	# - one full backup is 7.4 GB
+	# - one incremental backup is ~ 500 MB
+
 	TO_DELETE="`
 		echo "$BACKUPS" | awk '
 			BEGIN { full=0 }
-			{ if (full > 1) { print $0 } }
+			{ if (full >= 1) { print $0 } }
 			/full/ { full++ }
 		'
 	`"
 
-	echo "To be removed: $TO_DELETE"
+	echo "All backups:"
+	echo "$BACKUPS"
+	echo
+	echo "To be removed:"
+	echo "$TO_DELETE"
+	echo
 	[ -z "$TO_DELETE" ] || rm -rf $TO_DELETE
 }
 
@@ -158,17 +178,22 @@ vaultwarden_clean()
 echo "#######################################################################################################################"
 echo "Starting script ($(date))"
 
+echo "Lowering niceness..."
+renice 19 $$
+ionice -c 3 -p $$
+echo
+
+
 if [ "$#" -ge 1 ] && [ "$1" = "full" ]; then
-	echo "** Starting a local full backup of the database..."
-	db_local_backup full
 	db_clean
 	vaultwarden_clean
+
+	db_local_backup full
 else
-	echo "** Starting a local incremental backup of the database..."
 	db_local_backup
 fi
 
-# data_local_backup
+data_local_backup
 vaultwarden_local_backup
 
 set +e

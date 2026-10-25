@@ -1,4 +1,14 @@
 ---
+# This PPA is added by kitchen, but the GPG key to authenticate it is not
+# correctly fetched, causing an error during apt update.
+# And we actually don't need ansible from this PPA.
+# See https://github.com/neillturner/kitchen-ansible/issues/339
+- name: remove ansible PPA in sources.list
+  ansible.builtin.lineinfile:
+    path: /etc/apt/sources.list
+    state: absent
+    regex: "deb http://ppa.launchpad.net/ansible/ansible/ubuntu trusty main"
+
 - name: ensure the system can use the HTTPS transport for APT
   ansible.builtin.stat:
     path: /usr/lib/apt/methods/https
@@ -14,6 +24,7 @@
   ansible.builtin.apt:
     pkg:
       - acl # Allow Ansible to use 'become' command (see https://docs.ansible.com/ansible/latest/user_guide/become.html#risks-and-limitations-of-become)
+      - at
       - cron
       - git
       - htop
@@ -30,6 +41,11 @@
       - zsh
     state: present
     cache_valid_time: 3600
+
+- name: start cron service
+  ansible.builtin.systemd:
+    state: started
+    name: cron
 
 - name: remove unattended-upgrades
   ansible.builtin.apt:

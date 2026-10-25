@@ -10,15 +10,18 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
-          python-version: 3.11
+          python-version: 3.13
+          pip-install: -r requirements.txt
+          cache: pip
+          cache-dependency-path: 'requirements.txt'
 
-      - name: Run pre-commit
-        uses: pre-commit/action@v3.0.1
+      - name: Execute pre-commit
+        run: pre-commit run --show-diff-on-failure --color=always --all-files
 
   test:
     name: Execute playbooks
@@ -30,7 +33,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Set up Ruby and Ruby gems
         uses: ruby/setup-ruby@v1
@@ -38,13 +41,13 @@ jobs:
           ruby-version: 3.3
           bundler-cache: true
 
-      - name: Set up Python 3.11
-        uses: actions/setup-python@v5
+      - name: Set up Python 3.13
+        uses: actions/setup-python@v6
         with:
-          python-version: 3.11
-
-      - name: Install Ansible
-        run: python3.11 -m pip install ansible
+          python-version: 3.13
+          pip-install: -r requirements.txt
+          cache: pip
+          cache-dependency-path: 'requirements.txt'
 
       - name: disable apparmor profile for mysqld # Needed to start mariadb server without AppArmor getting in the way
         run: >

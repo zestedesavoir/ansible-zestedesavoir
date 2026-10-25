@@ -4,7 +4,7 @@ set -eu
 
 readonly BORG126=/usr/local/bin/borg1.2.6
 readonly BORG1117=/usr/local/bin/borg
-readonly BORG_OPTIONS="--list --verbose --filter AME --show-rc --compression zstd,6 --exclude-caches --info" # --stats
+readonly BORG_OPTIONS="--list --verbose --filter AME --show-rc --compression zstd,6 --exclude-caches --info --exclude '*/.git/index.lock'" # --stats
 readonly BACKUP_DATE=`date '+%Y%m%d-%H%M'`
 readonly DATA_SAVED_DIR=/opt/zds/data
 readonly DB_SAVED_DIR=/var/backups/mysql
@@ -129,15 +129,19 @@ while [ $# -gt 0 ]; do
 	shift
 done
 
-if [ -e /opt/zds/webroot/maintenance.html ]; then
-	echo "Maintenance is in progress, enabling parallel remote borg backups"
-	parallel_remote_backup=1
-fi
 
 
 # Big separator in log between executions of the script:
 echo "#######################################################################################################################"
 echo "Starting script ($(date))"
+
+if [ ! -e /opt/zds/webroot/maintenance.html ]; then
+	echo "Maintenance not in progress, lowering niceness"
+	echo
+	renice 19 $$
+	ionice -c 3 -p $$
+	echo
+fi
 
 if [ $do_full_db_backup -eq 1 ]; then
 	echo "** Starting a local full backup of the database..."
@@ -149,6 +153,13 @@ fi
 echo "done ($(date))."
 
 echo
+
+if [ -e /opt/zds/webroot/maintenance.html ]; then
+	# Test it after the database backup, to let time to setup the maintenance
+	echo "Maintenance is in progress, enabling parallel remote borg backups"
+	echo
+	parallel_remote_backup=1
+fi
 
 # Exception handling: if the first backup fails, we don't want it to stop the others.
 set +e

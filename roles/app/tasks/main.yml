@@ -17,7 +17,6 @@
       - optipng # for easy-thumbnails Python package
       - jpegoptim # for easy-thumbnails Python package
       - memcached # for cache storage in prod configuration
-      - pkg-config # for mysqlclient since version 2.2.0
     state: present
     cache_valid_time: 3600
   tags:
@@ -194,12 +193,12 @@
   tags:
     - bootstrap
 
-- name: install Vagrant settings
+- name: install local settings
   ansible.builtin.copy:
-    src: vagrant.py
-    dest: "{{ appdir }}/zds/settings/vagrant.py"
+    src: local.py
+    dest: "{{ appdir }}/zds/settings/local.py"
     mode: u=rw,g=r,o=r
-  when: env == "vagrant"
+  when: env == "local"
   tags:
     - bootstrap
 
@@ -236,6 +235,17 @@
     requirements: "{{ appdir }}/requirements-prod.txt"
     virtualenv: "{{ virtualenv }}"
     virtualenv_command: /usr/bin/python3 -m venv
+  tags:
+    - bootstrap
+    - upgrade
+
+- name: patch easy-thumbnails to support specific GIFs
+  become: true
+  become_user: "{{ appuser }}"
+  ansible.posix.patch:
+    src: easy-thumbnails-pr662.diff
+    basedir: "{{ virtualenv }}/lib/python3.13/site-packages/"
+    strip: 1
   tags:
     - bootstrap
     - upgrade

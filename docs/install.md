@@ -50,6 +50,6 @@ Il y a un bug qui fait échouer les tests si la langue du système n'est pas l'a
 ### Mettre à jour les dépendances
 
 ```sh
-bundle update
+bundle update --all
 ```
 Cela modifie le fichier `Gemfile.lock`, qu'il faut committer.

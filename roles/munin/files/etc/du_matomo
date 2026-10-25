@@ -1,0 +1,8 @@
+[du_mysql]
+user root
+env.directories /var/lib/mysql/matomo
+
+[du_backup]
+user root
+env.directories /var/backups/matomo/matomo /var/backups/matomo/mysql
+env.prefix /var/backups/matomo

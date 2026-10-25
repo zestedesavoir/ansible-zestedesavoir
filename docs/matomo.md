@@ -4,23 +4,21 @@ Une instance [Matomo](https://matomo.org/) est également déployée sur le
 serveur `matomo.zestedesavoir.com`.
 
 Ce dépôt contient les scripts nécessaires pour :
-- lancer une machine virtuelle dédiée à Matomo (différente de la VM utilisée
-  pour déployer localement zds-site)
-- le playbook Ansible `playbook-matomo.yml` configure la VM pour arriver
-  jusqu'à l'installation de Matomo depuis le navigateur.
+- lancer un conteneur dédié à Matomo ;
+- le playbook Ansible `playbook-matomo.yml` configure le conteneur pour arriver
+    jusqu'à l'installation de Matomo depuis le navigateur.
 
-Le fichier `Vragrantfile` définit donc deux VMs : `zds` et `matomo`. Il faut
-ajouter ce nom de VM comme paramètre supplémentaire aux commandes Vagrant. Par
-exemple, pour démarrer la VM avec Matomo :
 ```sh
-vagrant up matomo
+docker run --detach --privileged --name ansible-matomo --volume=/sys/fs/cgroup:/sys/fs/cgroup:rw --cgroupns=host -p 8081:80 geerlingguy/docker-debian13-ansible
+ansible-playbook -i inventory-local-matomo.ini playbook-matomo.yml
 ```
-Lorsque la création de la VM et le déploiement sont terminés, il est possible
-d'accèder à l'URL http://127.0.0.1:8081/, qui va afficher la procédure de
-configuration de l'instance Matomo.
 
-L'objectif à terme (donc pas encore atteint) est que la VM `zds` puisse envoyer
-des statistiques de visites à la VM `matomo`.
+Lorsque le déploiement est terminé, il est possible d'accèder à l'URL
+http://127.0.0.1:8081/, qui va afficher la procédure de configuration de
+l'instance Matomo.
+
+L'objectif à terme (donc pas encore atteint) est que le conteneur `ansible-zds`
+puisse envoyer des statistiques de visites au conteneur `ansible-matomo`.
 
 À noter qu'en production, on met à jour Matomo "manuellement" en passant par le
 système de mises à jour dans le navigateur.
