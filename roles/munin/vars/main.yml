@@ -48,7 +48,6 @@ munin_enabled_plugins:
   - { src: open_inodes, dest: open_inodes }
   - { src: processes, dest: processes }
   - { src: proc_pri, dest: proc_pri }
-  - { src: swap, dest: swap }
   - { src: threads, dest: threads }
   - { src: uptime, dest: uptime }
   - { src: users, dest: users }
@@ -63,6 +62,7 @@ munin_zds_enabled_plugins:
   - { src: memcached_multi_, dest: memcached_multi_items }
   - { src: memcached_multi_, dest: memcached_multi_memory }
   - { src: memcached_multi_, dest: memcached_multi_unfetched }
+  - { src: swap, dest: swap }
   - { src: wget_page, dest: wget_page }
   - { src: django.py, dest: zds_active_sessions }
   - { src: django.py, dest: zds_active_users }
