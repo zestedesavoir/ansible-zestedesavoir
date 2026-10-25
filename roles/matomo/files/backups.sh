@@ -2,14 +2,16 @@
 
 set -eu
 
-BORG_COMMAND=/usr/local/bin/borg
-BORG126_COMMAND=/usr/local/bin/borg1.2.6
-BACKUP_DATE=`date '+%Y%m%d-%H%M'`
-SAVE_ROOT_DIR=/var/backups/matomo
-DB_SAVED_DIR=$SAVE_ROOT_DIR/mysql
-DATA_SAVE_DIR=$SAVE_ROOT_DIR/matomo
-VAULTWARDEN_DIR=/opt/vaultwarden
-VAULTWARDEN_DB_BACKUP_DIR=$VAULTWARDEN_DIR/db_backups
+readonly BORG_COMMAND=/usr/local/bin/borg
+readonly BORG126_COMMAND=/usr/local/bin/borg1.2.6
+readonly BACKUP_DATE=`date '+%Y%m%d-%H%M'`
+readonly SAVE_ROOT_DIR=/var/backups/matomo
+readonly DB_SAVED_DIR=$SAVE_ROOT_DIR/mysql
+readonly DATA_SAVE_DIR=$SAVE_ROOT_DIR/matomo
+readonly VAULTWARDEN_DIR=/opt/vaultwarden
+readonly VAULTWARDEN_DB_BACKUP_DIR=$VAULTWARDEN_DIR/db_backups
+readonly VAULTWARDEN_BACKUP_NAME="${BACKUP_DATE}-v$(/opt/vaultwarden/vaultwarden --version | head -n 1 | cut -d ' ' -f 2)"
+readonly MATOMO_BACKUP_NAME="${BACKUP_DATE}-v$(/opt/matomo/console --version | cut -d ' ' -f 2)"
 
 db_local_backup()
 {
@@ -97,16 +99,16 @@ vaultwarden_local_backup()
 backup2beta2023()
 {
 	echo "Send backup to the 2023 beta server..."
-	$BORG126_COMMAND create                                   \
-	    --verbose                                             \
-	    --filter AME                                          \
-	    --list                                                \
-	    --stats                                               \
-	    --show-rc                                             \
-	    --compression zstd,6                                  \
-	    --exclude-caches                                      \
-	    --info                                                \
-	    beta-backup-2023:/opt/sauvegarde/matomo::$BACKUP_DATE \
+	$BORG126_COMMAND create                                          \
+	    --verbose                                                    \
+	    --filter AME                                                 \
+	    --list                                                       \
+	    --stats                                                      \
+	    --show-rc                                                    \
+	    --compression zstd,6                                         \
+	    --exclude-caches                                             \
+	    --info                                                       \
+	    beta-backup-2023:/opt/sauvegarde/matomo::$MATOMO_BACKUP_NAME \
 	    $SAVE_ROOT_DIR
 }
 
@@ -114,17 +116,17 @@ vaultwarden_backup2beta2023()
 {
 
         echo "Send Vaultwarden backup to the 2023 beta server..."
-        BORG_PASSCOMMAND='cat /root/borg/beta-vaultwarden.passphrase'  \
-	    $BORG126_COMMAND create                                    \
-            --verbose                                                  \
-            --filter AME                                               \
-            --list                                                     \
-            --stats                                                    \
-            --show-rc                                                  \
-            --compression zstd,6                                       \
-            --exclude-caches                                           \
-            --info                                                     \
-	    beta-backup-2023:/opt/sauvegarde/vaultwarden::$BACKUP_DATE \
+        BORG_PASSCOMMAND='cat /root/borg/beta-vaultwarden.passphrase'              \
+	    $BORG126_COMMAND create                                                \
+            --verbose                                                              \
+            --filter AME                                                           \
+            --list                                                                 \
+            --stats                                                                \
+            --show-rc                                                              \
+            --compression zstd,6                                                   \
+            --exclude-caches                                                       \
+            --info                                                                 \
+	    beta-backup-2023:/opt/sauvegarde/vaultwarden::$VAULTWARDEN_BACKUP_NAME \
 	    $VAULTWARDEN_DIR
 }
 

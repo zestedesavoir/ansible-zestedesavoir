@@ -6,6 +6,7 @@ readonly BORG126=/usr/local/bin/borg1.2.6
 readonly BORG1117=/usr/local/bin/borg
 readonly BORG_OPTIONS="--list --verbose --filter AME --show-rc --compression zstd,6 --exclude-caches --info --exclude '*/.git/index.lock'" # --stats
 readonly BACKUP_DATE=`date '+%Y%m%d-%H%M'`
+readonly BACKUP_NAME="${BACKUP_DATE}-$(head -n 1 /opt/zds/app/zds/_version.py | cut -d '"' -f 2)"
 readonly DATA_SAVED_DIR=/opt/zds/data
 readonly DB_SAVED_DIR=/var/backups/mysql
 
@@ -81,7 +82,7 @@ backup2beta2023()
 	echo "Backup data to the 2023 beta server..."
 	date
 	$BORG126 create $BORG_OPTIONS                           \
-	    beta-backup-2023:/opt/sauvegarde/data::$BACKUP_DATE \
+	    beta-backup-2023:/opt/sauvegarde/data::$BACKUP_NAME \
 	    $DATA_SAVED_DIR
 	rc_data=$?
 	date
@@ -89,7 +90,7 @@ backup2beta2023()
 	echo "Backup database to the 2023 beta server..."
 	date
 	$BORG126 create $BORG_OPTIONS                         \
-	    beta-backup-2023:/opt/sauvegarde/db::$BACKUP_DATE \
+	    beta-backup-2023:/opt/sauvegarde/db::$BACKUP_NAME \
 	    $DB_SAVED_DIR
 	rc_db=$?
 	date
