@@ -115,7 +115,21 @@ server {
 {% endif %}
 
     location @proxy {
+        include snippets/proxy.conf;
+    }
 
+    location ~* ^/munin/ {
+        # Les sondes Munin exposées par zds-site n'exportent aucune
+        # donnée sensible, mais les solliciter fait, entre
+        # autres, des appels à la BDD, donc ça peut être une
+        # porte d'entrée pour une attaque par déni de service
+        allow {{ ansible_facts.default_ipv4.address }};
+        {% if ansible_facts.default_ipv6 %}
+        allow {{ ansible_facts.default_ipv6.address }};
+        {% endif %}
+        allow 127.0.0.1;
+        allow ::1;
+        deny all;
 
         include snippets/proxy.conf;
     }
