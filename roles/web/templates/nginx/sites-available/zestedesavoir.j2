@@ -123,11 +123,11 @@ server {
         # donnée sensible, mais les solliciter fait, entre
         # autres, des appels à la BDD, donc ça peut être une
         # porte d'entrée pour une attaque par déni de service
-        {% if ansible_facts.default_ipv4 %}
+        {% if "default_ipv4" in ansible_facts and "address" in ansible_facts.default_ipv4 %}
         {# On teste la présence de l'IPv4 car il semblerait qu'il n'y en ait pas sur GitHub Actions #}
         allow {{ ansible_facts.default_ipv4.address }};
         {% endif %}
-        {% if ansible_facts.default_ipv6 %}
+        {% if "default_ipv6" in ansible_facts and "address" in ansible_facts.default_ipv6 %}
         allow {{ ansible_facts.default_ipv6.address }};
         {% endif %}
         allow 127.0.0.1;
